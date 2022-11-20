@@ -10,7 +10,7 @@ public class Program {
             
             // TODO: update sub working, update sheet working with new sys, add trials to
             // team
-        DiscordBot bot = DiscordBot.getInstance();
+        DiscordBot bot = DiscordBot.getInstance(args[0]);
         // bot.test();
         // bot.test("bolognese bandits");
         // for (int i = 0; i < 20; i++) {

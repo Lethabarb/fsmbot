@@ -47,10 +47,10 @@ public class DiscordBot extends ListenerAdapter {
     private static JDA bot;
     private static DiscordBot instance;
 
-    private DiscordBot() {
+    private DiscordBot(String... token) {
         if (bot == null) {
             JDABuilder jda = JDABuilder
-                    .createDefault("NjQzMDA0MzY3MzEzODI5ODkw.GBAHzt.-8bs7P00UdSjblCflcWEdyO1P4M_EC4KG6iJqY")
+                    .createDefault(token[0])
                     .setMemberCachePolicy(MemberCachePolicy.ALL)
                     .setChunkingFilter(ChunkingFilter.ALL)
                     .enableIntents(GatewayIntent.DIRECT_MESSAGES, GatewayIntent.GUILD_MEMBERS,
@@ -100,9 +100,9 @@ public class DiscordBot extends ListenerAdapter {
 
     }
 
-    public synchronized static DiscordBot getInstance() {
+    public synchronized static DiscordBot getInstance(String... token) {
         if (instance == null) {
-            instance = new DiscordBot();
+            instance = new DiscordBot(token);
         }
         return instance;
     }
