@@ -54,7 +54,7 @@
         <dependency>
             <groupId>net.dv8tion</groupId>
             <artifactId>JDA</artifactId>
-            <version>5.0.0-alpha.21</version> 
+            <version>5.0.0-alpha.21</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/com.google.api-client/google-api-client -->
         <dependency>
@@ -75,11 +75,18 @@
             <version>v4-rev20220620-2.0.0</version>
         </dependency>
 
-        
 
     </dependencies>
     <scm>
         <developerConnection>scm:git:https://github.com/Lethabarb/fsmbot.git</developerConnection>
         <tag>HEAD</tag>
-  </scm>
+    </scm>
+    <!-- <distributionManagement>
+        <repository>
+          <id>github</id>
+          <name>GitHub Lethabarb Apache Maven Packages</name>
+          <url>https://maven.pkg.github.com/Lethabarb/fsmbot</url>
+        </repository>
+     </distributionManagement> -->
+     
 </project>
