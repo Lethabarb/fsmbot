@@ -20,6 +20,7 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.Role;
 
 public class Event implements Comparable<Event> {
+    //test
     public static final int SCRIM = 0;
     public static final int AAOL = 1;
     public static final int COACHING = 2;
