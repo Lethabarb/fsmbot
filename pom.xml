@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.FSM</groupId>
     <artifactId>FSMBOT</artifactId>
-    <version>1-SNAPSHOT</version>
+    <version>1</version>
     <packaging>jar</packaging>
 
     <build>
@@ -80,5 +80,6 @@
     </dependencies>
     <scm>
         <developerConnection>scm:git:https://github.com/Lethabarb/fsmbot.git</developerConnection>
-      </scm>
+        <tag>1</tag>
+  </scm>
 </project>
