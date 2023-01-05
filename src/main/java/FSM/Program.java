@@ -58,20 +58,20 @@ public class Program {
         
         Team abitionDesire = bot.makeTeam(desName, desNameAbbv, desMinRank, desTimetableId, desRosterRoleId, desTrialRoleId, desSubRoleId, ambition);
 
-        String andromedaGuildId = "861832597553152010";
-        String andromedaSubChannelId = "1039822109179908177";
-        String andromedaSubRoleId = "1039812765881225246";
-        Server andromeda = bot.makeGuild(andromedaGuildId, andromedaSubChannelId, andromedaSubRoleId);
+        // String andromedaGuildId = "861832597553152010";
+        // String andromedaSubChannelId = "1039822109179908177";
+        // String andromedaSubRoleId = "1039812765881225246";
+        // Server andromeda = bot.makeGuild(andromedaGuildId, andromedaSubChannelId, andromedaSubRoleId);
 
-        String oberonName = "[ADR] Oberon";
-        String oberonNameAbbv = "Obr";
-        String oberonMinRank = "Daimond1+";
-        String oberonTimetableId = "982251123203252336";
-        String oberonRosterRoleId = "862202681945620481";
-        String oberonTrialRoleId = "862202608466919436";
-        String oberonSubRoleId = "862202822849724416";
+        // String oberonName = "[ADR] Oberon";
+        // String oberonNameAbbv = "Obr";
+        // String oberonMinRank = "Daimond1+";
+        // String oberonTimetableId = "982251123203252336";
+        // String oberonRosterRoleId = "862202681945620481";
+        // String oberonTrialRoleId = "862202608466919436";
+        // String oberonSubRoleId = "862202822849724416";
 
-        Team oberon = bot.makeTeam(oberonName, oberonNameAbbv, oberonMinRank, oberonTimetableId, oberonRosterRoleId, oberonTrialRoleId, oberonSubRoleId, andromeda);
+        // Team oberon = bot.makeTeam(oberonName, oberonNameAbbv, oberonMinRank, oberonTimetableId, oberonRosterRoleId, oberonTrialRoleId, oberonSubRoleId, andromeda);
 
         // Server fsm = new Server("734267704516673536", "824447819690672132", "948413633182974032", "948413221235204116",
         //         "948413221629489252", "948413222006964275");

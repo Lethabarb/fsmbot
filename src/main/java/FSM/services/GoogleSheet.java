@@ -112,7 +112,7 @@ public class GoogleSheet {
             String title = vals.get(0).get(0);
             String typeString = title.split(" vs ")[0];
             title = title.split(" vs ")[1];
-            String date = vals.get(1).get(0) + "/2022";
+            String date = vals.get(1).get(0) + "/2023";
             String time = vals.get(1).get(1);
             String disc = vals.get(3).get(0);
             String bnet = vals.get(3).get(1);
