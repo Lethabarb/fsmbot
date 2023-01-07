@@ -135,7 +135,7 @@ public class GoogleSheet {
             }
 
             if (!title.equals("#N/A")) {
-                Event e = new Event(title, LocalDateTime.parse(time + date + "", DateTimeFormatter.ofPattern("h:mm aE dd/MM z/yyyy",Locale.US)), null, disc, bnet, t, type);
+                Event e = new Event(title, LocalDateTime.parse(time + date + "", DateTimeFormatter.ofPattern("h:mm a zE dd/MM/yyyy",Locale.US)), null, disc, bnet, t, type);
                 events.add(e);
             }
         }
