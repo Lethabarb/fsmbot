@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.security.GeneralSecurityException;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -142,6 +143,15 @@ public class GoogleSheet {
         return events;
 
     }
+
+    // public static void main(String[] args) {
+    //     LocalDateTime dt1 = LocalDateTime.parse("7:30 PM AESTMon 09/01/2023", DateTimeFormatter.ofPattern("h:mm a zE dd/MM/yyyy",Locale.US));
+    //     LocalDateTime dt2 = LocalDateTime.parse("7:30 PM AEDTMon 09/01/2023", DateTimeFormatter.ofPattern("h:mm a zE dd/MM/yyyy",Locale.US));
+    //     LocalDateTime dt3 = LocalDateTime.parse("7:30 PM GSTMon 09/01/2023", DateTimeFormatter.ofPattern("h:mm a zE dd/MM/yyyy",Locale.US));
+    //     System.out.println(dt1.toEpochSecond(ZoneOffset.of("+11")));
+    //     System.out.println(dt2.toEpochSecond(ZoneOffset.of("+11")));
+    //     System.out.println(dt3.toEpochSecond(ZoneOffset.of("+11")));
+    // }
 
     public void updateEvent(String teamname, Event event) {
         String[] types = { "Scrim", "AAOL", "Coaching", "Open Divison" };
