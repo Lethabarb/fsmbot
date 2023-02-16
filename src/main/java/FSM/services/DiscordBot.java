@@ -5,6 +5,7 @@ import java.io.File;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -181,7 +182,7 @@ public class DiscordBot extends ListenerAdapter {
                 // System.out.println(timeFormatted);
                 Long unix = Long.valueOf(timeFormatted.split(":")[1]);
                 LocalDateTime dateTime = LocalDateTime.ofInstant(Instant.ofEpochSecond(unix),
-                        TimeZone.getDefault().toZoneId());
+                        ZoneId.of("+11"));
                 String title = embed.getTitle();
                 String contact1 = embed.getFields().get(1).getValue();
                 String contact2 = embed.getFields().get(2).getValue();
