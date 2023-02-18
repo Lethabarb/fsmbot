@@ -1,7 +1,9 @@
 package FSM.services;
 
 import java.awt.Color;
+import java.io.BufferedReader;
 import java.io.File;
+import java.net.http.HttpClient;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -15,6 +17,13 @@ import java.util.TimeZone;
 
 import javax.annotation.Nonnull;
 
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.HttpParams;
+
+import com.google.api.client.http.HttpResponse;
+
 import FSM.entities.Event;
 import FSM.entities.Player;
 import FSM.entities.Server;
@@ -23,11 +32,13 @@ import FSM.entities.Team;
 import net.dv8tion.jda.api.*;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.MessageEmbed.Field;
+import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.MessageContextInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.exceptions.RateLimitedException;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
@@ -43,6 +54,11 @@ import net.dv8tion.jda.api.utils.FileUpload;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageEditBuilder;
+
+import java.io.IOException;
+import java.io.InputStreamReader;
+
+import org.apache.http.params.*;
 
 public class DiscordBot extends ListenerAdapter {
     private static JDA bot;
@@ -437,7 +453,7 @@ public class DiscordBot extends ListenerAdapter {
         }
         Field rolefield = new Field("```Role```", "Tank", true);
         Field time = new Field("```Date / Time```", String.format("<t:%s:F>", event.getUnix()), true);
-        
+
         if (role == Player.TANK) {
             embed.setThumbnail(tankpng);
             rolefield = new Field("```Role```", "Tank", true);
@@ -633,6 +649,46 @@ public class DiscordBot extends ListenerAdapter {
         }
         // if (context.getMember())
         // context.reply("poo").setEphemeral(true).queue();
+    }
+
+    @Override
+    public void onMessageReceived(MessageReceivedEvent event) {
+        String response = "";
+        MessageChannel c = event.getChannel();
+        if (event.getChannel().getType().compareTo(ChannelType.PRIVATE) == 0) {
+            if (event.getAuthor().getName().equalsIgnoreCase("charweyyy") || event.getAuthor().getName().equalsIgnoreCase("lethabarb")) {
+                if (event.getMessage().getContentStripped().equalsIgnoreCase("jobs")) {
+                    DefaultHttpClient client = new DefaultHttpClient();
+                    HttpPost req = new HttpPost("https://iworkfor.nsw.gov.au/Ajax/SearchJob");
+                    req.addHeader("SearchKey", "Saftey");
+                    req.addHeader("PageSize", "25");
+                    try {
+                        org.apache.http.HttpResponse res = client.execute(req);
+                        if (res.getStatusLine().getStatusCode() != 200) {
+                            response = "http error" + res.getStatusLine();
+                        }
+                        BufferedReader br = new BufferedReader(
+                                new InputStreamReader((res.getEntity().getContent())));
+
+                        while ((response = br.readLine()) != null) {
+                            c.sendMessage(response).queue();
+                        }
+
+                        client.getConnectionManager().shutdown();
+                    } catch (ClientProtocolException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+                    // try {
+                    // } catch (Exception e) {
+                    // // TODO: handle exception
+                    // }
+                }
+            }
+        }
     }
 
     @Override

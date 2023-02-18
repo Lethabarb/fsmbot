@@ -1,8 +1,0 @@
-FSM\services\GoogleSheet.class
-FSM\entities\Team.class
-FSM\entities\SubRequest.class
-FSM\Program.class
-FSM\entities\Player.class
-FSM\entities\Server.class
-FSM\services\DiscordBot.class
-FSM\entities\Event.class
