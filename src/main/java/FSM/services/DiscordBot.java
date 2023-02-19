@@ -656,7 +656,8 @@ public class DiscordBot extends ListenerAdapter {
         String response = "";
         MessageChannel c = event.getChannel();
         if (event.getChannel().getType().compareTo(ChannelType.PRIVATE) == 0) {
-            if (event.getAuthor().getName().equalsIgnoreCase("charweyyy") || event.getAuthor().getName().equalsIgnoreCase("lethabarb")) {
+            if (event.getAuthor().getName().equalsIgnoreCase("charweyyy")
+                    || event.getAuthor().getName().equalsIgnoreCase("lethabarb")) {
                 if (event.getMessage().getContentStripped().equalsIgnoreCase("jobs")) {
                     DefaultHttpClient client = new DefaultHttpClient();
                     HttpPost req = new HttpPost("https://iworkfor.nsw.gov.au/Ajax/SearchJob");
@@ -665,13 +666,14 @@ public class DiscordBot extends ListenerAdapter {
                     try {
                         org.apache.http.HttpResponse res = client.execute(req);
                         if (res.getStatusLine().getStatusCode() != 200) {
-                            response = "http error" + res.getStatusLine();
-                        }
-                        BufferedReader br = new BufferedReader(
-                                new InputStreamReader((res.getEntity().getContent())));
+                            System.out.println("http error" + res.getStatusLine());
+                        } else {
+                            BufferedReader br = new BufferedReader(
+                                    new InputStreamReader((res.getEntity().getContent())));
 
-                        while ((response = br.readLine()) != null) {
-                            c.sendMessage(response).queue();
+                            while ((response = br.readLine()) != null) {
+                                c.sendMessage(response).queue();
+                            }
                         }
 
                         client.getConnectionManager().shutdown();
