@@ -39,11 +39,12 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import FSM.entities.Event;
-import FSM.entities.JobAd;
 import FSM.entities.Player;
 import FSM.entities.Server;
 import FSM.entities.SubRequest;
 import FSM.entities.Team;
+import FSM.entities.jobs.NSW;
+import FSM.services.jobs.NSWservice;
 import net.dv8tion.jda.api.*;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.MessageEmbed.Field;
@@ -674,104 +675,7 @@ public class DiscordBot extends ListenerAdapter {
             if (event.getAuthor().getName().equalsIgnoreCase("charweyyy")
                     || event.getAuthor().getName().equalsIgnoreCase("lethabarb")) {
                 if (event.getMessage().getContentStripped().equalsIgnoreCase("jobs")) {
-                    DefaultHttpClient client = new DefaultHttpClient();
-                    HttpPost req = new HttpPost("https://iworkfor.nsw.gov.au/Ajax/SearchJob");
-                    req.addHeader("SearchKey", "Saftey");
-                    req.addHeader("PageSize", "25");
-                    try {
-                        org.apache.http.HttpResponse res = client.execute(req);
-                        if (res.getStatusLine().getStatusCode() != 200) {
-                            System.out.println("http error" + res.getStatusLine());
-                        } else {
-                            BufferedReader br = new BufferedReader(
-                                    new InputStreamReader((res.getEntity().getContent())));
-
-                            Workbook wb = new XSSFWorkbook();
-                            org.apache.poi.ss.usermodel.Sheet sheet = wb.createSheet();
-                            sheet.setColumnWidth(0, 6000);
-                            sheet.setColumnWidth(1, 4000);
-
-                            // Row header = sheet.createRow(0);
-
-                            CellStyle headerStyle = wb.createCellStyle();
-                            headerStyle.setFillForegroundColor(IndexedColors.LIGHT_BLUE.getIndex());
-                            headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-
-                            XSSFFont font = ((XSSFWorkbook) wb).createFont();
-                            font.setFontName("Arial");
-                            font.setFontHeightInPoints((short) 16);
-                            font.setBold(true);
-                            headerStyle.setFont(font);
-
-                            // Cell headerCell = header.createCell(0);
-                            // headerCell.setCellValue("Name");
-                            // headerCell.setCellStyle(headerStyle);
-
-                            // headerCell = header.createCell(1);
-                            // headerCell.setCellValue("Age");
-                            // headerCell.setCellStyle(headerStyle);
-
-                            CellStyle style = wb.createCellStyle();
-                            style.setWrapText(true);
-
-                            // Row row = sheet.createRow(2);
-                            // Cell cell = row.createCell(0);
-                            // cell.setCellValue("John Smith");
-                            // cell.setCellStyle(style);
-                            // cell = row.createCell(1);
-                            // cell.setCellValue(20);
-                            // cell.setCellStyle(style);
-
-                            Row head = sheet.createRow(0);
-                            String[] headers = { "Title", "Location", "Organisation / Company", "link", "Reference",
-                                    "Job close date", "Salary Range" };
-                            for (int i = 0; i < 7; i++) {
-                                Cell cell = head.createCell(i);
-                                cell.setCellValue(headers[i]);
-                                cell.setCellStyle(headerStyle);
-
-                            }
-                            // cell.setCellValue("response");
-                            int rowCount = 1;
-                            while ((response = br.readLine()) != null) {
-                                Gson gson = new Gson();
-                                JsonObject responseJson = gson.fromJson(response, JsonObject.class);
-                                responseJson = responseJson.get("Data").getAsJsonObject();
-                                responseJson = responseJson.get("Result").getAsJsonObject();
-                                String jobsJson = gson.toJson(responseJson.get("ListItem"));
-                                // String jobsJson = responseJson.get("Result")
-                                JobAd[] jobs = gson.fromJson(jobsJson, JobAd[].class);
-                                // JobAd[] jobs = responseJson.get
-                                for (JobAd job : jobs) {
-                                    Row row = sheet.createRow(rowCount);
-                                    rowCount++;
-                                    String[] data = { job.getTitle(), job.getJobLocationText(), job.getAgencyName(),
-                                            job.getJobUrl(), job.getReferenceId(), job.getClosingDate(), "" };
-                                    for (int i = 0; i < 7; i++) {
-                                        Cell cell = head.createCell(i);
-                                        cell.setCellValue(data[i]);
-                                        cell.setCellStyle(style);
-                                    }
-                                }
-                                c.sendMessage(response).queue();
-                            }
-                            FileOutputStream outputStream = new FileOutputStream("jobs.xlsx");
-                            wb.write(outputStream);
-                            wb.close();
-                            c.sendFiles(FileUpload.fromData(new File("jobs.xlsx"))).queue();
-                        }
-                        client.getConnectionManager().shutdown();
-                    } catch (ClientProtocolException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    } catch (IOException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    }
-                    // try {
-                    // } catch (Exception e) {
-                    // // TODO: handle exception
-                    // }
+                    c.sendFiles(FileUpload.fromData(new File("jobs-NSW.xlsx"))).queue();
                 }
             }
         }

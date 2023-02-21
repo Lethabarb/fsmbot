@@ -1,6 +1,6 @@
-package FSM.entities;
+package FSM.entities.jobs;
 
-public class JobAd {
+public class NSW {
     private int ID;
     private String Title;
     private String PostedDate;
