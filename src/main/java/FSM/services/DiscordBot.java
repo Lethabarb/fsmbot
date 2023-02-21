@@ -36,6 +36,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import com.google.api.client.http.HttpResponse;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 import FSM.entities.Event;
 import FSM.entities.JobAd;
@@ -734,7 +735,9 @@ public class DiscordBot extends ListenerAdapter {
                             int rowCount = 1;
                             while ((response = br.readLine()) != null) {
                                 Gson gson = new Gson();
-                                JobAd[] jobs = gson.fromJson(response, JobAd[].class);
+                                JsonObject responseJson = gson.fromJson(response, JsonObject.class);
+                                JobAd[] jobs = gson.fromJson(responseJson.get("data").getAsJsonObject().get("Result").toString(), JobAd[].class);
+                                // JobAd[] jobs = responseJson.get
                                 for (JobAd job : jobs) {
                                     Row row = sheet.createRow(rowCount);
                                     rowCount++;
