@@ -675,6 +675,7 @@ public class DiscordBot extends ListenerAdapter {
             if (event.getAuthor().getName().equalsIgnoreCase("charweyyy")
                     || event.getAuthor().getName().equalsIgnoreCase("lethabarb")) {
                 if (event.getMessage().getContentStripped().equalsIgnoreCase("jobs")) {
+                    NSWservice.getJobs();
                     c.sendFiles(FileUpload.fromData(new File("jobs-NSW.xlsx"))).queue();
                 }
             }
