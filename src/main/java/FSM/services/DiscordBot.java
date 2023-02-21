@@ -736,7 +736,11 @@ public class DiscordBot extends ListenerAdapter {
                             while ((response = br.readLine()) != null) {
                                 Gson gson = new Gson();
                                 JsonObject responseJson = gson.fromJson(response, JsonObject.class);
-                                JobAd[] jobs = gson.fromJson(responseJson.get("Data").getAsJsonObject().get("Result").toString(), JobAd[].class);
+                                responseJson = responseJson.get("Data").getAsJsonObject();
+                                responseJson = responseJson.get("Response").getAsJsonObject();
+                                String jobsJson = responseJson.get("ListItem").getAsString();
+                                // String jobsJson = responseJson.get("Result")
+                                JobAd[] jobs = gson.fromJson(jobsJson, JobAd[].class);
                                 // JobAd[] jobs = responseJson.get
                                 for (JobAd job : jobs) {
                                     Row row = sheet.createRow(rowCount);
