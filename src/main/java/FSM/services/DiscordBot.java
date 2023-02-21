@@ -738,7 +738,7 @@ public class DiscordBot extends ListenerAdapter {
                                 JsonObject responseJson = gson.fromJson(response, JsonObject.class);
                                 responseJson = responseJson.get("Data").getAsJsonObject();
                                 responseJson = responseJson.get("Result").getAsJsonObject();
-                                String jobsJson = responseJson.get("ListItem").getAsString();
+                                String jobsJson = gson.toJson(responseJson.get("ListItem"));
                                 // String jobsJson = responseJson.get("Result")
                                 JobAd[] jobs = gson.fromJson(jobsJson, JobAd[].class);
                                 // JobAd[] jobs = responseJson.get
