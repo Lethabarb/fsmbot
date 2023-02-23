@@ -1,6 +1,10 @@
 package FSM.entities.jobs;
 
-public class NSW {
+import java.util.HashMap;
+
+import FSM.services.jobs.ToDataService;
+
+public class NSW implements ToDataService{
     private int ID;
     private String Title;
     private String PostedDate;
@@ -18,10 +22,12 @@ public class NSW {
     private String AgencyUrlKey;
     private String InternalJob;
 
+    private static HashMap<Integer, NSW> hashes = new HashMap<>();
+
     public int getID() {
         return ID;
     }
-    public void setID(int iD) {
+    public void setID(int iD) { 
         ID = iD;
     }
     public String getTitle() {
@@ -113,5 +119,128 @@ public class NSW {
     }
     public void setInternalJob(String internalJob) {
         InternalJob = internalJob;
+    }
+    @Override
+    public String[] toData() {
+        return new String[] {Title, JobLocationText, AgencyName, JobUrl, ReferenceId, ClosingDate, ""};
+        // TODO Auto-generated method stub
+    }
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ID;
+        result = prime * result + ((Title == null) ? 0 : Title.hashCode());
+        result = prime * result + ((PostedDate == null) ? 0 : PostedDate.hashCode());
+        result = prime * result + ((ShortDescription == null) ? 0 : ShortDescription.hashCode());
+        result = prime * result + ((ClosingDate == null) ? 0 : ClosingDate.hashCode());
+        result = prime * result + AgencyId;
+        result = prime * result + ((AgencyName == null) ? 0 : AgencyName.hashCode());
+        result = prime * result + ((JobUrl == null) ? 0 : JobUrl.hashCode());
+        result = prime * result + ((JobCategoryText == null) ? 0 : JobCategoryText.hashCode());
+        result = prime * result + ((JobLocationText == null) ? 0 : JobLocationText.hashCode());
+        result = prime * result + ((WorkType == null) ? 0 : WorkType.hashCode());
+        result = prime * result + ((ReferenceId == null) ? 0 : ReferenceId.hashCode());
+        result = prime * result + ((ApplyLink == null) ? 0 : ApplyLink.hashCode());
+        result = prime * result + ((Sources == null) ? 0 : Sources.hashCode());
+        result = prime * result + ((AgencyUrlKey == null) ? 0 : AgencyUrlKey.hashCode());
+        result = prime * result + ((InternalJob == null) ? 0 : InternalJob.hashCode());
+        return result;
+    }
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        NSW other = (NSW) obj;
+        if (ID != other.ID)
+            return false;
+        if (Title == null) {
+            if (other.Title != null)
+                return false;
+        } else if (!Title.equals(other.Title))
+            return false;
+        if (PostedDate == null) {
+            if (other.PostedDate != null)
+                return false;
+        } else if (!PostedDate.equals(other.PostedDate))
+            return false;
+        if (ShortDescription == null) {
+            if (other.ShortDescription != null)
+                return false;
+        } else if (!ShortDescription.equals(other.ShortDescription))
+            return false;
+        if (ClosingDate == null) {
+            if (other.ClosingDate != null)
+                return false;
+        } else if (!ClosingDate.equals(other.ClosingDate))
+            return false;
+        if (AgencyId != other.AgencyId)
+            return false;
+        if (AgencyName == null) {
+            if (other.AgencyName != null)
+                return false;
+        } else if (!AgencyName.equals(other.AgencyName))
+            return false;
+        if (JobUrl == null) {
+            if (other.JobUrl != null)
+                return false;
+        } else if (!JobUrl.equals(other.JobUrl))
+            return false;
+        if (JobCategoryText == null) {
+            if (other.JobCategoryText != null)
+                return false;
+        } else if (!JobCategoryText.equals(other.JobCategoryText))
+            return false;
+        if (JobLocationText == null) {
+            if (other.JobLocationText != null)
+                return false;
+        } else if (!JobLocationText.equals(other.JobLocationText))
+            return false;
+        if (WorkType == null) {
+            if (other.WorkType != null)
+                return false;
+        } else if (!WorkType.equals(other.WorkType))
+            return false;
+        if (ReferenceId == null) {
+            if (other.ReferenceId != null)
+                return false;
+        } else if (!ReferenceId.equals(other.ReferenceId))
+            return false;
+        if (ApplyLink == null) {
+            if (other.ApplyLink != null)
+                return false;
+        } else if (!ApplyLink.equals(other.ApplyLink))
+            return false;
+        if (Sources == null) {
+            if (other.Sources != null)
+                return false;
+        } else if (!Sources.equals(other.Sources))
+            return false;
+        if (AgencyUrlKey == null) {
+            if (other.AgencyUrlKey != null)
+                return false;
+        } else if (!AgencyUrlKey.equals(other.AgencyUrlKey))
+            return false;
+        if (InternalJob == null) {
+            if (other.InternalJob != null)
+                return false;
+        } else if (!InternalJob.equals(other.InternalJob))
+            return false;
+        return true;
+    }
+
+    public boolean putinHash() {
+        int hashcode = hashCode();
+        NSW exist = hashes.get(hashcode);
+        if (exist == null) {
+            hashes.put(hashcode, this);
+            return false;
+        } else {
+            return true;
+        }
     }
 }

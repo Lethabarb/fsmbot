@@ -24,6 +24,7 @@ import com.google.gson.JsonObject;
 import FSM.entities.jobs.NSW;
 import net.dv8tion.jda.api.utils.FileUpload;
 
+@Deprecated
 public class APSservice {
 
     public APSservice() {
