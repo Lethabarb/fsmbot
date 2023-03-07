@@ -145,7 +145,7 @@ public class JobsService<T extends ToDataService> {
                                 // }
                                 if (!data[0].toLowerCase().contains("nurse")
                                         && !data[0].toLowerCase().contains("medical")
-                                        && !data[0].toLowerCase().contains("cultral"))
+                                        && !data[0].toLowerCase().contains("cultral")) {
                                     if (data[0].toLowerCase().contains(search.toLowerCase())
                                             || data[0].toLowerCase().contains("advisor")
                                             || data[0].toLowerCase().contains("quality")) {
@@ -159,6 +159,7 @@ public class JobsService<T extends ToDataService> {
                                             cell.setCellStyle(style);
                                         }
                                     }
+                                }
                             }
                         }
                     }
