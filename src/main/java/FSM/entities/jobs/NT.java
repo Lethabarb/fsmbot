@@ -49,6 +49,59 @@ public class NT implements ToDataService {
     private JsonArray vacancyDesignationList;
     private JsonArray attachmentsList;
     private static HashMap<Integer, NT> hashes = new HashMap<>();
+    public NT(int rtfId, String positionNumber, String jobTitle, String vacancyType, String altVacancyType,
+            String numberOfVacancies, String vacancyTypeCodeValue, String agency, String section, String contactPerson,
+            String primaryObjective, String advertisingType, String applicationType, String specialInstructions,
+            String closingDate, String locations, String designations, boolean isCanceled,
+            String offlineApplicationsOnlyFlag, String vacancyDuration, String vacancyEndDate, String dateAdded,
+            String applicationFormId, String recruitmentProgramId, String closeDateClause, boolean isSaved,
+            String recruitmentProgramUrl, String closingDateAsDateTime, int lowestRemuneration, int highestRemuneration,
+            String headingLabelText, boolean canApplyOnline, boolean hasSpecialInstructions,
+            String endDateDurationDetail, String endDateDurationLabel, boolean isTempOrCasual,
+            String formattedClosingDate, boolean hasRecruitmentProgramUrl, String getFormattedDesignationList,
+            JsonArray vacancyDesignationList, JsonArray attachmentsList) {
+        this.rtfId = rtfId;
+        this.positionNumber = positionNumber;
+        this.jobTitle = jobTitle;
+        this.vacancyType = vacancyType;
+        this.altVacancyType = altVacancyType;
+        this.numberOfVacancies = numberOfVacancies;
+        this.vacancyTypeCodeValue = vacancyTypeCodeValue;
+        this.agency = agency;
+        this.section = section;
+        this.contactPerson = contactPerson;
+        this.primaryObjective = primaryObjective;
+        this.advertisingType = advertisingType;
+        this.applicationType = applicationType;
+        this.specialInstructions = specialInstructions;
+        this.closingDate = closingDate;
+        this.locations = locations;
+        this.designations = designations;
+        this.isCanceled = isCanceled;
+        this.offlineApplicationsOnlyFlag = offlineApplicationsOnlyFlag;
+        this.vacancyDuration = vacancyDuration;
+        this.vacancyEndDate = vacancyEndDate;
+        this.dateAdded = dateAdded;
+        ApplicationFormId = applicationFormId;
+        RecruitmentProgramId = recruitmentProgramId;
+        CloseDateClause = closeDateClause;
+        this.isSaved = isSaved;
+        RecruitmentProgramUrl = recruitmentProgramUrl;
+        this.closingDateAsDateTime = closingDateAsDateTime;
+        this.lowestRemuneration = lowestRemuneration;
+        this.highestRemuneration = highestRemuneration;
+        this.headingLabelText = headingLabelText;
+        this.canApplyOnline = canApplyOnline;
+        this.hasSpecialInstructions = hasSpecialInstructions;
+        this.endDateDurationDetail = endDateDurationDetail;
+        this.endDateDurationLabel = endDateDurationLabel;
+        this.isTempOrCasual = isTempOrCasual;
+        this.formattedClosingDate = formattedClosingDate;
+        this.hasRecruitmentProgramUrl = hasRecruitmentProgramUrl;
+        this.getFormattedDesignationList = getFormattedDesignationList;
+        this.vacancyDesignationList = vacancyDesignationList;
+        this.attachmentsList = attachmentsList;
+    }
     public int getRtfId() {
         return rtfId;
     }
@@ -209,6 +262,7 @@ public class NT implements ToDataService {
         return RecruitmentProgramUrl;
     }
     public void setRecruitmentProgramUrl(String recruitmentProgramUrl) {
+        System.out.println(recruitmentProgramUrl);
         RecruitmentProgramUrl = recruitmentProgramUrl;
     }
     public String getClosingDateAsDateTime() {
