@@ -143,19 +143,22 @@ public class JobsService<T extends ToDataService> {
                                 // if (search.equalsIgnoreCase("inspect")) {
                                 // System.out.println(data[0]);
                                 // }
-                                if (data[0].toLowerCase().contains(search.toLowerCase())
-                                        || data[0].toLowerCase().contains("advisor")
-                                        || data[0].toLowerCase().contains("quality")) {
-                                    rowCount++;
-                                    // String[] data = { job.getTitle(), job.getJobLocationText(),
-                                    // job.getAgencyName(),
-                                    // job.getJobUrl(), job.getReferenceId(), job.getClosingDate(), "" };
-                                    for (int i = 0; i < 7; i++) {
-                                        Cell cell = row.createCell(i);
-                                        cell.setCellValue(data[i]);
-                                        cell.setCellStyle(style);
+                                if (!data[0].toLowerCase().contains("nurse")
+                                        && !data[0].toLowerCase().contains("medical")
+                                        && !data[0].toLowerCase().contains("cultral"))
+                                    if (data[0].toLowerCase().contains(search.toLowerCase())
+                                            || data[0].toLowerCase().contains("advisor")
+                                            || data[0].toLowerCase().contains("quality")) {
+                                        rowCount++;
+                                        // String[] data = { job.getTitle(), job.getJobLocationText(),
+                                        // job.getAgencyName(),
+                                        // job.getJobUrl(), job.getReferenceId(), job.getClosingDate(), "" };
+                                        for (int i = 0; i < 7; i++) {
+                                            Cell cell = row.createCell(i);
+                                            cell.setCellValue(data[i]);
+                                            cell.setCellStyle(style);
+                                        }
                                     }
-                                }
                             }
                         }
                     }
@@ -176,7 +179,7 @@ public class JobsService<T extends ToDataService> {
     }
 
     public void getJobsWithCustomSearch(String name, String SearchParam, Class<?> typeClass, HeadPair... extraHeaders) {
-        //Replace <> with search term
+        // Replace <> with search term
         String response = "";
         DefaultHttpClient client = new DefaultHttpClient();
         HttpPost req = new HttpPost(uri);

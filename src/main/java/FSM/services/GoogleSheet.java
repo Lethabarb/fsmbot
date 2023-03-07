@@ -114,7 +114,7 @@ public class GoogleSheet {
             int b = 0;
             for (LinkedList<String> ll : vals) {
                 for (String s : ll)  {
-                    System.out.print(String.format("[%s][%s] = %s", a, b, s));
+                    System.out.println(String.format("[%s][%s] = %s", a, b, s));
                     b++;
                 }
                 a++;

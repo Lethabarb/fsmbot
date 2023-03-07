@@ -297,7 +297,7 @@ public class NT implements ToDataService {
     }
     @Override
     public String[] toData() {
-        return new String[] {jobTitle, locations, agency, "", String.valueOf(rtfId), closingDate, lowestRemuneration + " - " + highestRemuneration};
+        return new String[] {jobTitle, locations, agency, RecruitmentProgramUrl, String.valueOf(rtfId), closingDate, lowestRemuneration + " - " + highestRemuneration};
         // TODO Auto-generated method stub
         // throw new UnsupportedOperationException("Unimplemented method 'toData'");
     }
