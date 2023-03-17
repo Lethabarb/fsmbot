@@ -13,6 +13,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 
+import javax.sound.midi.SysexMessage;
+
 import FSM.services.DiscordBot;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
@@ -214,7 +216,7 @@ public class Event implements Comparable<Event> {
     public String confirmedString() {
         String s = "";
         for (Player p : confimed) {
-            s += p.getName() + ", ";
+            s += p.getName() + " ";
         }
         return s;
     }
@@ -228,7 +230,7 @@ public class Event implements Comparable<Event> {
     public String notRespondedString() {
         String s = "";
         for (Player p : notResponded) {
-            s += p.getName() + ", ";
+            s += p.getName() + " ";
         }
         return s;
     }
@@ -236,7 +238,11 @@ public class Event implements Comparable<Event> {
     public void deleteAllSubs() {
         while (!subs.isEmpty()) {
             SubRequest sub = subs.getFirst();
-            sub.getMessage().delete().queue();
+            try {
+                sub.getMessage().delete().queue();
+            } catch (Exception e) {
+                System.out.println("no sub message, deleting sub");
+            }
             subs.remove(sub);
         }
     }
@@ -250,7 +256,7 @@ public class Event implements Comparable<Event> {
     public String declinedString() {
         String s = "";
         for (Player p : declined) {
-            s += p.getName() + ", ";
+            s += p.getName() + " ";
         }
         return s;
     }

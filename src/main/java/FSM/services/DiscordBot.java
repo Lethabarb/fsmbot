@@ -32,6 +32,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.xmlbeans.impl.soap.Text;
 
 import com.google.api.client.http.HttpResponse;
 import com.google.gson.Gson;
@@ -169,9 +170,9 @@ public class DiscordBot extends ListenerAdapter {
         List<Member> mems = getMemberOfRole(s.getGuild(), trialRole, rosterRole);
         Team t = new Team(name, nameAbbv, minRank, timetable, rosterRole, trialRole, subRole, mems);
         // try {
-        //     // Thread.sleep(5000);
+        // // Thread.sleep(5000);
         // } catch (Exception e) {
-        //     e.printStackTrace();
+        // e.printStackTrace();
         // }
         t.setServer(s);
         return t;
@@ -458,10 +459,10 @@ public class DiscordBot extends ListenerAdapter {
         EmbedBuilder embed = new EmbedBuilder();
         embed.setColor(Color.BLUE);
 
-        int width = 20;
+        int width = 16;
         String lineDiv = getEmoji("1043359277441618030");
 
-        embed.setTitle("**LFS**");
+        embed.setTitle("**LFS** " + String.format("<t:%s:F>", event.getUnix()));
         int remaining = width - event.getTeam().getName().length() / 3;
         if (remaining % 2 == 0) {
             int sides = remaining / 2;
@@ -472,7 +473,8 @@ public class DiscordBot extends ListenerAdapter {
                     lineDiv.repeat(sides) + "**" + event.getTeam().getName() + "**" + lineDiv.repeat(sides + 1));
         }
         Field rolefield = new Field("```Role```", "Tank", true);
-        Field time = new Field("```Date / Time```", String.format("<t:%s:F>", event.getUnix()), true);
+        // Field time = new Field("```Date / Time```", String.format("<t:%s:F>",
+        // event.getUnix()), true);
 
         if (role == Player.TANK) {
             embed.setThumbnail(tankpng);
@@ -487,13 +489,13 @@ public class DiscordBot extends ListenerAdapter {
             rolefield = new Field("```Role```", "Support", true);
         }
         embed.addField(rolefield);
-        embed.addField(time);
+        // embed.addField(time);
 
         m.addEmbeds(embed.build());
         long eventKey = event.gethashCode();
         m.addActionRow(Button.primary(
                 String.format("%s_%s_%s_%s", "Sub", eventKey, event.getSubIndex(), role),
-                "Sub " + getEmoji("1044015107413377195")));
+                "Sub "));
         MessageChannel c = event.getTeam().getServer().getSubChannel();
         c.sendMessage(m.build()).queue((message) -> {
             event.addSub(new SubRequest(null, message, role));
@@ -534,6 +536,7 @@ public class DiscordBot extends ListenerAdapter {
         // System.out.println("key: " + eventKey);
         Event event = Event.getEvent(eventKey);
         Player trigger = Player.getPlayer(buttonEvent.getMember());
+        
         if (buttonUse.equals("ScrimButtYes")) {
             if (hasRosterOrTrialRole(event.getTeam(), buttonEvent.getMember())) {
                 boolean wasSub = event.addConfirmed(trigger);
@@ -624,6 +627,10 @@ public class DiscordBot extends ListenerAdapter {
             TextInput eventhash = TextInput.create("hash", "hash (DONT EDIT)", TextInputStyle.SHORT)
                     .setValue(String.valueOf(event.gethashCode()))
                     .build();
+            TextInput bnetPoc = TextInput.create("bnet", "bnet", TextInputStyle.SHORT)
+                    .setValue(event.getContact2()).build();
+            TextInput discPoc = TextInput.create("disc", "disc", TextInputStyle.SHORT)
+                    .setValue(event.getContact1()).build();
 
             TextInput confirmed;
             try {
@@ -671,52 +678,63 @@ public class DiscordBot extends ListenerAdapter {
         // context.reply("poo").setEphemeral(true).queue();
     }
 
-    @Override
-    public void onMessageReceived(MessageReceivedEvent event) {
-        // String respo": [],nse = "";
-        MessageChannel c = event.getChannel();
-        if (event.getChannel().getType().compareTo(ChannelType.PRIVATE) == 0) {
-            if (event.getAuthor().getName().equalsIgnoreCase("charweyyy")
-                    || event.getAuthor().getName().equalsIgnoreCase("lethabarb")) {
-                if (event.getMessage().getContentStripped().equalsIgnoreCase("jobs")) {
+    // @Override
+    // public void onMessageReceived(MessageReceivedEvent event) {
+    //     // String respo": [],nse = "";
+    //     MessageChannel c = event.getChannel();
+    //     if (event.getChannel().getType().compareTo(ChannelType.PRIVATE) == 0) {
+    //         if (event.getAuthor().getName().equalsIgnoreCase("charweyyy")
+    //                 || event.getAuthor().getName().equalsIgnoreCase("lethabarb")) {
+    //             if (event.getMessage().getContentStripped().equalsIgnoreCase("jobs")) {
 
-                    JobsService<NSW> NSW = new JobsService<NSW>("https://iworkfor.nsw.gov.au/Ajax/SearchJob", "SearchKey", "ListItem", "Data", "Result");
-                    HeadPair pageSize = new HeadPair("PageSize", "100");
-                    HeadPair pageNum = new HeadPair("Page", "1");
-                    NSW.getJobs("NSW", NSW[].class, pageSize, pageNum);
-                    pageNum = new HeadPair("Page", "2");
-                    NSW.getJobs("NSW", NSW[].class, pageSize, pageNum);
+    //                 JobsService<NSW> NSW = new JobsService<NSW>("https://iworkfor.nsw.gov.au/Ajax/SearchJob",
+    //                         "SearchKey", "ListItem", "Data", "Result");
+    //                 HeadPair pageSize = new HeadPair("PageSize", "100");
+    //                 HeadPair pageNum = new HeadPair("Page", "1");
+    //                 NSW.getJobs("NSW", NSW[].class, pageSize, pageNum);
+    //                 pageNum = new HeadPair("Page", "2");
+    //                 NSW.getJobs("NSW", NSW[].class, pageSize, pageNum);
 
-                    JobsService<VIC> VIC = new JobsService<>("https://careers.vic.gov.au/Ajax/SearchJob", "SearchKey", "ListItem", "Data", "Result");
-                    pageNum = new HeadPair("Page", "1");
-                    VIC.getJobs("VIC", VIC[].class, pageSize, pageNum);
-                    // pageNum = new HeadPair("Page", "2");
-                    // VIC.getJobs("VIC", VIC[].class, pageSize, pageNum);
+    //                 JobsService<VIC> VIC = new JobsService<>("https://careers.vic.gov.au/Ajax/SearchJob", "SearchKey",
+    //                         "ListItem", "Data", "Result");
+    //                 pageNum = new HeadPair("Page", "1");
+    //                 VIC.getJobs("VIC", VIC[].class, pageSize, pageNum);
+    //                 // pageNum = new HeadPair("Page", "2");
+    //                 // VIC.getJobs("VIC", VIC[].class, pageSize, pageNum);
 
-                    String NTJson = "{\"AgencyList\":null,\"CategoryList\":null,\"LocationsList\":null,\"VacanycyTypeList\":[{\"Disabled\":false,\"Group\":null,\"Selected\":false,\"Text\":\"Ongoing (Permanent) - Full Time\",\"Value\":\"991\"},{\"Disabled\":false,\"Group\":null,\"Selected\":false,\"Text\":\"Ongoing (Permanent) - Part Time\",\"Value\":\"992\"},{\"Disabled\":false,\"Group\":null,\"Selected\":false,\"Text\":\"Fixed (Temporary) - Full Time\",\"Value\":\"993\"},{\"Disabled\":false,\"Group\":null,\"Selected\":false,\"Text\":\"Fixed (Temporary) - Part Time\",\"Value\":\"994\"},{\"Disabled\":false,\"Group\":null,\"Selected\":false,\"Text\":\"Casual\",\"Value\":\"995\"}],\"VacancyNumber\":null,\"Keyword\":\"<>\",\"SelectedAgencyList\":[],\"SelectedCategoryList\":[],\"SelectedLocationsList\":[],\"RemunerationRangeFrom\":null,\"RemunerationRangeTo\":null,\"SelectedVacanycyType\":null,\"DateAdvertisedAfter\":null,\"SalaryRangeFrom\":null,\"SalaryRangeTo\":null,\"JobAlertID\":null,\"JobAlertName\":null,\"EmailAlert\":null,\"results\":null,\"jobAlerts\":[]}";
-                    JobsService<NT> NT = new JobsService<>("https://jobs.nt.gov.au/Home/Search", "", "data");
-                    NT.getJobsWithCustomSearch("NT", NTJson, NT[].class);
+    //                 String NTJson = "{\"AgencyList\":null,\"CategoryList\":null,\"LocationsList\":null,\"VacanycyTypeList\":[{\"Disabled\":false,\"Group\":null,\"Selected\":false,\"Text\":\"Ongoing (Permanent) - Full Time\",\"Value\":\"991\"},{\"Disabled\":false,\"Group\":null,\"Selected\":false,\"Text\":\"Ongoing (Permanent) - Part Time\",\"Value\":\"992\"},{\"Disabled\":false,\"Group\":null,\"Selected\":false,\"Text\":\"Fixed (Temporary) - Full Time\",\"Value\":\"993\"},{\"Disabled\":false,\"Group\":null,\"Selected\":false,\"Text\":\"Fixed (Temporary) - Part Time\",\"Value\":\"994\"},{\"Disabled\":false,\"Group\":null,\"Selected\":false,\"Text\":\"Casual\",\"Value\":\"995\"}],\"VacancyNumber\":null,\"Keyword\":\"<>\",\"SelectedAgencyList\":[],\"SelectedCategoryList\":[],\"SelectedLocationsList\":[],\"RemunerationRangeFrom\":null,\"RemunerationRangeTo\":null,\"SelectedVacanycyType\":null,\"DateAdvertisedAfter\":null,\"SalaryRangeFrom\":null,\"SalaryRangeTo\":null,\"JobAlertID\":null,\"JobAlertName\":null,\"EmailAlert\":null,\"results\":null,\"jobAlerts\":[]}";
+    //                 JobsService<NT> NT = new JobsService<>("https://jobs.nt.gov.au/Home/Search", "", "data");
+    //                 NT.getJobsWithCustomSearch("NT", NTJson, NT[].class);
 
-                    // String searchJSON = "{\"actions\":[{\"id\":\"89;a\",\"descriptor\":\"aura://ApexActionController/ACTION$execute\",\"callingDescriptor\":\"UNKNOWN\",\"params\":{\"namespace\":\"\",\"classname\":\"aps_jobSearchController\",\"method\":\"retrieveJobListings\",\"params\":{\\\"filter\\\":\\\"{\\\"searchString\\\":\\\"<>\\\",\\\"salaryFrom\\\":null,\\\"salaryTo\\\":null,\\\"closingDate\\\":null,\\\"positionInitiative\\\":null,\\\"classification\\\":null,\\\"securityClearance\\\":null,\\\"officeArrangement\\\":null,\\\"duration\\\":null,\\\"department\\\":null,\\\"category\\\":null,\\\"opportunityType\\\":null,\\\"employmentStatus\\\":null,\\\"state\\\":null,\\\"sortBy\\\":null,\\\"offset\\\":><,\\\"offsetIsLimit\\\":false,\\\"lastVisitedId\\\":null,\\\"daysInPast\\\":null,\\\"name\\\":null,\\\"type\\\":null,\\\"notificationsEnabled\\\":null,\\\"savedSearchId\\\":null}&requested=Thu Feb 23 2023 12:27:32 GMT+1100 (Australian Eastern Daylight Time)\"},\"cacheable\":false,\"isContinuation\":false}}]}";
-                    
-                    // JobsService<APS> APS = new JobsService<>("https://www.apsjobs.gov.au/s/sfsites/aura?r=1&aura.ApexAction.execute=1", "message", "jobListings", "actions", "returnValue", "returnValue");
-                    // HeadPair auraContext = new HeadPair("aura.context", "{\"mode\":\"PROD\",\"fwuid\":\"GVQSDds1N8x8l9AfZLjrQg\",\"app\":\"siteforce:communityApp\",\"loaded\":{\"APPLICATION@markup://siteforce:communityApp\":\"Q-CTn3sb841JAb-fQMyOLA\",\"COMPONENT@markup://instrumentation:o11ySecondaryLoader\":\"NAR59T88qTprOlgZG3yLoQ\"},\"dn\":[],\"globals\":{},\"uad\":false}");
-                    // HeadPair auraToken = new HeadPair("aura.token", "null");
-                    // APS.getJobsWithCustomSearch("APS", searchJSON, APS[].class, 0, auraContext, auraToken);
-                    // APS.getJobsWithCustomSearch("APS", searchJSON, APS[].class, 15, auraContext, auraToken);
-                    // APS.getJobsWithCustomSearch("APS", searchJSON, APS[].class, 30, auraContext, auraToken);
-                    // APS.getJobsWithCustomSearch("APS", searchJSON, APS[].class, 45, auraContext, auraToken);
-                    // APS.getJobsWithCustomSearch("APS", searchJSON, APS[].class, 60, auraContext, auraToken);
+    //                 // String searchJSON =
+    //                 // "{\"actions\":[{\"id\":\"89;a\",\"descriptor\":\"aura://ApexActionController/ACTION$execute\",\"callingDescriptor\":\"UNKNOWN\",\"params\":{\"namespace\":\"\",\"classname\":\"aps_jobSearchController\",\"method\":\"retrieveJobListings\",\"params\":{\\\"filter\\\":\\\"{\\\"searchString\\\":\\\"<>\\\",\\\"salaryFrom\\\":null,\\\"salaryTo\\\":null,\\\"closingDate\\\":null,\\\"positionInitiative\\\":null,\\\"classification\\\":null,\\\"securityClearance\\\":null,\\\"officeArrangement\\\":null,\\\"duration\\\":null,\\\"department\\\":null,\\\"category\\\":null,\\\"opportunityType\\\":null,\\\"employmentStatus\\\":null,\\\"state\\\":null,\\\"sortBy\\\":null,\\\"offset\\\":><,\\\"offsetIsLimit\\\":false,\\\"lastVisitedId\\\":null,\\\"daysInPast\\\":null,\\\"name\\\":null,\\\"type\\\":null,\\\"notificationsEnabled\\\":null,\\\"savedSearchId\\\":null}&requested=Thu
+    //                 // Feb 23 2023 12:27:32 GMT+1100 (Australian Eastern Daylight
+    //                 // Time)\"},\"cacheable\":false,\"isContinuation\":false}}]}";
 
+    //                 // JobsService<APS> APS = new
+    //                 // JobsService<>("https://www.apsjobs.gov.au/s/sfsites/aura?r=1&aura.ApexAction.execute=1",
+    //                 // "message", "jobListings", "actions", "returnValue", "returnValue");
+    //                 // HeadPair auraContext = new HeadPair("aura.context",
+    //                 // "{\"mode\":\"PROD\",\"fwuid\":\"GVQSDds1N8x8l9AfZLjrQg\",\"app\":\"siteforce:communityApp\",\"loaded\":{\"APPLICATION@markup://siteforce:communityApp\":\"Q-CTn3sb841JAb-fQMyOLA\",\"COMPONENT@markup://instrumentation:o11ySecondaryLoader\":\"NAR59T88qTprOlgZG3yLoQ\"},\"dn\":[],\"globals\":{},\"uad\":false}");
+    //                 // HeadPair auraToken = new HeadPair("aura.token", "null");
+    //                 // APS.getJobsWithCustomSearch("APS", searchJSON, APS[].class, 0, auraContext,
+    //                 // auraToken);
+    //                 // APS.getJobsWithCustomSearch("APS", searchJSON, APS[].class, 15, auraContext,
+    //                 // auraToken);
+    //                 // APS.getJobsWithCustomSearch("APS", searchJSON, APS[].class, 30, auraContext,
+    //                 // auraToken);
+    //                 // APS.getJobsWithCustomSearch("APS", searchJSON, APS[].class, 45, auraContext,
+    //                 // auraToken);
+    //                 // APS.getJobsWithCustomSearch("APS", searchJSON, APS[].class, 60, auraContext,
+    //                 // auraToken);
 
+    //                 JobsService.sendSheet();
 
-                    JobsService.sendSheet();
-
-                    c.sendFiles(FileUpload.fromData(new File("jobs.xlsx"))).queue();
-                }
-            }
-        }
-    }
+    //                 c.sendFiles(FileUpload.fromData(new File("jobs.xlsx"))).queue();
+    //             }
+    //         }
+    //     }
+    // }
 
     @Override
     public void onModalInteraction(@Nonnull ModalInteractionEvent event) {
@@ -728,17 +746,21 @@ public class DiscordBot extends ListenerAdapter {
             String notRespondedString = event.getValue("notresponded").getAsString();
             String declinedString = event.getValue("declined").getAsString();
             String eventHash = event.getValue("hash").getAsString();
+            String bnet = event.getValue("bnet").getAsString();
+            String disc = event.getValue("disc").getAsString();
 
             Event scrim = Event.getEvent(Long.valueOf(eventHash));
             Event.removeFromRepository(scrim);
             LocalDateTime datetime = LocalDateTime.parse(dateTimeString,
                     DateTimeFormatter.ofPattern("E dd/MM/yyyy h:mm a", Locale.US));
             scrim.setDateTime(datetime);
+            scrim.setContact1(disc);
+            scrim.setContact2(bnet);
 
-            confirmedString.replaceAll(" ", "");
-            notRespondedString.replaceAll(" ", "");
-            declinedString.replaceAll(" ", "");
-            for (String s : notRespondedString.split(",")) {
+            // confirmedString.replaceAll(" ", "");
+            // notRespondedString.replaceAll(" ", "");
+            // declinedString.replaceAll(" ", "");
+            for (String s : notRespondedString.split(" ")) {
                 Member member = null;
                 for (Member m : scrim.getTeam().getMembers()) {
                     System.out.println(String.format("'%s' == '%s'", s, m.getUser().getName()));
@@ -759,7 +781,7 @@ public class DiscordBot extends ListenerAdapter {
                 }
             }
 
-            for (String s : confirmedString.split(",")) {
+            for (String s : confirmedString.split(" ")) {
                 Member member = null;
                 for (Member m : scrim.getTeam().getMembers()) {
                     if (m.getUser().getName().equals(s.trim())) {
@@ -777,7 +799,7 @@ public class DiscordBot extends ListenerAdapter {
                     System.out.println("m is null 599");
                 }
             }
-            for (String s : declinedString.split(",")) {
+            for (String s : declinedString.split(" ")) {
                 Member member = null;
                 for (Member m : scrim.getTeam().getMembers()) {
                     if (m.getUser().getName().equals(s.trim())) {
