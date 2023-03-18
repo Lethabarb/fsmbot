@@ -104,7 +104,7 @@ public class GoogleSheet {
         return new AuthorizationCodeInstalledApp(flow, receiver).authorize("user");
     }
 
-    public LinkedList<Event> getEvents(String teamName, Team t) throws IOException {
+    public synchronized LinkedList<Event> getEvents(String teamName, Team t) throws IOException {
         String page = String.format("'%s_Schedule'!", teamName);
         int numOfScrims = Integer.parseInt(getValues(page + "A1:A1").get(0).get(0));
         LinkedList<Event> events = new LinkedList<>();
@@ -118,6 +118,7 @@ public class GoogleSheet {
                     b++;
                 }
                 a++;
+                b = 0;
             }
             String title = vals.get(0).get(0);
             String typeString = title.split(" vs ")[0];
