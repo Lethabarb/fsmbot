@@ -620,9 +620,9 @@ public class DiscordBot extends ListenerAdapter {
             }
         } else if (command.equals("role")) {
             Server s = Server.getGuild(commandEvent.getGuild().getIdLong());
-            String roleName = commandEvent.getOption("NewPlayerRole").getAsRole().getName();
-            Member member = commandEvent.getOption("PlayerDiscord").getAsMember();
-            Role role = commandEvent.getOption("NewPlayerRole").getAsRole();
+            String roleName = commandEvent.getOption("newplayerrole").getAsRole().getName();
+            Member member = commandEvent.getOption("playerdiscord").getAsMember();
+            Role role = commandEvent.getOption("newplayerrole").getAsRole();
             changeRoles(member, s.getGuild());
             s.getGuild().addRoleToMember(member, role);
             Player p = Player.getPlayer(member);

@@ -46,7 +46,7 @@ public class Server {
                 .addSubcommands(new SubcommandData("events", "updates all events in all servers")
                 ).setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.MODERATE_MEMBERS)),
                 Commands.context(Type.MESSAGE, "edit"),
-                Commands.slash("role", "edit role of a player").addOption(OptionType.MENTIONABLE, "PlayerDiscord", "Discord").addOption(OptionType.ROLE, "NewPlayerRole", "role to make the player"))
+                Commands.slash("role", "edit role of a player").addOption(OptionType.MENTIONABLE, "playerdiscord", "Discord").addOption(OptionType.ROLE, "newplayerrole", "role to make the player"))
         .queue();
         // this.dpsRole = dpsRole;
         // this.tankRole = tankRole;
