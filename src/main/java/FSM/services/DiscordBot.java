@@ -542,8 +542,16 @@ public class DiscordBot extends ListenerAdapter {
                 boolean wasSub = event.addConfirmed(trigger);
                 if (wasSub) {
                     try {
+                        if (trigger.getRole() == -1) {
+                            buttonEvent.reply("you dont have a valid overwatch role for this event, please contact your manager");
+                            return;
+                        }
                         int sub = event.getExistingSub(trigger.getRole(), false);
-                        deleteSubRequest(event, sub);
+                        try {
+                            deleteSubRequest(event, sub);
+                        } catch (Exception e) {
+                            System.out.println("no sub message found");
+                        }
                         event.removeSub(sub);
                     } catch (Exception e) {
 
