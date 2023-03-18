@@ -21,6 +21,7 @@ import net.dv8tion.jda.api.utils.data.DataObject;
 import net.dv8tion.jda.internal.interactions.CommandDataImpl;
 
 public class Server {
+    private static HashMap<Long, Server> repoos = new HashMap<>();
     private net.dv8tion.jda.api.entities.Guild guild;
     private MessageChannel subChannel;
     private HashMap<String, Team> teams = new HashMap<>();
@@ -44,13 +45,19 @@ public class Server {
                 Commands.slash("update", "re-freshes an event details")
                 .addSubcommands(new SubcommandData("events", "updates all events in all servers")
                 ).setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.MODERATE_MEMBERS)),
-                Commands.context(Type.MESSAGE, "edit"))
+                Commands.context(Type.MESSAGE, "edit"),
+                Commands.slash("role", "edit role of a player").addOption(OptionType.MENTIONABLE, "PlayerDiscord", "Discord").addOption(OptionType.ROLE, "NewPlayerRole", "role to make the player"))
         .queue();
         // this.dpsRole = dpsRole;
         // this.tankRole = tankRole;
         // this.suppRole = suppRole;
         // guild.upsertCommand("updatevent", "updates an event");
         // guild.upsertCommand("editevent", "updates an event");
+        repoos.put(guild.getIdLong(), this);
+    }
+
+    public static Server getGuild(Long id) {
+        return repoos.get(id);
     }
 
 
