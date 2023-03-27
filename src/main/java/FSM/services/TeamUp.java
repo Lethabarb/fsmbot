@@ -57,14 +57,15 @@ public class TeamUp {
         JsonArray subcal = new JsonArray(1);
         subcal.add(new JsonPrimitive(event.getTeam().getTeamupSubCalendar()));
         data.add(calenderKey, subcal);
+        int offset = TimeZone.getTimeZone("Australia/Sydney").getOffset(0, event.getDateTime().getYear(),
+        event.getDateTime().getMonthValue(), event.getDateTime().getDayOfMonth(),
+        event.getDateTime().getDayOfWeek().getValue(), 0);
+        offset /= 60000; // mins
+        offset /= 60; //hours
+        
         String startdt = event.getDateTime().format(DateTimeFormatter.ofPattern("YYYY-MM-DD'T'HH:MM:SS")) + "+"
-                + TimeZone.getTimeZone("Australia/Sydney").getOffset(0, event.getDateTime().getYear(),
-                        event.getDateTime().getMonthValue(), event.getDateTime().getDayOfMonth(),
-                        event.getDateTime().getDayOfWeek().getValue(), 0);
-        String enddt = event.getDateTime().plusHours(2).format(DateTimeFormatter.ofPattern("YYYY-MM-DD'T'HH:MM:SS")) + "+"
-                + TimeZone.getTimeZone("Australia/Sydney").getOffset(0, event.getDateTime().getYear(),
-                        event.getDateTime().getMonthValue(), event.getDateTime().getDayOfMonth(),
-                        event.getDateTime().getDayOfWeek().getValue(), 0);
+                + String.valueOf(10 + offset);
+        String enddt = event.getDateTime().plusHours(2).format(DateTimeFormatter.ofPattern("YYYY-MM-DD'T'HH:MM:SS")) + "+" + String.valueOf(10 + offset);
         data.add("start_dt", new JsonPrimitive(startdt));
         data.add("end_dt", new JsonPrimitive(startdt));
         data.add("all_day", new JsonPrimitive(false));

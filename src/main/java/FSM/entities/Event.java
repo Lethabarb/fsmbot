@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
+import java.util.TimeZone;
 
 import javax.sound.midi.SysexMessage;
 
@@ -81,7 +82,13 @@ public class Event implements Comparable<Event> {
 
     public long getUnix() {
         // ZoneOffset zoneOffset = ZoneId.systemDefault().getRules().getOffset(Instant.now());
-        Long unix = dateTime.toEpochSecond(ZoneOffset.ofHours(12));
+        LocalDateTime dt = LocalDateTime.now();
+        int offset = TimeZone.getTimeZone("Australia/Sydney").getOffset(0, dt.getYear(),
+        dt.getMonthValue(), dt.getDayOfMonth(),
+        dt.getDayOfWeek().getValue(), 0);
+        offset /= 60000; // mins
+        offset /= 60; //hours
+        Long unix = dateTime.toEpochSecond(ZoneOffset.ofHours(10 + offset));
         return unix;
     }
 
