@@ -61,7 +61,7 @@ public class TeamUp {
                 + TimeZone.getTimeZone("Australia/Sydney").getOffset(0, event.getDateTime().getYear(),
                         event.getDateTime().getMonthValue(), event.getDateTime().getDayOfMonth(),
                         event.getDateTime().getDayOfWeek().getValue(), 0);
-        String enddt = event.getDateTime().plusHours(2).format(DateTimeFormatter.ofPattern("YYYY-MM-DDTHH:MM:SS")) + "+"
+        String enddt = event.getDateTime().plusHours(2).format(DateTimeFormatter.ofPattern("YYYY-MM-DD'T'HH:MM:SS")) + "+"
                 + TimeZone.getTimeZone("Australia/Sydney").getOffset(0, event.getDateTime().getYear(),
                         event.getDateTime().getMonthValue(), event.getDateTime().getDayOfMonth(),
                         event.getDateTime().getDayOfWeek().getValue(), 0);
