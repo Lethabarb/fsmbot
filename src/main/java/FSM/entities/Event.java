@@ -86,8 +86,10 @@ public class Event implements Comparable<Event> {
         int offset = TimeZone.getTimeZone("Australia/Sydney").getOffset(0, dt.getYear(),
         dt.getMonthValue(), dt.getDayOfMonth(),
         dt.getDayOfWeek().getValue(), 0);
+        System.out.println("==========" + offset + "=========");
         offset /= 60000; // mins
         offset /= 60; //hours
+        System.out.println("==========" + offset + "=========");
         Long unix = dateTime.toEpochSecond(ZoneOffset.ofHours(10 + offset));
         return unix;
     }
