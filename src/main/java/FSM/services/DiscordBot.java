@@ -299,11 +299,11 @@ public class DiscordBot extends ListenerAdapter {
     public synchronized void sendEvent(Event event) {
         boolean exist = doesEventExist(event, event.getTeam().getTimetable());
         if (!exist) {
-            TeamUp calendar = TeamUp.getInstance();
-            Boolean addedToCal = calendar.addCalenderEvent(event);
-            if (!addedToCal) {
-                System.out.println("didnt add to cal");
-            }
+            // TeamUp calendar = TeamUp.getInstance();
+            // Boolean addedToCal = calendar.addCalenderEvent(event);
+            // if (!addedToCal) {
+            //     System.out.println("didnt add to cal");
+            // }
             String[] types = { "Scrim", "AAOL", "Coaching", "Open Div" };
             MessageCreateBuilder message = new MessageCreateBuilder();
             message.addContent(

@@ -82,15 +82,15 @@ public class Event implements Comparable<Event> {
 
     public long getUnix() {
         // ZoneOffset zoneOffset = ZoneId.systemDefault().getRules().getOffset(Instant.now());
-        LocalDateTime dt = LocalDateTime.now();
-        int offset = TimeZone.getTimeZone("Australia/Sydney").getOffset(0, dt.getYear(),
-        dt.getMonthValue(), dt.getDayOfMonth(),
-        dt.getDayOfWeek().getValue(), 0);
-        System.out.println("==========" + offset + "=========");
-        offset /= 60000; // mins
-        offset /= 60; //hours
-        System.out.println("==========" + offset + "=========");
-        Long unix = dateTime.toEpochSecond(ZoneOffset.ofHours(10 + offset));
+        // LocalDateTime dt = LocalDateTime.now();
+        // int offset = TimeZone.getTimeZone("Australia/Sydney").getOffset(0, dt.getYear(),
+        // dt.getMonthValue(), dt.getDayOfMonth(),
+        // dt.getDayOfWeek().getValue(), 0);
+        // System.out.println("==========" + offset + "=========");
+        // offset /= 60000; // mins
+        // offset /= 60; //hours
+        // System.out.println("==========" + offset + "=========");
+        Long unix = dateTime.toEpochSecond(ZoneId.of("Australia/Sydney").getRules().getOffset(LocalDateTime.now()));
         return unix;
     }
 
