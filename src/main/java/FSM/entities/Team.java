@@ -21,11 +21,12 @@ public class Team implements Runnable {
     private Role trialRole;
     private Role subRole;
     private List<Member> members = new LinkedList<>();
-    
+    private int teamupSubCalendar;
+
     private GoogleSheet sheet = new GoogleSheet();
     
     public Team(String name, String nameAbbv, String minRank, MessageChannel timetable, Role rosterRole, Role trialRole,
-    Role subRole, List<Member> members) {
+    Role subRole, List<Member> members, int teamupSubCalendar) {
         this.name = name;
         this.nameAbbv = nameAbbv;
         this.minRank = minRank;
@@ -34,6 +35,7 @@ public class Team implements Runnable {
         this.trialRole = trialRole;
         this.subRole = subRole;
         this.members = members;
+        this.teamupSubCalendar = teamupSubCalendar;
         Thread t = new Thread(this, name);
         t.start();
     }
@@ -130,6 +132,14 @@ public class Team implements Runnable {
 
     public void setTrialRole(Role trialRole) {
         this.trialRole = trialRole;
+    }
+
+    public int getTeamupSubCalendar() {
+        return teamupSubCalendar;
+    }
+
+    public void setTeamupSubCalendar(int teamupSubCalendar) {
+        this.teamupSubCalendar = teamupSubCalendar;
     }
 
     @Override

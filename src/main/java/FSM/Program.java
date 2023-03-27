@@ -4,6 +4,7 @@ import FSM.entities.Server;
 import FSM.entities.Team;
 import FSM.services.DiscordBot;
 import FSM.services.GoogleSheet;
+import FSM.services.TeamUp;
 
 public class Program {
     public static void main(String args[]) {
@@ -11,6 +12,7 @@ public class Program {
             // TODO: update sub working, update sheet working with new sys, add trials to
             // team
         DiscordBot bot = DiscordBot.getInstance(args[0]);
+        TeamUp cal = TeamUp.getInstance(args[1]);
         // bot.test();
         // bot.test("bolognese bandits");
         // for (int i = 0; i < 20; i++) {
@@ -31,8 +33,9 @@ public class Program {
         String bolRosterRoleId = "1026762517046886420";
         String bolTrialRoleId = "1026763075405230180";
         String bolSubRoleId = "1026763171115053066";
+        int bolsubcal = 11997718;
 
-        Team bolognaseBandits = bot.makeTeam(bolName, bolNameAbbv, bolMinRank, bolTimetableId, bolRosterRoleId, bolTrialRoleId, bolSubRoleId, fsm);
+        Team bolognaseBandits = bot.makeTeam(bolName, bolNameAbbv, bolMinRank, bolTimetableId, bolRosterRoleId, bolTrialRoleId, bolSubRoleId, fsm, bolsubcal);
         String ravName = "Ravioli Rabbis";
         String ravNameAbbv = "Rav";
         String ravMinRank = "Diamond2+";
@@ -40,8 +43,9 @@ public class Program {
         String ravRosterRoleId = "1014995273094791180";
         String ravTrialRoleId = "1014996886391889930";
         String ravSubRoleId = "1014996001045614712";
+        int ravSubCal = 11998119;
 
-        Team ravioliRabbis = bot.makeTeam(ravName, ravNameAbbv, ravMinRank, ravTimetableId, ravRosterRoleId, ravTrialRoleId, ravSubRoleId, fsm);
+        Team ravioliRabbis = bot.makeTeam(ravName, ravNameAbbv, ravMinRank, ravTimetableId, ravRosterRoleId, ravTrialRoleId, ravSubRoleId, fsm, ravSubCal);
 
         String ambitionGuildId = "883319891543867402";
         String ambitionSubChannelId = "900575082781503529";
@@ -55,8 +59,9 @@ public class Program {
         String desRosterRoleId = "883323099083317268";
         String desTrialRoleId = "883323646008000562";
         String desSubRoleId = "883323423915384934";
+        int desSubCal = 11997719;
         
-        Team abitionDesire = bot.makeTeam(desName, desNameAbbv, desMinRank, desTimetableId, desRosterRoleId, desTrialRoleId, desSubRoleId, ambition);
+        Team abitionDesire = bot.makeTeam(desName, desNameAbbv, desMinRank, desTimetableId, desRosterRoleId, desTrialRoleId, desSubRoleId, ambition, desSubCal);
 
         // String andromedaGuildId = "861832597553152010";
         // String andromedaSubChannelId = "1039822109179908177";

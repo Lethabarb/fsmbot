@@ -162,13 +162,13 @@ public class DiscordBot extends ListenerAdapter {
 
     public synchronized Team makeTeam(String name, String nameAbbv, String minRank, String timetableId,
             String rosterRoleId,
-            String trialRoleId, String subRoleId, Server s) {
+            String trialRoleId, String subRoleId, Server s, int subCalenderId) {
         MessageChannel timetable = bot.getTextChannelById(timetableId);
         Role rosterRole = bot.getRoleById(rosterRoleId);
         Role subRole = bot.getRoleById(subRoleId);
         Role trialRole = bot.getRoleById(trialRoleId);
         List<Member> mems = getMemberOfRole(s.getGuild(), trialRole, rosterRole);
-        Team t = new Team(name, nameAbbv, minRank, timetable, rosterRole, trialRole, subRole, mems);
+        Team t = new Team(name, nameAbbv, minRank, timetable, rosterRole, trialRole, subRole, mems, subCalenderId);
         // try {
         // // Thread.sleep(5000);
         // } catch (Exception e) {
@@ -299,6 +299,11 @@ public class DiscordBot extends ListenerAdapter {
     public synchronized void sendEvent(Event event) {
         boolean exist = doesEventExist(event, event.getTeam().getTimetable());
         if (!exist) {
+            TeamUp calendar = TeamUp.getInstance();
+            Boolean addedToCal = calendar.addCalenderEvent(event);
+            if (!addedToCal) {
+                System.out.println("didnt add to cal");
+            }
             String[] types = { "Scrim", "AAOL", "Coaching", "Open Div" };
             MessageCreateBuilder message = new MessageCreateBuilder();
             message.addContent(
@@ -459,7 +464,7 @@ public class DiscordBot extends ListenerAdapter {
         EmbedBuilder embed = new EmbedBuilder();
         embed.setColor(Color.BLUE);
 
-        int width = 16;
+        int width = 14;
         String lineDiv = getEmoji("1043359277441618030");
 
         embed.setTitle("**LFS** " + String.format("<t:%s:F>", event.getUnix()));
@@ -489,6 +494,8 @@ public class DiscordBot extends ListenerAdapter {
             rolefield = new Field("```Role```", "Support", true);
         }
         embed.addField(rolefield);
+        Field rank = new Field("```Rank```", event.getTeam().getMinRank(), true);
+        embed.addField(rank);
         // embed.addField(time);
 
         m.addEmbeds(embed.build());
