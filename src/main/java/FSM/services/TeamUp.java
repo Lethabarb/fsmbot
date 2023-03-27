@@ -56,7 +56,7 @@ public class TeamUp {
         JsonObject data = new JsonObject();
         JsonArray subcal = new JsonArray(1);
         subcal.add(new JsonPrimitive(event.getTeam().getTeamupSubCalendar()));
-        data.add("subcaldar_ids", subcal.getAsJsonObject());
+        data.add(calenderKey, subcal);
         String startdt = event.getDateTime().format(DateTimeFormatter.ofPattern("YYYY-MM-DDTHH:MM:SS")) + "+"
                 + TimeZone.getTimeZone("Australia/Sydney").getOffset(0, event.getDateTime().getYear(),
                         event.getDateTime().getMonthValue(), event.getDateTime().getDayOfMonth(),
