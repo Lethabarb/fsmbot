@@ -7,6 +7,7 @@ import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -81,15 +82,6 @@ public class Event implements Comparable<Event> {
     }
 
     public long getUnix() {
-        // ZoneOffset zoneOffset = ZoneId.systemDefault().getRules().getOffset(Instant.now());
-        // LocalDateTime dt = LocalDateTime.now();
-        // int offset = TimeZone.getTimeZone("Australia/Sydney").getOffset(0, dt.getYear(),
-        // dt.getMonthValue(), dt.getDayOfMonth(),
-        // dt.getDayOfWeek().getValue(), 0);
-        // System.out.println("==========" + offset + "=========");
-        // offset /= 60000; // mins
-        // offset /= 60; //hours
-        // System.out.println("==========" + offset + "=========");
         Long unix = dateTime.toEpochSecond(ZoneId.of("Australia/Sydney").getRules().getOffset(LocalDateTime.now()));
         return unix;
     }
@@ -248,6 +240,7 @@ public class Event implements Comparable<Event> {
         while (!subs.isEmpty()) {
             SubRequest sub = subs.getFirst();
             try {
+                team.getServer().getGuild().removeRoleFromMember(sub.getPlayer().getMember(), team.getSubRole());
                 sub.getMessage().delete().queue();
             } catch (Exception e) {
                 System.out.println("no sub message, deleting sub");
@@ -497,4 +490,18 @@ public class Event implements Comparable<Event> {
         return true;
     }
 
+    public static ArrayList<Event> messagesToEvents(List<Message> messages) {
+        ArrayList<Event> res = new ArrayList<>();
+
+        for (Message m : messages) {
+            try {
+                Event e = repository.get(Long.parseLong(m.getEmbeds().get(0).getFooter().getText()));
+                if (e != null) res.add(e);
+            } catch (Exception ex) {
+                // TODO: handle exception
+            }
+        }
+
+        return res;
+    }
 }

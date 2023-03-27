@@ -11,6 +11,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -135,6 +136,11 @@ public class DiscordBot extends ListenerAdapter {
 
         MessageChannel c = bot.getTextChannelById("824471569689739265");
         c.sendMessage(message.build()).queue();
+            try {
+                Thread.sleep(2000);
+            } catch (Exception e) {
+                // TODO: handle exception
+            }
 
     }
 
@@ -299,11 +305,11 @@ public class DiscordBot extends ListenerAdapter {
     public synchronized void sendEvent(Event event) {
         boolean exist = doesEventExist(event, event.getTeam().getTimetable());
         if (!exist) {
-            // TeamUp calendar = TeamUp.getInstance();
-            // Boolean addedToCal = calendar.addCalenderEvent(event);
-            // if (!addedToCal) {
-            //     System.out.println("didnt add to cal");
-            // }
+            TeamUp calendar = TeamUp.getInstance();
+            Boolean addedToCal = calendar.addCalenderEvent(event);
+            if (!addedToCal) {
+                System.out.println("didnt add to cal");
+            }
             String[] types = { "Scrim", "AAOL", "Coaching", "Open Div" };
             MessageCreateBuilder message = new MessageCreateBuilder();
             message.addContent(
@@ -333,6 +339,11 @@ public class DiscordBot extends ListenerAdapter {
             MessageChannel c = event.getTeam().getTimetable();
             // c.sendMessage(message.build()).queue();
             try {
+                Thread.sleep(2000);
+            } catch (Exception e) {
+                // TODO: handle exception
+            }
+            try {
                 Thread.sleep(1000);
             } catch (InterruptedException e1) {
                 // TODO Auto-generated catch block
@@ -341,7 +352,42 @@ public class DiscordBot extends ListenerAdapter {
             c.sendMessage(message.build()).queue((m) -> {
                 event.setMessage(m);
             });
+            sortChannel(c);
             // System.out.println("sent scrim");
+        }
+    }
+
+    public void sortChannel(MessageChannel c) {
+        List<Message> messages = MessageHistory.getHistoryFromBeginning(c).complete().getRetrievedHistory();
+        ArrayList<Event> sorted = new ArrayList<>();
+        ArrayList<Event> events = Event.messagesToEvents(messages);
+
+        while (events.size() != 0) {
+            Event l = events.get(0);
+            LocalDateTime lowest = events.get(0).getDateTime();
+            for (int i = 1; i < events.size(); i++) {
+                Event e = events.get(i);
+                if (e.getDateTime().isBefore(lowest)) {
+                    lowest = e.getDateTime();
+                    l = e;
+                }
+            }
+            events.remove(l);
+            c.deleteMessageById(l.getMessage().getId()).queue();
+            try {
+                Thread.sleep(2000);
+            } catch (Exception e) {
+                // TODO: handle exception
+            }
+            try {
+                Thread.sleep(1000);
+            } catch (Exception e) {
+                // TODO: handle exception
+            }
+            sorted.add(l);
+        }
+        for (Event event : sorted) {
+            sendEvent(event);
         }
     }
 
@@ -395,6 +441,11 @@ public class DiscordBot extends ListenerAdapter {
         if (event.getDateTime().toLocalDate().atStartOfDay().compareTo(LocalDate.now().atStartOfDay()) < 0) {
             event.deleteAllSubs();
             event.getMessage().delete().queue();
+            try {
+                Thread.sleep(2000);
+            } catch (Exception e) {
+                // TODO: handle exception
+            }
             Event.removeFromRepository(event);
         } else {
             if (!event.isSentAnnouncement()
@@ -410,6 +461,11 @@ public class DiscordBot extends ListenerAdapter {
                 content += "dm me if there are any issues :>";
                 User lethabarb = bot.getUserById("251578157822509057");
                 lethabarb.openPrivateChannel().complete().sendMessage(content).queue();
+            try {
+                Thread.sleep(2000);
+            } catch (Exception e) {
+                // TODO: handle exception
+            }
                 event.setSentAnnouncement(true);
 
             }
@@ -445,6 +501,16 @@ public class DiscordBot extends ListenerAdapter {
                             "No"));
             MessageChannel c = event.getTeam().getTimetable();
             event.getMessage().editMessage(message.build()).queue();
+            try {
+                Thread.sleep(2000);
+            } catch (Exception e) {
+                // TODO: handle exception
+            }
+            try {
+                Thread.sleep(2000);
+            } catch (Exception e) {
+                // TODO: handle exception
+            }
         }
     }
 
@@ -513,6 +579,11 @@ public class DiscordBot extends ListenerAdapter {
     public synchronized void deleteSubRequest(Event event, int subIndex) {
         MessageChannel c = event.getTeam().getServer().getSubChannel();
         c.deleteMessageById(event.getSubMessage(subIndex).getId()).queue();
+            try {
+                Thread.sleep(2000);
+            } catch (Exception e) {
+                // TODO: handle exception
+            }
     }
 
     public synchronized List<Member> getMemberOfRole(Guild g, Role... r) {
@@ -526,10 +597,20 @@ public class DiscordBot extends ListenerAdapter {
 
     public synchronized void giveMemberRole(Guild g, Member m, Role r) {
         g.addRoleToMember(m, r).queue();
+            try {
+                Thread.sleep(2000);
+            } catch (Exception e) {
+                // TODO: handle exception
+            }
     }
 
     public synchronized void removeMemberRole(Guild g, Member m, Role r) {
         g.removeRoleFromMember(m, r).queue();
+            try {
+                Thread.sleep(2000);
+            } catch (Exception e) {
+                // TODO: handle exception
+            }
         ;
     }
 
@@ -543,14 +624,15 @@ public class DiscordBot extends ListenerAdapter {
         // System.out.println("key: " + eventKey);
         Event event = Event.getEvent(eventKey);
         Player trigger = Player.getPlayer(buttonEvent.getMember());
-        
+
         if (buttonUse.equals("ScrimButtYes")) {
             if (hasRosterOrTrialRole(event.getTeam(), buttonEvent.getMember())) {
                 boolean wasSub = event.addConfirmed(trigger);
                 if (wasSub) {
                     try {
                         if (trigger.getRole() == -1) {
-                            buttonEvent.reply("you dont have a valid overwatch role for this event, please contact your manager");
+                            buttonEvent.reply(
+                                    "you dont have a valid overwatch role for this event, please contact your manager");
                             return;
                         }
                         int sub = event.getExistingSub(trigger.getRole(), false);
@@ -574,8 +656,18 @@ public class DiscordBot extends ListenerAdapter {
                 updateEvent(event);
                 buttonEvent.reply("You have accepted the scrim on <t:" + event.getUnix() + ":F>").setEphemeral(true)
                         .queue();
+            try {
+                Thread.sleep(2000);
+            } catch (Exception e) {
+                // TODO: handle exception
+            }
             } else {
                 buttonEvent.reply("you are not on the roster!").setEphemeral(true).queue();
+            try {
+                Thread.sleep(2000);
+            } catch (Exception e) {
+                // TODO: handle exception
+            }
             }
         } else if (buttonUse.equals("ScrimButtNo")) {
             if (hasRosterOrTrialRole(event.getTeam(), buttonEvent.getMember())) {
@@ -585,8 +677,18 @@ public class DiscordBot extends ListenerAdapter {
                     sendSubRequest(event, trigger.getRole());
                 buttonEvent.reply("You have declined the scrim on <t:" + event.getUnix() + ":F>").setEphemeral(true)
                         .queue();
+            try {
+                Thread.sleep(2000);
+            } catch (Exception e) {
+                // TODO: handle exception
+            }
             } else {
                 buttonEvent.reply("you are not on the roster!").setEphemeral(true).queue();
+            try {
+                Thread.sleep(2000);
+            } catch (Exception e) {
+                // TODO: handle exception
+            }
             }
         } else if (buttonUse.equals("Sub")) {
             int subIndex = Integer.parseInt(buttonData[2]);
@@ -600,9 +702,19 @@ public class DiscordBot extends ListenerAdapter {
                 giveMemberRole(event.getTeam().getServer().getGuild(), buttonEvent.getMember(),
                         event.getTeam().getSubRole());
                 buttonEvent.reply("you are now subbing").setEphemeral(true).queue();
+            try {
+                Thread.sleep(2000);
+            } catch (Exception e) {
+                // TODO: handle exception
+            }
                 updateEvent(event);
             } else {
                 buttonEvent.reply("you are on the roster! how can u be a sub??").setEphemeral(true).queue();
+            try {
+                Thread.sleep(2000);
+            } catch (Exception e) {
+                // TODO: handle exception
+            }
             }
         }
     }
@@ -624,6 +736,11 @@ public class DiscordBot extends ListenerAdapter {
                 System.out.println(commandEvent.getMember().getUser().getName() + " called /update events");
                 updateAllEvents();
                 commandEvent.reply("events have been updated").setEphemeral(true).queue();
+            try {
+                Thread.sleep(2000);
+            } catch (Exception e) {
+                // TODO: handle exception
+            }
             }
         } else if (command.equals("role")) {
             Server s = Server.getGuild(commandEvent.getGuild().getIdLong());
@@ -635,6 +752,9 @@ public class DiscordBot extends ListenerAdapter {
             Player p = Player.getPlayer(member);
             p.setRole(Player.roleHash(roleName));
             updateAllEvents();
+        } else if  (command.equals("sort")) {
+            MessageChannel c = commandEvent.getMessageChannel();
+            sortChannel(c);
         }
     }
 
@@ -695,71 +815,22 @@ public class DiscordBot extends ListenerAdapter {
                     .build();
 
             context.replyModal(modal).queue();
+            try {
+                Thread.sleep(2000);
+            } catch (Exception e) {
+                // TODO: handle exception
+            }
 
         } else {
             context.reply("this isnt an event message").setEphemeral(true).queue();
+            try {
+                Thread.sleep(2000);
+            } catch (Exception e) {
+                // TODO: handle exception
+            }
         }
-        // if (context.getMember())
-        // context.reply("poo").setEphemeral(true).queue();
     }
 
-    // @Override
-    // public void onMessageReceived(MessageReceivedEvent event) {
-    //     // String respo": [],nse = "";
-    //     MessageChannel c = event.getChannel();
-    //     if (event.getChannel().getType().compareTo(ChannelType.PRIVATE) == 0) {
-    //         if (event.getAuthor().getName().equalsIgnoreCase("charweyyy")
-    //                 || event.getAuthor().getName().equalsIgnoreCase("lethabarb")) {
-    //             if (event.getMessage().getContentStripped().equalsIgnoreCase("jobs")) {
-
-    //                 JobsService<NSW> NSW = new JobsService<NSW>("https://iworkfor.nsw.gov.au/Ajax/SearchJob",
-    //                         "SearchKey", "ListItem", "Data", "Result");
-    //                 HeadPair pageSize = new HeadPair("PageSize", "100");
-    //                 HeadPair pageNum = new HeadPair("Page", "1");
-    //                 NSW.getJobs("NSW", NSW[].class, pageSize, pageNum);
-    //                 pageNum = new HeadPair("Page", "2");
-    //                 NSW.getJobs("NSW", NSW[].class, pageSize, pageNum);
-
-    //                 JobsService<VIC> VIC = new JobsService<>("https://careers.vic.gov.au/Ajax/SearchJob", "SearchKey",
-    //                         "ListItem", "Data", "Result");
-    //                 pageNum = new HeadPair("Page", "1");
-    //                 VIC.getJobs("VIC", VIC[].class, pageSize, pageNum);
-    //                 // pageNum = new HeadPair("Page", "2");
-    //                 // VIC.getJobs("VIC", VIC[].class, pageSize, pageNum);
-
-    //                 String NTJson = "{\"AgencyList\":null,\"CategoryList\":null,\"LocationsList\":null,\"VacanycyTypeList\":[{\"Disabled\":false,\"Group\":null,\"Selected\":false,\"Text\":\"Ongoing (Permanent) - Full Time\",\"Value\":\"991\"},{\"Disabled\":false,\"Group\":null,\"Selected\":false,\"Text\":\"Ongoing (Permanent) - Part Time\",\"Value\":\"992\"},{\"Disabled\":false,\"Group\":null,\"Selected\":false,\"Text\":\"Fixed (Temporary) - Full Time\",\"Value\":\"993\"},{\"Disabled\":false,\"Group\":null,\"Selected\":false,\"Text\":\"Fixed (Temporary) - Part Time\",\"Value\":\"994\"},{\"Disabled\":false,\"Group\":null,\"Selected\":false,\"Text\":\"Casual\",\"Value\":\"995\"}],\"VacancyNumber\":null,\"Keyword\":\"<>\",\"SelectedAgencyList\":[],\"SelectedCategoryList\":[],\"SelectedLocationsList\":[],\"RemunerationRangeFrom\":null,\"RemunerationRangeTo\":null,\"SelectedVacanycyType\":null,\"DateAdvertisedAfter\":null,\"SalaryRangeFrom\":null,\"SalaryRangeTo\":null,\"JobAlertID\":null,\"JobAlertName\":null,\"EmailAlert\":null,\"results\":null,\"jobAlerts\":[]}";
-    //                 JobsService<NT> NT = new JobsService<>("https://jobs.nt.gov.au/Home/Search", "", "data");
-    //                 NT.getJobsWithCustomSearch("NT", NTJson, NT[].class);
-
-    //                 // String searchJSON =
-    //                 // "{\"actions\":[{\"id\":\"89;a\",\"descriptor\":\"aura://ApexActionController/ACTION$execute\",\"callingDescriptor\":\"UNKNOWN\",\"params\":{\"namespace\":\"\",\"classname\":\"aps_jobSearchController\",\"method\":\"retrieveJobListings\",\"params\":{\\\"filter\\\":\\\"{\\\"searchString\\\":\\\"<>\\\",\\\"salaryFrom\\\":null,\\\"salaryTo\\\":null,\\\"closingDate\\\":null,\\\"positionInitiative\\\":null,\\\"classification\\\":null,\\\"securityClearance\\\":null,\\\"officeArrangement\\\":null,\\\"duration\\\":null,\\\"department\\\":null,\\\"category\\\":null,\\\"opportunityType\\\":null,\\\"employmentStatus\\\":null,\\\"state\\\":null,\\\"sortBy\\\":null,\\\"offset\\\":><,\\\"offsetIsLimit\\\":false,\\\"lastVisitedId\\\":null,\\\"daysInPast\\\":null,\\\"name\\\":null,\\\"type\\\":null,\\\"notificationsEnabled\\\":null,\\\"savedSearchId\\\":null}&requested=Thu
-    //                 // Feb 23 2023 12:27:32 GMT+1100 (Australian Eastern Daylight
-    //                 // Time)\"},\"cacheable\":false,\"isContinuation\":false}}]}";
-
-    //                 // JobsService<APS> APS = new
-    //                 // JobsService<>("https://www.apsjobs.gov.au/s/sfsites/aura?r=1&aura.ApexAction.execute=1",
-    //                 // "message", "jobListings", "actions", "returnValue", "returnValue");
-    //                 // HeadPair auraContext = new HeadPair("aura.context",
-    //                 // "{\"mode\":\"PROD\",\"fwuid\":\"GVQSDds1N8x8l9AfZLjrQg\",\"app\":\"siteforce:communityApp\",\"loaded\":{\"APPLICATION@markup://siteforce:communityApp\":\"Q-CTn3sb841JAb-fQMyOLA\",\"COMPONENT@markup://instrumentation:o11ySecondaryLoader\":\"NAR59T88qTprOlgZG3yLoQ\"},\"dn\":[],\"globals\":{},\"uad\":false}");
-    //                 // HeadPair auraToken = new HeadPair("aura.token", "null");
-    //                 // APS.getJobsWithCustomSearch("APS", searchJSON, APS[].class, 0, auraContext,
-    //                 // auraToken);
-    //                 // APS.getJobsWithCustomSearch("APS", searchJSON, APS[].class, 15, auraContext,
-    //                 // auraToken);
-    //                 // APS.getJobsWithCustomSearch("APS", searchJSON, APS[].class, 30, auraContext,
-    //                 // auraToken);
-    //                 // APS.getJobsWithCustomSearch("APS", searchJSON, APS[].class, 45, auraContext,
-    //                 // auraToken);
-    //                 // APS.getJobsWithCustomSearch("APS", searchJSON, APS[].class, 60, auraContext,
-    //                 // auraToken);
-
-    //                 JobsService.sendSheet();
-
-    //                 c.sendFiles(FileUpload.fromData(new File("jobs.xlsx"))).queue();
-    //             }
-    //         }
-    //     }
-    // }
 
     @Override
     public void onModalInteraction(@Nonnull ModalInteractionEvent event) {
@@ -849,6 +920,11 @@ public class DiscordBot extends ListenerAdapter {
             GoogleSheet sheet = new GoogleSheet();
             sheet.updateEvent(scrim.getTeam().getNameAbbv(), scrim);
             event.reply("Thanks for your request!").setEphemeral(true).queue();
+            try {
+                Thread.sleep(2000);
+            } catch (Exception e) {
+                // TODO: handle exception
+            }
         }
     }
 
