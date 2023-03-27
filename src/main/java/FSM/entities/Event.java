@@ -81,7 +81,7 @@ public class Event implements Comparable<Event> {
 
     public long getUnix() {
         // ZoneOffset zoneOffset = ZoneId.systemDefault().getRules().getOffset(Instant.now());
-        Long unix = dateTime.toEpochSecond(ZoneOffset.ofHours(11));
+        Long unix = dateTime.toEpochSecond(ZoneOffset.ofHours(12));
         return unix;
     }
 
