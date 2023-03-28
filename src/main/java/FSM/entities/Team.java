@@ -42,6 +42,8 @@ public class Team implements Runnable {
     
     @Override
     public void run() {
+        System.out.println("=========="+name+"==========");
+
         DiscordBot bot = DiscordBot.getInstance();
         bot.createEventsFromChanel(timetable, this);
         while (true) {

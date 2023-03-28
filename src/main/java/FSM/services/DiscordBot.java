@@ -185,6 +185,7 @@ public class DiscordBot extends ListenerAdapter {
     }
 
     public synchronized void updateScrims(Team t) {
+        System.out.println("updating scrims for " + t.getName());
         try {
             updateAllEvents();
             GoogleSheet sheet = new GoogleSheet();
@@ -215,7 +216,8 @@ public class DiscordBot extends ListenerAdapter {
     }
 
     public synchronized void createEventsFromChanel(MessageChannel c, Team t) {
-        System.out.println("=========="+t.getName()+"==========");
+        // System.out.println("=========="+t.getName()+"==========");
+        System.out.println("Finding existing scrims for " + t.getName());
         List<Message> messages = MessageHistory.getHistoryFromBeginning(c).complete().getRetrievedHistory();
         Event event = null;
         for (Message message : messages) {
