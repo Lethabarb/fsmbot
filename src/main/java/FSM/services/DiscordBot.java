@@ -118,6 +118,7 @@ public class DiscordBot extends ListenerAdapter {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        System.out.println("done");
     }
 
     public synchronized boolean doesEventExist(Event event, MessageChannel c) {
@@ -267,15 +268,15 @@ public class DiscordBot extends ListenerAdapter {
             } catch (Exception e) {
                 // TODO: handle exception
             }
+            c.sendMessage(message.build()).queue((m) -> {
+                event.setMessage(m);
+            });
             try {
-                Thread.sleep(1000);
+                Thread.sleep(2000);
             } catch (InterruptedException e1) {
                 // TODO Auto-generated catch block
                 e1.printStackTrace();
             }
-            c.sendMessage(message.build()).queue((m) -> {
-                event.setMessage(m);
-            });
             if (sort) {
                 sortChannel(c);
             }
@@ -582,11 +583,6 @@ public class DiscordBot extends ListenerAdapter {
                 updateEvent(event);
                 buttonEvent.reply("You have accepted the scrim on <t:" + event.getUnix() + ":F>").setEphemeral(true)
                         .queue();
-                try {
-                    Thread.sleep(2000);
-                } catch (Exception e) {
-                    // TODO: handle exception
-                }
             } else {
                 buttonEvent.reply("you are not on the roster!").setEphemeral(true).queue();
                 try {
@@ -603,11 +599,6 @@ public class DiscordBot extends ListenerAdapter {
                     sendSubRequest(event, trigger.getRole());
                 buttonEvent.reply("You have declined the scrim on <t:" + event.getUnix() + ":F>").setEphemeral(true)
                         .queue();
-                try {
-                    Thread.sleep(2000);
-                } catch (Exception e) {
-                    // TODO: handle exception
-                }
             } else {
                 buttonEvent.reply("you are not on the roster!").setEphemeral(true).queue();
                 try {
