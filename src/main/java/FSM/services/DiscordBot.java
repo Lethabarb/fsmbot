@@ -237,9 +237,11 @@ public class DiscordBot extends ListenerAdapter {
             }
             String[] types = { "Scrim", "AAOL", "Coaching", "Open Div" };
             MessageCreateBuilder message = new MessageCreateBuilder();
-            message.addContent(
-                    event.getTeam().getRosterRole().getAsMention() +
-                            event.getTeam().getTrialRole().getAsMention());
+            if (sort) {
+                message.addContent(
+                        event.getTeam().getRosterRole().getAsMention() +
+                                event.getTeam().getTrialRole().getAsMention());
+            }
             EmbedBuilder embed = new EmbedBuilder();
             embed.setTitle(event.getTitle());
             embed.setAuthor(types[event.getType()]);
