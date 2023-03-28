@@ -26,7 +26,7 @@ public class Player {
         this.userId = m.getUser().getId();
         at = m.getAsMention();
         repository.put(name, this);
-        System.out.println(name + " is new");
+        // System.out.println(name + " is new");
     }
     
     

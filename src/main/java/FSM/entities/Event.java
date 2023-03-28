@@ -77,7 +77,7 @@ public class Event implements Comparable<Event> {
             System.out.println(title + " is new");
             repository.put(gethashCode(), this);
         }
-        System.out.println(gethashCode());
+        // System.out.println(gethashCode());
         // team.getServer().addEventChoice(this);
     }
 

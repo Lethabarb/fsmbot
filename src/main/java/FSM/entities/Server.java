@@ -34,12 +34,14 @@ public class Server {
 
     public Server(Guild guild, MessageChannel subChannel, Role subRole,
             Team... teams) {
+                System.out.println("Creating " + guild.getName() + " Server");
         this.guild = guild;
         this.subChannel = subChannel;
         for (Team team : teams) {
             this.teams.put(team.getName(), team);
         }
         this.subRole = subRole;
+        System.out.println("adding commands...");
         guild.updateCommands()
         .addCommands(
                 Commands.slash("update", "re-freshes an event details")
@@ -49,6 +51,7 @@ public class Server {
                 Commands.slash("role", "edit role of a player").addOption(OptionType.MENTIONABLE, "playerdiscord", "Discord").addOption(OptionType.ROLE, "newplayerrole", "role to make the player"),
                 Commands.slash("sort", "sort the events of a channel"))
         .queue();
+        System.out.println("added commands");
         // this.dpsRole = dpsRole;
         // this.tankRole = tankRole;
         // this.suppRole = suppRole;
