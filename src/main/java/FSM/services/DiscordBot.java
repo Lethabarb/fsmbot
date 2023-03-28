@@ -509,7 +509,7 @@ public class DiscordBot extends ListenerAdapter {
         MessageChannel c = event.getTeam().getServer().getSubChannel();
         c.deleteMessageById(event.getSubMessage(subIndex).getId()).queue();
         try {
-            Thread.sleep(2000);
+            Thread.sleep(500);
         } catch (Exception e) {
             // TODO: handle exception
         }
@@ -527,7 +527,7 @@ public class DiscordBot extends ListenerAdapter {
     public synchronized void giveMemberRole(Guild g, Member m, Role r) {
         g.addRoleToMember(m, r).queue();
         try {
-            Thread.sleep(2000);
+            Thread.sleep(500);
         } catch (Exception e) {
             // TODO: handle exception
         }
@@ -536,7 +536,7 @@ public class DiscordBot extends ListenerAdapter {
     public synchronized void removeMemberRole(Guild g, Member m, Role r) {
         g.removeRoleFromMember(m, r).queue();
         try {
-            Thread.sleep(2000);
+            Thread.sleep(500);
         } catch (Exception e) {
             // TODO: handle exception
         }
