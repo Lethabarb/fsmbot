@@ -112,14 +112,14 @@ public class GoogleSheet {
             LinkedList<LinkedList<String>> vals = getValues(String.format("%sB%s:C%s",page, 2 + (i * 5), 5 + (i * 5)));
             int a = 0;
             int b = 0;
-            for (LinkedList<String> ll : vals) {
-                for (String s : ll)  {
-                    System.out.println(String.format("[%s][%s] = %s", a, b, s));
-                    b++;
-                }
-                a++;
-                b = 0;
-            }
+            // for (LinkedList<String> ll : vals) {
+            //     for (String s : ll)  {
+            //         System.out.println(String.format("[%s][%s] = %s", a, b, s));
+            //         b++;
+            //     }
+            //     a++;
+            //     b = 0;
+            // }
             String title = vals.get(0).get(0);
             String typeString = title.split(" vs ")[0];
             if (!title.equalsIgnoreCase("#N/A"))
