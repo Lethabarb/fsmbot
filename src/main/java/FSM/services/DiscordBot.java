@@ -1,11 +1,6 @@
 package FSM.services;
 
 import java.awt.Color;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.net.http.HttpClient;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -16,55 +11,23 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
-import java.util.TimeZone;
 
 import javax.annotation.Nonnull;
-
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.params.HttpParams;
-import org.apache.poi.sl.usermodel.*;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.FillPatternType;
-import org.apache.poi.ss.usermodel.IndexedColors;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFFont;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.apache.xmlbeans.impl.soap.Text;
-
-import com.google.api.client.http.HttpResponse;
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 
 import FSM.entities.Event;
 import FSM.entities.Player;
 import FSM.entities.Server;
 import FSM.entities.SubRequest;
 import FSM.entities.Team;
-import FSM.entities.jobs.APS;
-import FSM.entities.jobs.HeadPair;
-import FSM.entities.jobs.NSW;
-import FSM.entities.jobs.NT;
-import FSM.entities.jobs.VIC;
-import FSM.services.jobs.JobsService;
 import net.dv8tion.jda.api.*;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.MessageEmbed.Field;
-import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.MessageContextInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.api.exceptions.RateLimitedException;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import net.dv8tion.jda.api.interactions.commands.OptionMapping;
-import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.Modal;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
@@ -72,15 +35,10 @@ import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.ChunkingFilter;
-import net.dv8tion.jda.api.utils.FileUpload;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageEditBuilder;
 
-import java.io.IOException;
-import java.io.InputStreamReader;
-
-import org.apache.http.params.*;
 
 public class DiscordBot extends ListenerAdapter {
     private static JDA bot;
@@ -106,43 +64,7 @@ public class DiscordBot extends ListenerAdapter {
         // logout();
     }
 
-    public void test(String name) {
-        String tankpng = "https://media.discordapp.net/attachments/740876905313599509/1044014909656137738/tank.png";
-        String dpspng = "https://media.discordapp.net/attachments/740876905313599509/1044014917952475156/dps.png";
-        String supportpng = "https://media.discordapp.net/attachments/740876905313599509/1044014928094298175/support.png";
-
-        MessageCreateBuilder message = new MessageCreateBuilder();
-        EmbedBuilder embed = new EmbedBuilder();
-        embed.setColor(Color.BLUE);
-        embed.setThumbnail("https://media.discordapp.net/attachments/740876905313599509/1044003205090132089/flex.png");
-        int width = 20;
-        String lineDiv = getEmoji("1043359277441618030");
-
-        embed.setTitle("**LFS**");
-        int remaining = width - name.length() / 3;
-        if (remaining % 2 == 0) {
-            int sides = remaining / 2;
-            embed.setDescription(lineDiv.repeat(sides) + name + lineDiv.repeat(sides));
-        } else {
-            int sides = remaining / 2;
-            embed.setDescription(lineDiv.repeat(sides) + "**" + name + "**" + lineDiv.repeat(sides + 1));
-        }
-        Field role = new Field("```Role```", "Tank", true);
-        Field time = new Field("```Date / Time```", "<t:1668982679:F>", true);
-        embed.addField(role);
-        embed.addField(time);
-
-        message.addEmbeds(embed.build());
-
-        MessageChannel c = bot.getTextChannelById("824471569689739265");
-        c.sendMessage(message.build()).queue();
-            try {
-                Thread.sleep(2000);
-            } catch (Exception e) {
-                // TODO: handle exception
-            }
-
-    }
+    
 
     public synchronized static DiscordBot getInstance(String... token) {
         if (instance == null) {
@@ -191,7 +113,7 @@ public class DiscordBot extends ListenerAdapter {
             GoogleSheet sheet = new GoogleSheet();
             LinkedList<Event> events = sheet.getEvents(t.getNameAbbv(), t);
             for (int i = 0; i < events.size(); i++) {
-                sendEvent(events.get(i));
+                sendEvent(events.get(i), true);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -304,7 +226,7 @@ public class DiscordBot extends ListenerAdapter {
         }
     }
 
-    public synchronized void sendEvent(Event event) {
+    public synchronized void sendEvent(Event event, boolean sort) {
         boolean exist = doesEventExist(event, event.getTeam().getTimetable());
         if (!exist) {
             TeamUp calendar = TeamUp.getInstance();
@@ -354,7 +276,9 @@ public class DiscordBot extends ListenerAdapter {
             c.sendMessage(message.build()).queue((m) -> {
                 event.setMessage(m);
             });
-            sortChannel(c);
+            if (sort) {
+                sortChannel(c);
+            }
             // System.out.println("sent scrim");
         }
     }
@@ -389,7 +313,7 @@ public class DiscordBot extends ListenerAdapter {
             sorted.add(l);
         }
         for (Event event : sorted) {
-            sendEvent(event);
+            sendEvent(event, false);
         }
     }
 
@@ -463,11 +387,11 @@ public class DiscordBot extends ListenerAdapter {
                 content += "dm me if there are any issues :>";
                 User lethabarb = bot.getUserById("251578157822509057");
                 lethabarb.openPrivateChannel().complete().sendMessage(content).queue();
-            try {
-                Thread.sleep(2000);
-            } catch (Exception e) {
-                // TODO: handle exception
-            }
+                try {
+                    Thread.sleep(2000);
+                } catch (Exception e) {
+                    // TODO: handle exception
+                }
                 event.setSentAnnouncement(true);
 
             }
@@ -581,11 +505,11 @@ public class DiscordBot extends ListenerAdapter {
     public synchronized void deleteSubRequest(Event event, int subIndex) {
         MessageChannel c = event.getTeam().getServer().getSubChannel();
         c.deleteMessageById(event.getSubMessage(subIndex).getId()).queue();
-            try {
-                Thread.sleep(2000);
-            } catch (Exception e) {
-                // TODO: handle exception
-            }
+        try {
+            Thread.sleep(2000);
+        } catch (Exception e) {
+            // TODO: handle exception
+        }
     }
 
     public synchronized List<Member> getMemberOfRole(Guild g, Role... r) {
@@ -599,20 +523,20 @@ public class DiscordBot extends ListenerAdapter {
 
     public synchronized void giveMemberRole(Guild g, Member m, Role r) {
         g.addRoleToMember(m, r).queue();
-            try {
-                Thread.sleep(2000);
-            } catch (Exception e) {
-                // TODO: handle exception
-            }
+        try {
+            Thread.sleep(2000);
+        } catch (Exception e) {
+            // TODO: handle exception
+        }
     }
 
     public synchronized void removeMemberRole(Guild g, Member m, Role r) {
         g.removeRoleFromMember(m, r).queue();
-            try {
-                Thread.sleep(2000);
-            } catch (Exception e) {
-                // TODO: handle exception
-            }
+        try {
+            Thread.sleep(2000);
+        } catch (Exception e) {
+            // TODO: handle exception
+        }
         ;
     }
 
@@ -658,18 +582,18 @@ public class DiscordBot extends ListenerAdapter {
                 updateEvent(event);
                 buttonEvent.reply("You have accepted the scrim on <t:" + event.getUnix() + ":F>").setEphemeral(true)
                         .queue();
-            try {
-                Thread.sleep(2000);
-            } catch (Exception e) {
-                // TODO: handle exception
-            }
+                try {
+                    Thread.sleep(2000);
+                } catch (Exception e) {
+                    // TODO: handle exception
+                }
             } else {
                 buttonEvent.reply("you are not on the roster!").setEphemeral(true).queue();
-            try {
-                Thread.sleep(2000);
-            } catch (Exception e) {
-                // TODO: handle exception
-            }
+                try {
+                    Thread.sleep(2000);
+                } catch (Exception e) {
+                    // TODO: handle exception
+                }
             }
         } else if (buttonUse.equals("ScrimButtNo")) {
             if (hasRosterOrTrialRole(event.getTeam(), buttonEvent.getMember())) {
@@ -679,18 +603,18 @@ public class DiscordBot extends ListenerAdapter {
                     sendSubRequest(event, trigger.getRole());
                 buttonEvent.reply("You have declined the scrim on <t:" + event.getUnix() + ":F>").setEphemeral(true)
                         .queue();
-            try {
-                Thread.sleep(2000);
-            } catch (Exception e) {
-                // TODO: handle exception
-            }
+                try {
+                    Thread.sleep(2000);
+                } catch (Exception e) {
+                    // TODO: handle exception
+                }
             } else {
                 buttonEvent.reply("you are not on the roster!").setEphemeral(true).queue();
-            try {
-                Thread.sleep(2000);
-            } catch (Exception e) {
-                // TODO: handle exception
-            }
+                try {
+                    Thread.sleep(2000);
+                } catch (Exception e) {
+                    // TODO: handle exception
+                }
             }
         } else if (buttonUse.equals("Sub")) {
             int subIndex = Integer.parseInt(buttonData[2]);
@@ -704,19 +628,19 @@ public class DiscordBot extends ListenerAdapter {
                 giveMemberRole(event.getTeam().getServer().getGuild(), buttonEvent.getMember(),
                         event.getTeam().getSubRole());
                 buttonEvent.reply("you are now subbing").setEphemeral(true).queue();
-            try {
-                Thread.sleep(2000);
-            } catch (Exception e) {
-                // TODO: handle exception
-            }
+                try {
+                    Thread.sleep(2000);
+                } catch (Exception e) {
+                    // TODO: handle exception
+                }
                 updateEvent(event);
             } else {
                 buttonEvent.reply("you are on the roster! how can u be a sub??").setEphemeral(true).queue();
-            try {
-                Thread.sleep(2000);
-            } catch (Exception e) {
-                // TODO: handle exception
-            }
+                try {
+                    Thread.sleep(2000);
+                } catch (Exception e) {
+                    // TODO: handle exception
+                }
             }
         }
     }
@@ -738,11 +662,11 @@ public class DiscordBot extends ListenerAdapter {
                 System.out.println(commandEvent.getMember().getUser().getName() + " called /update events");
                 updateAllEvents();
                 commandEvent.reply("events have been updated").setEphemeral(true).queue();
-            try {
-                Thread.sleep(2000);
-            } catch (Exception e) {
-                // TODO: handle exception
-            }
+                try {
+                    Thread.sleep(2000);
+                } catch (Exception e) {
+                    // TODO: handle exception
+                }
             }
         } else if (command.equals("role")) {
             Server s = Server.getGuild(commandEvent.getGuild().getIdLong());
@@ -754,7 +678,7 @@ public class DiscordBot extends ListenerAdapter {
             Player p = Player.getPlayer(member);
             p.setRole(Player.roleHash(roleName));
             updateAllEvents();
-        } else if  (command.equals("sort")) {
+        } else if (command.equals("sort")) {
             MessageChannel c = commandEvent.getMessageChannel();
             sortChannel(c);
         }
@@ -832,7 +756,6 @@ public class DiscordBot extends ListenerAdapter {
             }
         }
     }
-
 
     @Override
     public void onModalInteraction(@Nonnull ModalInteractionEvent event) {
