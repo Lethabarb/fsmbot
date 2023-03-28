@@ -1,6 +1,7 @@
 package FSM.services;
 
 import java.awt.Color;
+import java.io.File;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -19,14 +20,21 @@ import FSM.entities.Player;
 import FSM.entities.Server;
 import FSM.entities.SubRequest;
 import FSM.entities.Team;
+import FSM.entities.jobs.HeadPair;
+import FSM.entities.jobs.NSW;
+import FSM.entities.jobs.NT;
+import FSM.entities.jobs.VIC;
+import FSM.services.jobs.JobsService;
 import net.dv8tion.jda.api.*;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.MessageEmbed.Field;
+import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.MessageContextInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.Modal;
@@ -35,6 +43,7 @@ import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.ChunkingFilter;
+import net.dv8tion.jda.api.utils.FileUpload;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageEditBuilder;
@@ -603,11 +612,11 @@ public class DiscordBot extends ListenerAdapter {
                         .queue();
             } else {
                 buttonEvent.reply("you are not on the roster!").setEphemeral(true).queue();
-                try {
-                    Thread.sleep(2000);
-                } catch (Exception e) {
-                    // TODO: handle exception
-                }
+                // try {
+                //     Thread.sleep(2000);
+                // } catch (Exception e) {
+                //     // TODO: handle exception
+                // }
             }
         } else if (buttonUse.equals("Sub")) {
             int subIndex = Integer.parseInt(buttonData[2]);
@@ -842,6 +851,64 @@ public class DiscordBot extends ListenerAdapter {
                 Thread.sleep(2000);
             } catch (Exception e) {
                 // TODO: handle exception
+            }
+        }
+    }
+
+    @Override
+    public void onMessageReceived(MessageReceivedEvent event) {
+        // String respo": [],nse = "";
+        MessageChannel c = event.getChannel();
+        if (event.getChannel().getType().compareTo(ChannelType.PRIVATE) == 0) {
+            if (event.getAuthor().getName().equalsIgnoreCase("charweyyy")
+                    || event.getAuthor().getName().equalsIgnoreCase("lethabarb")) {
+                if (event.getMessage().getContentStripped().equalsIgnoreCase("jobs")) {
+
+                    JobsService<NSW> NSW = new JobsService<NSW>("https://iworkfor.nsw.gov.au/Ajax/SearchJob",
+                            "SearchKey", "ListItem", "Data", "Result");
+                    HeadPair pageSize = new HeadPair("PageSize", "100");
+                    HeadPair pageNum = new HeadPair("Page", "1");
+                    NSW.getJobs("NSW", NSW[].class, pageSize, pageNum);
+                    pageNum = new HeadPair("Page", "2");
+                    NSW.getJobs("NSW", NSW[].class, pageSize, pageNum);
+
+                    JobsService<VIC> VIC = new JobsService<>("https://careers.vic.gov.au/Ajax/SearchJob", "SearchKey",
+                            "ListItem", "Data", "Result");
+                    pageNum = new HeadPair("Page", "1");
+                    VIC.getJobs("VIC", VIC[].class, pageSize, pageNum);
+                    // pageNum = new HeadPair("Page", "2");
+                    // VIC.getJobs("VIC", VIC[].class, pageSize, pageNum);
+
+                    String NTJson = "{\"AgencyList\":null,\"CategoryList\":null,\"LocationsList\":null,\"VacanycyTypeList\":[{\"Disabled\":false,\"Group\":null,\"Selected\":false,\"Text\":\"Ongoing (Permanent) - Full Time\",\"Value\":\"991\"},{\"Disabled\":false,\"Group\":null,\"Selected\":false,\"Text\":\"Ongoing (Permanent) - Part Time\",\"Value\":\"992\"},{\"Disabled\":false,\"Group\":null,\"Selected\":false,\"Text\":\"Fixed (Temporary) - Full Time\",\"Value\":\"993\"},{\"Disabled\":false,\"Group\":null,\"Selected\":false,\"Text\":\"Fixed (Temporary) - Part Time\",\"Value\":\"994\"},{\"Disabled\":false,\"Group\":null,\"Selected\":false,\"Text\":\"Casual\",\"Value\":\"995\"}],\"VacancyNumber\":null,\"Keyword\":\"<>\",\"SelectedAgencyList\":[],\"SelectedCategoryList\":[],\"SelectedLocationsList\":[],\"RemunerationRangeFrom\":null,\"RemunerationRangeTo\":null,\"SelectedVacanycyType\":null,\"DateAdvertisedAfter\":null,\"SalaryRangeFrom\":null,\"SalaryRangeTo\":null,\"JobAlertID\":null,\"JobAlertName\":null,\"EmailAlert\":null,\"results\":null,\"jobAlerts\":[]}";
+                    JobsService<NT> NT = new JobsService<>("https://jobs.nt.gov.au/Home/Search", "", "data");
+                    NT.getJobsWithCustomSearch("NT", NTJson, NT[].class);
+
+                    // String searchJSON =
+                    // "{\"actions\":[{\"id\":\"89;a\",\"descriptor\":\"aura://ApexActionController/ACTION$execute\",\"callingDescriptor\":\"UNKNOWN\",\"params\":{\"namespace\":\"\",\"classname\":\"aps_jobSearchController\",\"method\":\"retrieveJobListings\",\"params\":{\\\"filter\\\":\\\"{\\\"searchString\\\":\\\"<>\\\",\\\"salaryFrom\\\":null,\\\"salaryTo\\\":null,\\\"closingDate\\\":null,\\\"positionInitiative\\\":null,\\\"classification\\\":null,\\\"securityClearance\\\":null,\\\"officeArrangement\\\":null,\\\"duration\\\":null,\\\"department\\\":null,\\\"category\\\":null,\\\"opportunityType\\\":null,\\\"employmentStatus\\\":null,\\\"state\\\":null,\\\"sortBy\\\":null,\\\"offset\\\":><,\\\"offsetIsLimit\\\":false,\\\"lastVisitedId\\\":null,\\\"daysInPast\\\":null,\\\"name\\\":null,\\\"type\\\":null,\\\"notificationsEnabled\\\":null,\\\"savedSearchId\\\":null}&requested=Thu
+                    // Feb 23 2023 12:27:32 GMT+1100 (Australian Eastern Daylight
+                    // Time)\"},\"cacheable\":false,\"isContinuation\":false}}]}";
+
+                    // JobsService<APS> APS = new
+                    // JobsService<>("https://www.apsjobs.gov.au/s/sfsites/aura?r=1&aura.ApexAction.execute=1",
+                    // "message", "jobListings", "actions", "returnValue", "returnValue");
+                    // HeadPair auraContext = new HeadPair("aura.context",
+                    // "{\"mode\":\"PROD\",\"fwuid\":\"GVQSDds1N8x8l9AfZLjrQg\",\"app\":\"siteforce:communityApp\",\"loaded\":{\"APPLICATION@markup://siteforce:communityApp\":\"Q-CTn3sb841JAb-fQMyOLA\",\"COMPONENT@markup://instrumentation:o11ySecondaryLoader\":\"NAR59T88qTprOlgZG3yLoQ\"},\"dn\":[],\"globals\":{},\"uad\":false}");
+                    // HeadPair auraToken = new HeadPair("aura.token", "null");
+                    // APS.getJobsWithCustomSearch("APS", searchJSON, APS[].class, 0, auraContext,
+                    // auraToken);
+                    // APS.getJobsWithCustomSearch("APS", searchJSON, APS[].class, 15, auraContext,
+                    // auraToken);
+                    // APS.getJobsWithCustomSearch("APS", searchJSON, APS[].class, 30, auraContext,
+                    // auraToken);
+                    // APS.getJobsWithCustomSearch("APS", searchJSON, APS[].class, 45, auraContext,
+                    // auraToken);
+                    // APS.getJobsWithCustomSearch("APS", searchJSON, APS[].class, 60, auraContext,
+                    // auraToken);
+
+                    JobsService.sendSheet();
+
+                    c.sendFiles(FileUpload.fromData(new File("jobs.xlsx"))).queue();
+                }
             }
         }
     }
