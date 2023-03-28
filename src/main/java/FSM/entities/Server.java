@@ -46,7 +46,7 @@ public class Server {
         .addCommands(
                 Commands.slash("update", "re-freshes an event details")
                 .addSubcommands(new SubcommandData("events", "updates all events in all servers")
-                ).setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.MODERATE_MEMBERS)),
+                ),
                 Commands.context(Type.MESSAGE, "edit"),
                 Commands.slash("role", "edit role of a player").addOption(OptionType.MENTIONABLE, "playerdiscord", "Discord").addOption(OptionType.ROLE, "newplayerrole", "role to make the player"),
                 Commands.slash("sort", "sort the events of a channel"))
