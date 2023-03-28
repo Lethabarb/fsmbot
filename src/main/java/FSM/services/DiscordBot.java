@@ -115,10 +115,10 @@ public class DiscordBot extends ListenerAdapter {
             for (int i = 0; i < events.size(); i++) {
                 sendEvent(events.get(i), true);
             }
+            System.out.println("done");
         } catch (Exception e) {
             e.printStackTrace();
         }
-        System.out.println("done");
     }
 
     public synchronized boolean doesEventExist(Event event, MessageChannel c) {
