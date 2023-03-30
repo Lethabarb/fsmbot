@@ -240,9 +240,16 @@ public class DiscordBot extends ListenerAdapter {
         boolean exist = doesEventExist(event, event.getTeam().getTimetable());
         if (!exist) {
             TeamUp calendar = TeamUp.getInstance();
-            Boolean addedToCal = calendar.addCalenderEvent(event);
-            if (!addedToCal) {
-                System.out.println("didnt add to cal");
+            try {
+                Boolean addedToCal = calendar.addCalenderEvent(event);
+                if (!addedToCal) {
+                    System.out.println("didnt add to cal");
+                }
+                
+            } catch (Exception e) {
+                e.printStackTrace();
+                System.out.println("continuing to send scrim");
+                // TODO: handle exception
             }
             String[] types = { "Scrim", "AAOL", "Coaching", "Open Div" };
             MessageCreateBuilder message = new MessageCreateBuilder();
