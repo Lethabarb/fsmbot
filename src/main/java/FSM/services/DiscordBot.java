@@ -122,6 +122,8 @@ public class DiscordBot extends ListenerAdapter {
             for (int i = 0; i < events.size(); i++) {
                 sendEvent(events.get(i), true);
             }
+            MessageChannel c = t.getTimetable();
+            sortChannel(c);
             System.out.println("done");
         } catch (Exception e) {
             e.printStackTrace();
@@ -255,6 +257,7 @@ public class DiscordBot extends ListenerAdapter {
             String[] types = { "Scrim", "AAOL", "Coaching", "Open Div" };
             MessageCreateBuilder message = new MessageCreateBuilder();
             if (sort) {
+                System.out.print("adding @s");
                 message.addContent(
                         event.getTeam().getRosterRole().getAsMention() +
                                 event.getTeam().getTrialRole().getAsMention());
@@ -292,9 +295,9 @@ public class DiscordBot extends ListenerAdapter {
                 // TODO Auto-generated catch block
                 e1.printStackTrace();
             }
-            if (sort) {
-                sortChannel(c);
-            }
+            // if (sort) {
+            //     sortChannel(c);
+            // }
             // System.out.println("sent scrim");
         }
     }
