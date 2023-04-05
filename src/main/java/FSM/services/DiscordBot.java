@@ -49,7 +49,6 @@ import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageEditBuilder;
 
-
 public class DiscordBot extends ListenerAdapter {
     private static JDA bot;
     private static DiscordBot instance;
@@ -74,8 +73,6 @@ public class DiscordBot extends ListenerAdapter {
         // logout();
     }
 
-    
-
     public synchronized static DiscordBot getInstance(String... token) {
         if (instance == null) {
             instance = new DiscordBot(token);
@@ -89,7 +86,8 @@ public class DiscordBot extends ListenerAdapter {
         Role subRole = guild.getRoleById(subRoleId);
         Server serv = new Server(guild, subChannel, subRole);
         for (TeamDTO team : teams) {
-            Team t = makeTeam(team.getName(), team.getNameAbbv(), team.getMinRank(), team.getTimetableId(), team.getRosterRoleId(), team.getTrialRoleId(), team.getSubRoleId(), serv, team.getSubCalenderId());
+            Team t = makeTeam(team.getName(), team.getNameAbbv(), team.getMinRank(), team.getTimetableId(),
+                    team.getRosterRoleId(), team.getTrialRoleId(), team.getSubRoleId(), serv, team.getSubCalenderId());
         }
         // Role tankRole = guild.getRoleById(tankRoleId);
         // Role dpsRole = guild.getRoleById(dpsRoleId);
@@ -118,7 +116,7 @@ public class DiscordBot extends ListenerAdapter {
     public synchronized void updateScrims(Team t) {
         System.out.println("updating scrims for " + t.getName());
         try {
-            updateAllEvents();
+            updateAllEvents(t);
             GoogleSheet sheet = new GoogleSheet();
             LinkedList<Event> events = sheet.getEvents(t.getNameAbbv(), t);
             for (int i = 0; i < events.size(); i++) {
@@ -245,7 +243,7 @@ public class DiscordBot extends ListenerAdapter {
                 if (!addedToCal) {
                     System.out.println("didnt add to cal");
                 }
-                
+
             } catch (Exception e) {
                 e.printStackTrace();
                 System.out.println("continuing to send scrim");
@@ -430,7 +428,6 @@ public class DiscordBot extends ListenerAdapter {
             MessageChannel c = event.getTeam().getTimetable();
             event.getMessage().editMessage(message.build()).queue();
 
-
         }
     }
 
@@ -595,9 +592,9 @@ public class DiscordBot extends ListenerAdapter {
             } else {
                 buttonEvent.reply("you are not on the roster!").setEphemeral(true).queue();
                 // try {
-                //     Thread.sleep(2000);
+                // Thread.sleep(2000);
                 // } catch (Exception e) {
-                //     // TODO: handle exception
+                // // TODO: handle exception
                 // }
             }
         } else if (buttonUse.equals("Sub")) {
@@ -629,10 +626,12 @@ public class DiscordBot extends ListenerAdapter {
         }
     }
 
-    public synchronized void updateAllEvents() {
+    public synchronized void updateAllEvents(Team t) {
         LinkedList<Event> events = Event.getAllEvents();
         for (Event event : events) {
-            updateEvent(event);
+            if (event.getTeam().getName().equalsIgnoreCase(t.getName())) {
+                updateEvent(event);
+            }
         }
     }
 
@@ -642,9 +641,11 @@ public class DiscordBot extends ListenerAdapter {
         System.out.println(commandEvent.getMember().getUser().getName());
         if (command.equals("update")) {
             String subCommand = commandEvent.getSubcommandName();
+            Role role = commandEvent.getOption("teamrole").getAsRole();
             if (subCommand.equals("events")) {
                 System.out.println(commandEvent.getMember().getUser().getName() + " called /update events");
-                updateAllEvents();
+                Team t = Team.getTeamByRosterRole(role);
+                updateAllEvents(t);
                 commandEvent.reply("events have been updated").setEphemeral(true).queue();
                 try {
                     Thread.sleep(2000);
@@ -661,7 +662,7 @@ public class DiscordBot extends ListenerAdapter {
             s.getGuild().addRoleToMember(member, role);
             Player p = Player.getPlayer(member);
             p.setRole(Player.roleHash(roleName));
-            updateAllEvents();
+            // updateAllEvents();
         } else if (command.equals("sort")) {
             MessageChannel c = commandEvent.getMessageChannel();
             sortChannel(c);
@@ -725,7 +726,6 @@ public class DiscordBot extends ListenerAdapter {
                     .build();
 
             context.replyModal(modal).queue();
-
 
         } else {
             context.reply("this isnt an event message").setEphemeral(true).queue();

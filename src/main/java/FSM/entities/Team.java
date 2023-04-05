@@ -12,6 +12,7 @@ import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 
 public class Team implements Runnable {
+    private static LinkedList<Team> teams = new LinkedList<>();
     private String name;
     private String nameAbbv;
     private String minRank;
@@ -37,6 +38,7 @@ public class Team implements Runnable {
         this.members = members;
         this.teamupSubCalendar = teamupSubCalendar;
         Thread t = new Thread(this, name);
+        teams.add(this);
         t.start();
     }
     
@@ -181,4 +183,12 @@ public class Team implements Runnable {
         return true;
     }
 
+    public static Team getTeamByRosterRole(Role r) {
+        for (Team team : teams) {
+            if (team.getRosterRole().compareTo(r) == 0) {
+                return team;
+            }
+        }
+        return teams.getFirst();
+    }
 }
