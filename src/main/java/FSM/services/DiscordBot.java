@@ -291,9 +291,9 @@ public class DiscordBot extends ListenerAdapter {
                 // TODO Auto-generated catch block
                 e1.printStackTrace();
             }
-            // if (sort) {
-            //     sortChannel(c);
-            // }
+            if (sort) {
+                sortChannel(c);
+            }
             // System.out.println("sent scrim");
         }
     }
