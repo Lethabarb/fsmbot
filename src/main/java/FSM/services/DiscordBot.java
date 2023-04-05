@@ -20,6 +20,7 @@ import FSM.entities.Player;
 import FSM.entities.Server;
 import FSM.entities.SubRequest;
 import FSM.entities.Team;
+import FSM.entities.TeamDTO;
 import FSM.entities.jobs.HeadPair;
 import FSM.entities.jobs.NSW;
 import FSM.entities.jobs.NT;
@@ -82,22 +83,21 @@ public class DiscordBot extends ListenerAdapter {
         return instance;
     }
 
-    public synchronized Server makeGuild(String guildId, String subChannelId, String subRoleId) {
+    public synchronized Server makeGuild(String guildId, String subChannelId, String subRoleId, TeamDTO... teams) {
         Guild guild = bot.getGuildById(guildId);
         MessageChannel subChannel = guild.getTextChannelById(subChannelId);
         Role subRole = guild.getRoleById(subRoleId);
-        try {
-            Thread.sleep(5000);
-        } catch (Exception e) {
-            e.printStackTrace();
+        Server serv = new Server(guild, subChannel, subRole);
+        for (TeamDTO team : teams) {
+            Team t = makeTeam(team.getName(), team.getNameAbbv(), team.getMinRank(), team.getTimetableId(), team.getRosterRoleId(), team.getTrialRoleId(), team.getSubRoleId(), serv, team.getSubCalenderId());
         }
         // Role tankRole = guild.getRoleById(tankRoleId);
         // Role dpsRole = guild.getRoleById(dpsRoleId);
         // Role suppRole = guild.getRoleById(suppRoleId);
-        return new Server(guild, subChannel, subRole);
+        return serv;
     }
 
-    public synchronized Team makeTeam(String name, String nameAbbv, String minRank, String timetableId,
+    public Team makeTeam(String name, String nameAbbv, String minRank, String timetableId,
             String rosterRoleId,
             String trialRoleId, String subRoleId, Server s, int subCalenderId) {
         MessageChannel timetable = bot.getTextChannelById(timetableId);
@@ -147,7 +147,7 @@ public class DiscordBot extends ListenerAdapter {
         return false;
     }
 
-    public synchronized void createEventsFromChanel(MessageChannel c, Team t) {
+    public void createEventsFromChanel(MessageChannel c, Team t) {
         // System.out.println("=========="+t.getName()+"==========");
         System.out.println("Finding existing scrims for " + t.getName());
         List<Message> messages = MessageHistory.getHistoryFromBeginning(c).complete().getRetrievedHistory();
@@ -281,11 +281,7 @@ public class DiscordBot extends ListenerAdapter {
                             "No"));
             MessageChannel c = event.getTeam().getTimetable();
             // c.sendMessage(message.build()).queue();
-            try {
-                Thread.sleep(2000);
-            } catch (Exception e) {
-                // TODO: handle exception
-            }
+
             c.sendMessage(message.build()).queue((m) -> {
                 event.setMessage(m);
             });
@@ -319,16 +315,7 @@ public class DiscordBot extends ListenerAdapter {
             }
             events.remove(l);
             c.deleteMessageById(l.getMessage().getId()).queue();
-            try {
-                Thread.sleep(2000);
-            } catch (Exception e) {
-                // TODO: handle exception
-            }
-            try {
-                Thread.sleep(1000);
-            } catch (Exception e) {
-                // TODO: handle exception
-            }
+
             sorted.add(l);
         }
         for (Event event : sorted) {
@@ -386,11 +373,7 @@ public class DiscordBot extends ListenerAdapter {
         if (event.getDateTime().toLocalDate().atStartOfDay().compareTo(LocalDate.now().atStartOfDay()) < 0) {
             event.deleteAllSubs();
             event.getMessage().delete().queue();
-            try {
-                Thread.sleep(2000);
-            } catch (Exception e) {
-                // TODO: handle exception
-            }
+
             Event.removeFromRepository(event);
         } else {
             if (!event.isSentAnnouncement()
@@ -446,16 +429,8 @@ public class DiscordBot extends ListenerAdapter {
                             "No"));
             MessageChannel c = event.getTeam().getTimetable();
             event.getMessage().editMessage(message.build()).queue();
-            try {
-                Thread.sleep(2000);
-            } catch (Exception e) {
-                // TODO: handle exception
-            }
-            try {
-                Thread.sleep(2000);
-            } catch (Exception e) {
-                // TODO: handle exception
-            }
+
+
         }
     }
 
@@ -750,19 +725,11 @@ public class DiscordBot extends ListenerAdapter {
                     .build();
 
             context.replyModal(modal).queue();
-            try {
-                Thread.sleep(2000);
-            } catch (Exception e) {
-                // TODO: handle exception
-            }
+
 
         } else {
             context.reply("this isnt an event message").setEphemeral(true).queue();
-            try {
-                Thread.sleep(2000);
-            } catch (Exception e) {
-                // TODO: handle exception
-            }
+
         }
     }
 
@@ -854,11 +821,7 @@ public class DiscordBot extends ListenerAdapter {
             GoogleSheet sheet = new GoogleSheet();
             sheet.updateEvent(scrim.getTeam().getNameAbbv(), scrim);
             event.reply("Thanks for your request!").setEphemeral(true).queue();
-            try {
-                Thread.sleep(2000);
-            } catch (Exception e) {
-                // TODO: handle exception
-            }
+
         }
     }
 

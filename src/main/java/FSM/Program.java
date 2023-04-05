@@ -2,6 +2,7 @@ package FSM;
 
 import FSM.entities.Server;
 import FSM.entities.Team;
+import FSM.entities.TeamDTO;
 import FSM.services.DiscordBot;
 import FSM.services.GoogleSheet;
 import FSM.services.TeamUp;
@@ -20,12 +21,7 @@ public class Program {
         // }
 
 
-        String fsmGuildId = "734267704516673536";
-        String fsmSubChannelId = "824447819690672132";
-        String fsmSubRoleId = "948413633182974032";
-
-        Server fsm = bot.makeGuild(fsmGuildId, fsmSubChannelId, fsmSubRoleId);
-
+        
         String bolName = "Bolognase Bandits";
         String bolNameAbbv = "Bol";
         String bolMinRank = "Masters5+";
@@ -34,8 +30,8 @@ public class Program {
         String bolTrialRoleId = "1026763075405230180";
         String bolSubRoleId = "1026763171115053066";
         int bolsubcal = 11997718;
-
-        Team bolognaseBandits = bot.makeTeam(bolName, bolNameAbbv, bolMinRank, bolTimetableId, bolRosterRoleId, bolTrialRoleId, bolSubRoleId, fsm, bolsubcal);
+        TeamDTO bolognaseBandits = new TeamDTO(bolName, bolNameAbbv, bolMinRank, bolTimetableId, bolRosterRoleId, bolTrialRoleId, bolSubRoleId, bolsubcal);
+        
         String ravName = "Ravioli Rabbis";
         String ravNameAbbv = "Rav";
         String ravMinRank = "Diamond2+";
@@ -44,14 +40,21 @@ public class Program {
         String ravTrialRoleId = "1014996886391889930";
         String ravSubRoleId = "1014996001045614712";
         int ravSubCal = 11998119;
+        
+        TeamDTO ravioliRabbis = new TeamDTO(ravName, ravNameAbbv, ravMinRank, ravTimetableId, ravRosterRoleId, ravTrialRoleId, ravSubRoleId, ravSubCal);
+        
+        String fsmGuildId = "734267704516673536";
+        String fsmSubChannelId = "824447819690672132";
+        String fsmSubRoleId = "948413633182974032";
 
-        Team ravioliRabbis = bot.makeTeam(ravName, ravNameAbbv, ravMinRank, ravTimetableId, ravRosterRoleId, ravTrialRoleId, ravSubRoleId, fsm, ravSubCal);
+        Server fsm = bot.makeGuild(fsmGuildId, fsmSubChannelId, fsmSubRoleId, bolognaseBandits, ravioliRabbis);
+
 
         String ambitionGuildId = "883319891543867402";
         String ambitionSubChannelId = "900575082781503529";
         String ambitionSubRoleId = "883883773232562347";
         Server ambition = bot.makeGuild(ambitionGuildId, ambitionSubChannelId, ambitionSubRoleId);
-
+        
         String desName = "Ambition Desire";
         String desNameAbbv = "Des";
         String desMinRank = "Daimond3+";

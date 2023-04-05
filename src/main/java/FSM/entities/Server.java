@@ -32,14 +32,13 @@ public class Server {
     // OptionData eventOptions = new OptionData(OptionType.STRING, "events",
             // "unique event hash code that exists in the event footer");
 
-    public Server(Guild guild, MessageChannel subChannel, Role subRole,
-            Team... teams) {
+    public Server(Guild guild, MessageChannel subChannel, Role subRole) {
                 System.out.println("Creating " + guild.getName() + " Server");
         this.guild = guild;
         this.subChannel = subChannel;
-        for (Team team : teams) {
-            this.teams.put(team.getName(), team);
-        }
+        // for (Team team : teams) {
+        //     this.teams.put(team.getName(), team);
+        // }
         this.subRole = subRole;
         System.out.println("adding commands...");
         guild.updateCommands()
