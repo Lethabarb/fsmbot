@@ -257,7 +257,7 @@ public class DiscordBot extends ListenerAdapter {
             String[] types = { "Scrim", "AAOL", "Coaching", "Open Div" };
             MessageCreateBuilder message = new MessageCreateBuilder();
             if (sort) {
-                System.out.print("adding @s");
+                System.out.println("adding @s");
                 message.addContent(
                         event.getTeam().getRosterRole().getAsMention() +
                                 event.getTeam().getTrialRole().getAsMention());
@@ -298,11 +298,12 @@ public class DiscordBot extends ListenerAdapter {
             // if (sort) {
             //     sortChannel(c);
             // }
-            // System.out.println("sent scrim");
+            System.out.println("sent scrim");
         }
     }
 
     public void sortChannel(MessageChannel c) {
+        System.out.println("sorting...");
         List<Message> messages = MessageHistory.getHistoryFromBeginning(c).complete().getRetrievedHistory();
         ArrayList<Event> sorted = new ArrayList<>();
         ArrayList<Event> events = Event.messagesToEvents(messages);
@@ -325,6 +326,7 @@ public class DiscordBot extends ListenerAdapter {
         for (Event event : sorted) {
             sendEvent(event, false);
         }
+        System.out.println("done sorting");
     }
 
     public boolean hasRosterOrTrialRole(Team team, Member member) {
