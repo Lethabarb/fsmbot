@@ -323,6 +323,12 @@ public class DiscordBot extends ListenerAdapter {
 
             sorted.add(l);
         }
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
         for (Event event : sorted) {
             sendEvent(event, false);
         }
