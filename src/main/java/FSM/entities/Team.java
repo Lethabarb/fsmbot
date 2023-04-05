@@ -13,6 +13,7 @@ import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 
 public class Team implements Runnable {
     private static LinkedList<Team> teams = new LinkedList<>();
+    private static boolean avail = true;
     private String name;
     private String nameAbbv;
     private String minRank;
@@ -24,10 +25,11 @@ public class Team implements Runnable {
     private List<Member> members = new LinkedList<>();
     private int teamupSubCalendar;
 
+
     private GoogleSheet sheet = new GoogleSheet();
-    
+
     public Team(String name, String nameAbbv, String minRank, MessageChannel timetable, Role rosterRole, Role trialRole,
-    Role subRole, List<Member> members, int teamupSubCalendar) {
+            Role subRole, List<Member> members, int teamupSubCalendar) {
         this.name = name;
         this.nameAbbv = nameAbbv;
         this.minRank = minRank;
@@ -41,16 +43,29 @@ public class Team implements Runnable {
         teams.add(this);
         t.start();
     }
-    
+
     @Override
     public void run() {
         System.out.println("=========="+name+"==========");
 
         DiscordBot bot = DiscordBot.getInstance();
-        bot.createEventsFromChanel(timetable, this);
+        Boolean first = true;
         while (true) {
+            while (!avail) {
+                try {
+                    Thread.sleep(100);
+                } catch (Exception e) {
+                    // TODO: handle exception
+                }
+            }
             try {
+                avail = false;
+                if (first) {
+                    bot.createEventsFromChanel(timetable, this);
+                }
+                first = false;
                 bot.updateScrims(this);
+                avail = true;
                 Thread.sleep(12*60*60*100);;
             } catch (Exception e) {
                 // TODO Auto-generated catch block
@@ -58,27 +73,27 @@ public class Team implements Runnable {
             }
         }
     }
-    
+
     public String getName() {
         return name;
     }
-    
+
     public void setName(String name) {
         this.name = name;
     }
-    
+
     public String getNameAbbv() {
         return nameAbbv;
     }
-    
+
     public void setNameAbbv(String nameAbbv) {
         this.nameAbbv = nameAbbv;
     }
-    
+
     public String getMinRank() {
         return minRank;
     }
-    
+
     public List<Member> getMembers() {
         return members;
     }
@@ -86,6 +101,7 @@ public class Team implements Runnable {
     public void setMembers(List<Member> members) {
         this.members = members;
     }
+
     public void setMinRank(String minRank) {
         this.minRank = minRank;
     }

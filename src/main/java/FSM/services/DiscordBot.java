@@ -116,15 +116,15 @@ public class DiscordBot extends ListenerAdapter {
     public synchronized void updateScrims(Team t) {
         System.out.println("updating scrims for " + t.getName());
         try {
-            updateAllEvents(t);
             GoogleSheet sheet = new GoogleSheet();
             LinkedList<Event> events = sheet.getEvents(t.getNameAbbv(), t);
             for (int i = 0; i < events.size(); i++) {
                 sendEvent(events.get(i), true);
             }
+            // updateAllEvents(t);
             MessageChannel c = t.getTimetable();
             sortChannel(c);
-            System.out.println("done");
+            System.out.println("done updating scrims");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -234,6 +234,7 @@ public class DiscordBot extends ListenerAdapter {
                     event.updateScrim();
             }
         }
+        System.out.println("finished finding scrims");
     }
 
     public synchronized void sendEvent(Event event, boolean sort) {
