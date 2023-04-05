@@ -41,30 +41,30 @@ public class Program {
         String ravSubRoleId = "1014996001045614712";
         int ravSubCal = 11998119;
         
-        TeamDTO ravioliRabbis = new TeamDTO(ravName, ravNameAbbv, ravMinRank, ravTimetableId, ravRosterRoleId, ravTrialRoleId, ravSubRoleId, ravSubCal);
+        // TeamDTO ravioliRabbis = new TeamDTO(ravName, ravNameAbbv, ravMinRank, ravTimetableId, ravRosterRoleId, ravTrialRoleId, ravSubRoleId, ravSubCal);
         
         String fsmGuildId = "734267704516673536";
         String fsmSubChannelId = "824447819690672132";
         String fsmSubRoleId = "948413633182974032";
 
-        Server fsm = bot.makeGuild(fsmGuildId, fsmSubChannelId, fsmSubRoleId, bolognaseBandits, ravioliRabbis);
+        Server fsm = bot.makeGuild(fsmGuildId, fsmSubChannelId, fsmSubRoleId, bolognaseBandits);
 
 
-        String ambitionGuildId = "883319891543867402";
-        String ambitionSubChannelId = "900575082781503529";
-        String ambitionSubRoleId = "883883773232562347";
-        Server ambition = bot.makeGuild(ambitionGuildId, ambitionSubChannelId, ambitionSubRoleId);
+        // String ambitionGuildId = "883319891543867402";
+        // String ambitionSubChannelId = "900575082781503529";
+        // String ambitionSubRoleId = "883883773232562347";
+        // Server ambition = bot.makeGuild(ambitionGuildId, ambitionSubChannelId, ambitionSubRoleId);
         
-        String desName = "Ambition Desire";
-        String desNameAbbv = "Des";
-        String desMinRank = "Daimond3+";
-        String desTimetableId = "1039862285440647198";
-        String desRosterRoleId = "883323099083317268";
-        String desTrialRoleId = "883323646008000562";
-        String desSubRoleId = "883323423915384934";
-        int desSubCal = 11997719;
+        // String desName = "Ambition Desire";
+        // String desNameAbbv = "Des";
+        // String desMinRank = "Daimond3+";
+        // String desTimetableId = "1039862285440647198";
+        // String desRosterRoleId = "883323099083317268";
+        // String desTrialRoleId = "883323646008000562";
+        // String desSubRoleId = "883323423915384934";
+        // int desSubCal = 11997719;
         
-        Team abitionDesire = bot.makeTeam(desName, desNameAbbv, desMinRank, desTimetableId, desRosterRoleId, desTrialRoleId, desSubRoleId, ambition, desSubCal);
+        // Team abitionDesire = bot.makeTeam(desName, desNameAbbv, desMinRank, desTimetableId, desRosterRoleId, desTrialRoleId, desSubRoleId, ambition, desSubCal);
 
         // String andromedaGuildId = "861832597553152010";
         // String andromedaSubChannelId = "1039822109179908177";
