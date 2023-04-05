@@ -56,7 +56,7 @@ public class TeamUp {
         JsonObject data = new JsonObject();
         JsonArray subcal = new JsonArray(1);
         subcal.add(new JsonPrimitive(event.getTeam().getTeamupSubCalendar()));
-        data.add(calenderKey, subcal);
+        data.add("subcalendar_ids", subcal);
         int offset = TimeZone.getTimeZone("Australia/Sydney").getOffset(0, event.getDateTime().getYear(),
         event.getDateTime().getMonthValue(), event.getDateTime().getDayOfMonth(),
         event.getDateTime().getDayOfWeek().getValue(), 0);
@@ -70,6 +70,7 @@ public class TeamUp {
         data.add("end_dt", new JsonPrimitive(startdt));
         data.add("all_day", new JsonPrimitive(false));
         data.add("tz", new JsonPrimitive("Australia/Sydney"));
+        // data.add("subcalendar_ids", subcal);
         String[] types = { "Scrim", "AAOL", "Coaching", "Open Div" };
         if (event.getType() == 2) {
             data.add("title", new JsonPrimitive(types[event.getType()] + " with " + event.getTitle()));
