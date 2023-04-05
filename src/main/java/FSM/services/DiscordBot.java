@@ -236,12 +236,15 @@ public class DiscordBot extends ListenerAdapter {
 
     public synchronized void sendEvent(Event event, boolean sort) {
         boolean exist = doesEventExist(event, event.getTeam().getTimetable());
+        System.out.println("sending scrim with " + (sort == true ? "sort" : "withour sort"));
         if (!exist) {
             TeamUp calendar = TeamUp.getInstance();
             try {
-                Boolean addedToCal = calendar.addCalenderEvent(event);
-                if (!addedToCal) {
-                    System.out.println("didnt add to cal");
+                if (!sort) {
+                    Boolean addedToCal = calendar.addCalenderEvent(event);
+                    if (!addedToCal) {
+                        System.out.println("didnt add to cal");
+                    }
                 }
 
             } catch (Exception e) {
