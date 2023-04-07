@@ -243,7 +243,7 @@ public class DiscordBot extends ListenerAdapter {
         if (!exist) {
             TeamUp calendar = TeamUp.getInstance();
             try {
-                if (!sort) {
+                if (sort) {
                     Boolean addedToCal = calendar.addCalenderEvent(event);
                     if (!addedToCal) {
                         System.out.println("didnt add to cal");

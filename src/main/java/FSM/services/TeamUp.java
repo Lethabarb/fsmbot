@@ -65,6 +65,7 @@ public class TeamUp {
         
         String startdt = event.getDateTime().format(DateTimeFormatter.ofPattern("YYYY-MM-dd'T'HH:MM:SS")) + "+"
                 + String.valueOf(10 + offset);
+        System.out.println(startdt);
         String enddt = event.getDateTime().plusHours(2).format(DateTimeFormatter.ofPattern("YYYY-MM-dd'T'HH:MM:SS")) + "+" + String.valueOf(10 + offset);
         data.add("start_dt", new JsonPrimitive(startdt));
         data.add("end_dt", new JsonPrimitive(startdt));
