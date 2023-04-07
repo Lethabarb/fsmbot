@@ -46,8 +46,7 @@ public class Team implements Runnable {
 
     @Override
     public void run() {
-        System.out.println("=========="+name+"==========");
-
+        
         DiscordBot bot = DiscordBot.getInstance();
         Boolean first = true;
         while (true) {
@@ -59,6 +58,7 @@ public class Team implements Runnable {
                 }
             }
             try {
+                System.out.println("=========="+name+"==========");
                 avail = false;
                 if (first) {
                     bot.createEventsFromChanel(timetable, this);
