@@ -257,12 +257,12 @@ public class DiscordBot extends ListenerAdapter {
             }
             String[] types = { "Scrim", "AAOL", "Coaching", "Open Div" };
             MessageCreateBuilder message = new MessageCreateBuilder();
-            if (sort) {
-                System.out.println("adding @s");
-                message.addContent(
-                        event.getTeam().getRosterRole().getAsMention() +
-                                event.getTeam().getTrialRole().getAsMention());
-            }
+            // if (sort) {
+            //     System.out.println("adding @s");
+            //     message.addContent(
+            //             event.getTeam().getRosterRole().getAsMention() +
+            //                     event.getTeam().getTrialRole().getAsMention());
+            // }
             EmbedBuilder embed = new EmbedBuilder();
             embed.setTitle(event.getTitle());
             embed.setAuthor(types[event.getType()]);
@@ -323,6 +323,12 @@ public class DiscordBot extends ListenerAdapter {
             c.deleteMessageById(l.getMessage().getId()).queue();
 
             sorted.add(l);
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
         }
         try {
             Thread.sleep(2000);
@@ -411,9 +417,9 @@ public class DiscordBot extends ListenerAdapter {
 
             }
             MessageEditBuilder message = new MessageEditBuilder();
-            message.setContent(
-                    event.getTeam().getRosterRole().getAsMention() +
-                            event.getTeam().getTrialRole().getAsMention());
+            // message.setContent(
+            //         event.getTeam().getRosterRole().getAsMention() +
+            //                 event.getTeam().getTrialRole().getAsMention());
             EmbedBuilder embed = new EmbedBuilder();
             embed.setTitle(event.getTitle());
             embed.setAuthor(types[event.getType()]);

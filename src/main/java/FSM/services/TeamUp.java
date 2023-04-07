@@ -63,10 +63,9 @@ public class TeamUp {
         offset /= 60000; // mins
         offset /= 60; //hours
         
-        String startdt = event.getDateTime().format(DateTimeFormatter.ofPattern("YYYY-MM-dd'T'HH:MM:SS")) + "+"
-                + String.valueOf(10 + offset);
+        String startdt = event.getDateTime().format(DateTimeFormatter.ofPattern("YYYY-MM-dd'T'HH:mm:ss'+'X"));
         System.out.println(startdt);
-        String enddt = event.getDateTime().plusHours(2).format(DateTimeFormatter.ofPattern("YYYY-MM-dd'T'HH:MM:SS")) + "+" + String.valueOf(10 + offset);
+        String enddt = event.getDateTime().plusHours(2).format(DateTimeFormatter.ofPattern("YYYY-MM-dd'T'HH:mm:ss'+'X"));
         data.add("start_dt", new JsonPrimitive(startdt));
         data.add("end_dt", new JsonPrimitive(startdt));
         data.add("all_day", new JsonPrimitive(false));
