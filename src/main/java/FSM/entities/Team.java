@@ -52,7 +52,7 @@ public class Team implements Runnable {
         while (true) {
             while (!avail) {
                 try {
-                    Thread.sleep(1000);
+                    Thread.sleep(100);
                     System.out.println(name + " is waiting to update...");
                 } catch (Exception e) {
                     // TODO: handle exception
@@ -74,6 +74,24 @@ public class Team implements Runnable {
             }
         }
     }
+
+    // public synchronized static void updateScrims(Team t) {
+    //             System.out.println("updating scrims for " + t.getName());
+    //             DiscordBot bot = DiscordBot.getInstance();
+    //     try {
+    //         GoogleSheet sheet = new GoogleSheet();
+    //         LinkedList<Event> events = sheet.getEvents(t.getNameAbbv(), t);
+    //         for (int i = 0; i < events.size(); i++) {
+    //             bot.sendEvent(events.get(i), true);
+    //         }
+    //         // updateAllEvents(t);
+    //         MessageChannel c = t.getTimetable();
+    //         bot.sortChannel(c);
+    //         System.out.println("done updating scrims");
+    //     } catch (Exception e) {
+    //         e.printStackTrace();
+    //     }
+    // }
 
     public String getName() {
         return name;

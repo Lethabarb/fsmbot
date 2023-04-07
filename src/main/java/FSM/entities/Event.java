@@ -121,6 +121,7 @@ public class Event implements Comparable<Event> {
 
     public void updateScrim() {
         DiscordBot bot = DiscordBot.getInstance();
+        System.out.println(String.format("scrim id: ", message.getId()));
         bot.updateEvent(this);
     }
 

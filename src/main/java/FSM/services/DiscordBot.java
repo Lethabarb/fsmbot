@@ -134,10 +134,13 @@ public class DiscordBot extends ListenerAdapter {
         List<Message> messages = MessageHistory.getHistoryFromBeginning(c).complete().getRetrievedHistory();
         for (Message message : messages) {
             try {
-                MessageEmbed embed = message.getEmbeds().get(0);
-                String timeFormatted = embed.getFields().get(0).getName();
-                Long unix = Long.valueOf(timeFormatted.split(":")[1]);
-                if (Long.valueOf(event.getUnix()).compareTo(unix) == 0) {
+                String eventHash = message.getEmbeds().get(0).getFooter().getText();
+
+                // MessageEmbed embed = message.getEmbeds().get(0);
+                // String timeFormatted = embed.getFields().get(0).getName();
+                // Long unix = Long.valueOf(timeFormatted.split(":")[1]);
+                System.out.println(String.format("%s == %s", event.gethashCode(), Long.valueOf(eventHash)));
+                if (event.gethashCode() == Long.valueOf(eventHash)) {
                     return true;
                 }
             } catch (Exception e) {
