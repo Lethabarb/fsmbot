@@ -25,7 +25,7 @@ public class Program {
         String bolName = "Bolognase Bandits";
         String bolNameAbbv = "Bol";
         String bolMinRank = "Masters5+";
-        String bolTimetableId = "1026762361081696316";
+        String bolTimetableId = "741097925731418153";
         String bolRosterRoleId = "1026762517046886420";
         String bolTrialRoleId = "1026763075405230180";
         String bolSubRoleId = "1026763171115053066";
@@ -54,7 +54,7 @@ public class Program {
         String desName = "Ambition Desire";
         String desNameAbbv = "Des";
         String desMinRank = "Daimond3+";
-        String desTimetableId = "1039862285440647198";
+        String desTimetableId = "824212826281213972";
         String desRosterRoleId = "883323099083317268";
         String desTrialRoleId = "883323646008000562";
         String desSubRoleId = "883323423915384934";
