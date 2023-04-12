@@ -6,12 +6,14 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
+import java.util.TimeZone;
 
 import javax.annotation.Nonnull;
 
@@ -122,8 +124,8 @@ public class DiscordBot extends ListenerAdapter {
                 sendEvent(events.get(i), true);
             }
             // updateAllEvents(t);
-            MessageChannel c = t.getTimetable();
-            sortChannel(c);
+            // MessageChannel c = t.getTimetable();
+            // sortChannel(c);
             System.out.println("done updating scrims");
         } catch (Exception e) {
             e.printStackTrace();
@@ -306,7 +308,7 @@ public class DiscordBot extends ListenerAdapter {
         }
     }
 
-    public void sortChannel(MessageChannel c) {
+    public synchronized void sortChannel(MessageChannel c) {
         System.out.println("sorting...");
         List<Message> messages = MessageHistory.getHistoryFromBeginning(c).complete().getRetrievedHistory();
         ArrayList<Event> sorted = new ArrayList<>();
@@ -314,7 +316,7 @@ public class DiscordBot extends ListenerAdapter {
 
         while (events.size() != 0) {
             Event l = events.get(0);
-            LocalDateTime lowest = events.get(0).getDateTime();
+            ZonedDateTime lowest = events.get(0).getDateTime();
             for (int i = 1; i < events.size(); i++) {
                 Event e = events.get(i);
                 if (e.getDateTime().isBefore(lowest)) {
@@ -322,8 +324,8 @@ public class DiscordBot extends ListenerAdapter {
                     l = e;
                 }
             }
-            events.remove(l);
             c.deleteMessageById(l.getMessage().getId()).queue();
+            events.remove(l);
 
             sorted.add(l);
             try {
@@ -399,7 +401,7 @@ public class DiscordBot extends ListenerAdapter {
             Event.removeFromRepository(event);
         } else {
             if (!event.isSentAnnouncement()
-                    && event.getDateTime().compareTo(LocalDate.now().atStartOfDay().plusHours(24)) < 0) {
+                    && event.getDateTime().toLocalDateTime().compareTo(ZonedDateTime.now().toLocalDate().atStartOfDay().plusHours(24)) < 0) {
                 String content = "";
                 content += types[event.getType()];
                 if (event.getType() == 2)
@@ -772,8 +774,8 @@ public class DiscordBot extends ListenerAdapter {
 
             Event scrim = Event.getEvent(Long.valueOf(eventHash));
             Event.removeFromRepository(scrim);
-            LocalDateTime datetime = LocalDateTime.parse(dateTimeString,
-                    DateTimeFormatter.ofPattern("E dd/MM/yyyy h:mm a", Locale.US));
+            ZonedDateTime datetime = LocalDateTime.parse(dateTimeString,
+                    DateTimeFormatter.ofPattern("E dd/MM/yyyy h:mm a", Locale.US)).atZone(TimeZone.getTimeZone("Australia/Sydney").toZoneId());
             scrim.setDateTime(datetime);
             scrim.setContact1(disc);
             scrim.setContact2(bnet);

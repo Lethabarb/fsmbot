@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,7 +33,7 @@ public class Event implements Comparable<Event> {
 
     private static HashMap<Long, Event> repository = new HashMap<>();
     private String title;
-    private LocalDateTime dateTime;
+    private ZonedDateTime dateTime;
     private Message message;
     private String contact1; // discord
     private String contact2; // bnet
@@ -50,7 +51,7 @@ public class Event implements Comparable<Event> {
     public Event(String title, LocalDateTime dateTime, Message message, String contact1, String contact2, Team team,
             int type) {
         this.title = title;
-        this.dateTime = dateTime;
+        this.dateTime = dateTime.atZone(TimeZone.getTimeZone("Australia/Sydney").toZoneId());
         this.message = message;
         this.contact1 = contact1;
         this.contact2 = contact2;
@@ -82,7 +83,8 @@ public class Event implements Comparable<Event> {
     }
 
     public long getUnix() {
-        Long unix = dateTime.toEpochSecond(ZoneId.of("Australia/Sydney").getRules().getOffset(LocalDateTime.now()));
+        // Long unix = dateTime.toEpochSecond(ZoneId.of("Australia/Sydney").getRules().getOffset(LocalDateTime.now()));
+        Long unix = dateTime.toEpochSecond();
         return unix;
     }
 
@@ -138,11 +140,11 @@ public class Event implements Comparable<Event> {
         this.title = title;
     }
 
-    public LocalDateTime getDateTime() {
+    public ZonedDateTime getDateTime() {
         return dateTime;
     }
 
-    public void setDateTime(LocalDateTime dateTime) {
+    public void setDateTime(ZonedDateTime dateTime) {
         this.dateTime = dateTime;
     }
 

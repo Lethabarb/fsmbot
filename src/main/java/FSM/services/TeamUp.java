@@ -5,7 +5,9 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.TimeZone;
@@ -34,6 +36,19 @@ public class TeamUp {
             instance = new TeamUp(k[0]);
         }
         return instance;
+    }
+
+    public static void main(String[] args) {
+        LocalDateTime event = LocalDateTime.now();
+        // ZonedDateTime event = dt.atZone(TimeZone.getTimeZone("Australia/Sydney").toZoneId());
+        int offset = TimeZone.getTimeZone("Australia/Sydney").getOffset(0, event.getYear(),
+        event.getMonthValue(), event.getDayOfMonth(),
+        event.getDayOfWeek().getValue(), 0);
+        offset /= 60000; // mins
+        offset /= 60; //hours
+        
+        String startdt = event.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+        System.out.println(startdt);
     }
 
     public boolean addCalenderEvent(Event event) {
