@@ -50,10 +50,11 @@ public class Team implements Runnable {
         DiscordBot bot = DiscordBot.getInstance();
         Boolean first = true;
         while (true) {
+            int c = 0;
             while (!avail) {
                 try {
                     Thread.sleep(100);
-                    System.out.println(name + " is waiting to update...");
+                    System.out.println(name + " is waiting to update..." + c++);
                 } catch (Exception e) {
                     // TODO: handle exception
                 }

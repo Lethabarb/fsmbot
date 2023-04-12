@@ -82,7 +82,7 @@ public class TeamUp {
         System.out.println(startdt);
         String enddt = event.getDateTime().plusHours(2).format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
         data.add("start_dt", new JsonPrimitive(startdt));
-        data.add("end_dt", new JsonPrimitive(startdt));
+        data.add("end_dt", new JsonPrimitive(enddt));
         data.add("all_day", new JsonPrimitive(false));
         data.add("tz", new JsonPrimitive("Australia/Sydney"));
         // data.add("subcalendar_ids", subcal);
