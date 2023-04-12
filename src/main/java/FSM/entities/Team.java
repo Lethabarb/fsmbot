@@ -69,7 +69,7 @@ public class Team implements Runnable {
                 bot.updateScrims(this);
                 bot.sortChannel(timetable);
                 avail = true;
-                Thread.sleep(12*60*60*100);;
+                Thread.sleep(12*60*60*1000);;
             } catch (Exception e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
