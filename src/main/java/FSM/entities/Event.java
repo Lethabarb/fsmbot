@@ -52,6 +52,7 @@ public class Event implements Comparable<Event> {
             int type) {
         this.title = title;
         this.dateTime = dateTime.atZone(TimeZone.getTimeZone("Australia/Sydney").toZoneId());
+        System.out.println(dateTime.toString());
         this.message = message;
         this.contact1 = contact1;
         this.contact2 = contact2;
