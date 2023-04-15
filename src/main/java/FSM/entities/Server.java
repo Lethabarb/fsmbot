@@ -58,6 +58,7 @@ public class Server {
                 Commands.slash("sort", "sort the events of a channel"))
         .queue();
         if (guild.getName().equalsIgnoreCase("flying spaghetti monster")) {
+             System.out.println("adding config command");
             guild.updateCommands().addCommands(Commands.slash("makeconfigchannel", "sets the current channel for the guild to the bot config channel"));
         }
         System.out.println("added commands");
