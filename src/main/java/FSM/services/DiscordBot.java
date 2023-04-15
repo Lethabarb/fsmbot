@@ -14,6 +14,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
+import java.util.function.Predicate;
 
 import javax.annotation.Nonnull;
 
@@ -32,6 +33,8 @@ import net.dv8tion.jda.api.*;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.MessageEmbed.Field;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.MessageContextInteractionEvent;
@@ -692,6 +695,19 @@ public class DiscordBot extends ListenerAdapter {
         } else if (command.equals("sort")) {
             MessageChannel c = commandEvent.getMessageChannel();
             sortChannel(c);
+        } else if (command.equals("makeconfigchannel")) {
+            Server s = Server.getGuild(commandEvent.getGuild().getIdLong());
+            List<GuildChannel> channels = s.getGuild().getChannels(false);
+            // GuildChannel chan = channels.get(0).getName()
+            Predicate<GuildChannel> pred = (GuildChannel gc) -> (gc.getType().compareTo(ChannelType.TEXT) != 0 && !gc.getName().equalsIgnoreCase("fsm-config"));
+            Boolean found = channels.removeIf(pred);
+            while (channels.size() > 0) {
+                System.out.println("Delete channel named " + channels.get(0).getName());
+                channels.remove(channels.get(0));
+                // channels.get(0).delete().complete();
+            }
+            MessageChannel c = s.getGuild().createTextChannel("fsm-config").complete();
+            s.setBotConfigChannel(c);
         }
     }
 

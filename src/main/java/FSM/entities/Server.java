@@ -26,11 +26,18 @@ public class Server {
     private MessageChannel subChannel;
     private HashMap<String, Team> teams = new HashMap<>();
     private Role subRole = null;
+    private MessageChannel botConfigChannel;
     // private Role dpsRole = null;
     // private Role tankRole = null;
     // private Role suppRole = null;
     // OptionData eventOptions = new OptionData(OptionType.STRING, "events",
             // "unique event hash code that exists in the event footer");
+
+
+    public Server(MessageChannel botConfiChannel) {
+        this.botConfigChannel = botConfiChannel;
+
+    }
 
     public Server(Guild guild, MessageChannel subChannel, Role subRole) {
                 System.out.println("Creating " + guild.getName() + " Server");
@@ -50,6 +57,9 @@ public class Server {
                 Commands.slash("role", "edit role of a player").addOption(OptionType.MENTIONABLE, "playerdiscord", "Discord").addOption(OptionType.ROLE, "newplayerrole", "role to make the player"),
                 Commands.slash("sort", "sort the events of a channel"))
         .queue();
+        if (guild.getName().equalsIgnoreCase("flying spaghetti monster")) {
+            guild.updateCommands().addCommands(Commands.slash("makeconfigchannel", "sets the current channel for the guild to the bot config channel"));
+        }
         System.out.println("added commands");
         // this.dpsRole = dpsRole;
         // this.tankRole = tankRole;
@@ -94,6 +104,14 @@ public class Server {
 
     public void setSubRole(Role subRole) {
         this.subRole = subRole;
+    }
+
+    public MessageChannel getBotConfigChannel() {
+        return botConfigChannel;
+    }
+
+    public void setBotConfigChannel(MessageChannel botConfigChannel) {
+        this.botConfigChannel = botConfigChannel;
     }
 
     // public Role getDpsRole() {
