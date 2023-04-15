@@ -53,7 +53,7 @@ public class Team implements Runnable {
             int c = 0;
             while (!avail) {
                 try {
-                    Thread.sleep(100);
+                    Thread.sleep(1000);
                     System.out.println(name + " is waiting to update..." + c++);
                 } catch (Exception e) {
                     // TODO: handle exception
