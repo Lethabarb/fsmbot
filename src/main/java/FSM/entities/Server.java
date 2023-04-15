@@ -59,7 +59,7 @@ public class Server {
         .queue();
         if (guild.getName().equalsIgnoreCase("flying spaghetti monster")) {
              System.out.println("adding config command");
-            guild.updateCommands().addCommands(Commands.slash("makeconfigchannel", "sets the current channel for the guild to the bot config channel"));
+            guild.updateCommands().addCommands(Commands.slash("makeconfigchannel", "sets the current channel for the guild to the bot config channel")).queue();
         }
         System.out.println("added commands");
         // this.dpsRole = dpsRole;
