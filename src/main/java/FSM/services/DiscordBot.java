@@ -700,12 +700,16 @@ public class DiscordBot extends ListenerAdapter {
         } else if (command.equals("makeconfigchannel")) {
             Server s = Server.getGuild(commandEvent.getGuild().getIdLong());
             List<GuildChannel> channels = s.getGuild().getChannels(false);
+            LinkedList<GuildChannel> channelsll = new LinkedList<>();
+            for (GuildChannel guildChannel : channels) {
+                channelsll.add(guildChannel);
+            }
             // GuildChannel chan = channels.get(0).getName()
             Predicate<GuildChannel> pred = (GuildChannel gc) -> (gc.getType().compareTo(ChannelType.TEXT) != 0 && !gc.getName().equalsIgnoreCase("fsm-config"));
-            Boolean found = channels.removeIf(pred);
+            Boolean found = channelsll.removeIf(pred);
             while (channels.size() > 0) {
-                System.out.println("Delete channel named " + channels.get(0).getName());
-                channels.remove(channels.get(0));
+                System.out.println("Delete channel named " + channelsll.get(0).getName());
+                channels.remove(channelsll.get(0));
                 // channels.get(0).delete().complete();
             }
             MessageChannel c = s.getGuild().createTextChannel("fsm-config").complete();
