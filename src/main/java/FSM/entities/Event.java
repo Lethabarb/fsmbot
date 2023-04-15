@@ -82,6 +82,40 @@ public class Event implements Comparable<Event> {
         // System.out.println(gethashCode());
         // team.getServer().addEventChoice(this);
     }
+    public Event(String title, ZonedDateTime dateTime, Message message, String contact1, String contact2, Team team,
+            int type) {
+        this.title = title;
+        this.dateTime = dateTime;
+        System.out.println(dateTime.toString());
+        this.message = message;
+        this.contact1 = contact1;
+        this.contact2 = contact2;
+        this.team = team;
+        this.type = type;
+        List<Member> members = DiscordBot.getInstance().getMemberOfRole(team.getServer().getGuild(),
+                team.getRosterRole(), team.getTrialRole());
+        for (Member member : members) {
+            // System.out.println("========" + member.getUser().getName() + "========");
+            if (Player.getPlayer(member) == null) {
+                int OWrole = -1;
+                for (Role role : member.getRoles()) {
+                    if (OWrole == -1) {
+                        OWrole = Player.roleHash(role.getName());
+                    }
+                }
+                Player p = new Player(member, OWrole);
+                notResponded.add(p);
+            } else {
+                notResponded.add(Player.getPlayer(member));
+            }
+        }
+        if (repository.get(gethashCode()) == null) {
+            System.out.println(title + " is new");
+            repository.put(gethashCode(), this);
+        }
+        // System.out.println(gethashCode());
+        // team.getServer().addEventChoice(this);
+    }
 
     public long getUnix() {
         // Long unix = dateTime.toEpochSecond(ZoneId.of("Australia/Sydney").getRules().getOffset(LocalDateTime.now()));

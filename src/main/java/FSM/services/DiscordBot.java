@@ -168,8 +168,8 @@ public class DiscordBot extends ListenerAdapter {
                 String timeFormatted = embed.getFields().get(0).getName();
                 // System.out.println(timeFormatted);
                 Long unix = Long.valueOf(timeFormatted.split(":")[1]);
-                LocalDateTime dateTime = LocalDateTime.ofInstant(Instant.ofEpochSecond(unix),
-                        ZoneId.of("+11"));
+                ZonedDateTime dateTime = ZonedDateTime.ofInstant(Instant.ofEpochSecond(unix), TimeZone.getTimeZone("Australia/Sydney").toZoneId());
+                // ZonedDateTime dateTime = LocalDateTime.ofInstant(Instant.ofEpochSecond(unix),);
                 String title = embed.getTitle();
                 String contact1 = embed.getFields().get(1).getValue();
                 String contact2 = embed.getFields().get(2).getValue();
