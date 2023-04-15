@@ -145,7 +145,8 @@ public class DiscordBot extends ListenerAdapter {
                 // String timeFormatted = embed.getFields().get(0).getName();
                 // Long unix = Long.valueOf(timeFormatted.split(":")[1]);
                 System.out.println(String.format("%s == %s", event.gethashCode(), Long.valueOf(eventHash)));
-                if (event.gethashCode() == Long.valueOf(eventHash)) {
+                if (Long.valueOf(eventHash).compareTo(event.gethashCode()) == 0) {
+                    System.out.println("exists");
                     return true;
                 }
             } catch (Exception e) {
