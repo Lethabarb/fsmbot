@@ -756,7 +756,7 @@ public class DiscordBot extends ListenerAdapter {
                 messageBuilder.addEmbeds(embed.build());
                 messageBuilder.addActionRow(Button.primary("editServerConfig", "edit"));
 
-                c.sendMessage(messageBuilder.build());
+                c.sendMessage(messageBuilder.build()).queue();
 
                 List<Team> teams = s.getTeamsAsList();
                 for (Team t : teams) {
@@ -797,7 +797,7 @@ public class DiscordBot extends ListenerAdapter {
 
                     messageBuilder.addActionRow(Button.primary("edit"+t.getName()+"Config", "edit"));
 
-                    c.sendMessage(messageBuilder.build());
+                    c.sendMessage(messageBuilder.build()).queue();
 
                 }
 
