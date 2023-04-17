@@ -36,13 +36,16 @@ import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.MessageContextInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.components.ActionComponent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
+import net.dv8tion.jda.api.interactions.components.ItemComponent;
 import net.dv8tion.jda.api.interactions.components.Modal;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.text.TextInput;
@@ -92,7 +95,8 @@ public class DiscordBot extends ListenerAdapter {
         Server serv = new Server(guild, subChannel, subRole);
         for (TeamDTO team : teams) {
             Team t = makeTeam(team.getName(), team.getNameAbbv(), team.getMinRank(), team.getTimetableId(),
-                    team.getRosterRoleId(), team.getTrialRoleId(), team.getSubRoleId(), serv, team.getSubCalenderId());
+            team.getRosterRoleId(), team.getTrialRoleId(), team.getSubRoleId(), serv, team.getSubCalenderId());
+            // serv.addTeam(t);
         }
         // Role tankRole = guild.getRoleById(tankRoleId);
         // Role dpsRole = guild.getRoleById(dpsRoleId);
@@ -115,6 +119,7 @@ public class DiscordBot extends ListenerAdapter {
         // e.printStackTrace();
         // }
         t.setServer(s);
+        s.addTeam(t);
         return t;
     }
 
@@ -168,8 +173,10 @@ public class DiscordBot extends ListenerAdapter {
                 String timeFormatted = embed.getFields().get(0).getName();
                 // System.out.println(timeFormatted);
                 Long unix = Long.valueOf(timeFormatted.split(":")[1]);
-                ZonedDateTime dateTime = ZonedDateTime.ofInstant(Instant.ofEpochSecond(unix), TimeZone.getTimeZone("Australia/Sydney").toZoneId());
-                // ZonedDateTime dateTime = LocalDateTime.ofInstant(Instant.ofEpochSecond(unix),);
+                ZonedDateTime dateTime = ZonedDateTime.ofInstant(Instant.ofEpochSecond(unix),
+                        TimeZone.getTimeZone("Australia/Sydney").toZoneId());
+                // ZonedDateTime dateTime =
+                // LocalDateTime.ofInstant(Instant.ofEpochSecond(unix),);
                 String title = embed.getTitle();
                 String contact1 = embed.getFields().get(1).getValue();
                 String contact2 = embed.getFields().get(2).getValue();
@@ -268,10 +275,10 @@ public class DiscordBot extends ListenerAdapter {
             String[] types = { "Scrim", "AAOL", "Coaching", "Open Div" };
             MessageCreateBuilder message = new MessageCreateBuilder();
             // if (sort) {
-            //     System.out.println("adding @s");
-            //     message.addContent(
-            //             event.getTeam().getRosterRole().getAsMention() +
-            //                     event.getTeam().getTrialRole().getAsMention());
+            // System.out.println("adding @s");
+            // message.addContent(
+            // event.getTeam().getRosterRole().getAsMention() +
+            // event.getTeam().getTrialRole().getAsMention());
             // }
             EmbedBuilder embed = new EmbedBuilder();
             embed.setTitle(event.getTitle());
@@ -307,7 +314,7 @@ public class DiscordBot extends ListenerAdapter {
                 e1.printStackTrace();
             }
             // if (sort) {
-            //     sortChannel(c);
+            // sortChannel(c);
             // }
             System.out.println("sent scrim");
         }
@@ -406,7 +413,8 @@ public class DiscordBot extends ListenerAdapter {
             Event.removeFromRepository(event);
         } else {
             if (!event.isSentAnnouncement()
-                    && event.getDateTime().toLocalDateTime().compareTo(ZonedDateTime.now().toLocalDate().atStartOfDay().plusHours(24)) < 0) {
+                    && event.getDateTime().minusHours(event.getDateTime().getHour())
+                            .compareTo(ZonedDateTime.now(TimeZone.getTimeZone("Australia/Sydney").toZoneId())) < 0) {
                 String content = "";
                 content += types[event.getType()];
                 if (event.getType() == 2)
@@ -425,11 +433,20 @@ public class DiscordBot extends ListenerAdapter {
                 }
                 event.setSentAnnouncement(true);
 
+            } else if (event.getDateTime().minusDays(1).minusHours(event.getDateTime().getHour())
+                    .compareTo(ZonedDateTime.now(TimeZone.getTimeZone("Australia/Sydney").toZoneId())) < 0) {
+                LinkedList<Player> players = event.getNotResponded();
+                for (Player player : players) {
+                    User playerUser = player.getMember().getUser();
+                    playerUser.openPrivateChannel().complete()
+                            .sendMessage(String.format("reminder to respond to the event on <T:%s:F>", event.getUnix()))
+                            .queue();
+                }
             }
             MessageEditBuilder message = new MessageEditBuilder();
             // message.setContent(
-            //         event.getTeam().getRosterRole().getAsMention() +
-            //                 event.getTeam().getTrialRole().getAsMention());
+            // event.getTeam().getRosterRole().getAsMention() +
+            // event.getTeam().getTrialRole().getAsMention());
             EmbedBuilder embed = new EmbedBuilder();
             embed.setTitle(event.getTitle());
             embed.setAuthor(types[event.getType()]);
@@ -707,13 +724,84 @@ public class DiscordBot extends ListenerAdapter {
             // GuildChannel chan = channels.get(0).getName()
             Predicate<GuildChannel> pred = (GuildChannel gc) -> (gc.getType().compareTo(ChannelType.TEXT) != 0 || !gc.getName().equalsIgnoreCase("fsm-config"));
             Boolean found = channelsll.removeIf(pred);
-            while (channelsll.size() > 0) {
-                System.out.println("Delete channel named " + channelsll.get(0).getName());
-                channelsll.remove(channelsll.get(0));
-                // channels.get(0).delete().complete();
+            if (channelsll.size() > 0) {
+                commandEvent.reply(channelsll.get(0).getAsMention() + "already exists.").queue();
+                if (s.getBotConfigChannel() == null) {
+                    MessageChannel c = s.getGuild().getTextChannelById(channelsll.get(0).getIdLong());
+                    s.setBotConfigChannel(c);
+                }
+            } else {
+                MessageChannel c = s.getGuild().createTextChannel("fsm-config").complete();
+                s.setBotConfigChannel(c);
+
+                MessageCreateBuilder messageBuilder = new MessageCreateBuilder();
+                String grayDivider = "1043359291542872104";
+                String[] colouredDivieders = {"1043359280587350076", "1043359279014482011",
+                    "1043359277441618030", "1043359275403194450", "1043359283863113768", "1043359282227331193", 
+                    "1043359287541510234", "1043359289173102632", "1043359285469528135"};
+                int colourCount = 0;
+                messageBuilder.addContent(getEmoji(grayDivider).repeat(7) + "Server Configuration" + getEmoji(grayDivider).repeat(7));
+                EmbedBuilder embed = new EmbedBuilder();
+                embed.setAuthor("FSM BOT");
+                embed.setTitle(s.getGuild().getName());
+                Field subRole = new Field("Sub Role",s.getSubRole().getAsMention(), true);
+                Field subRoleId = new Field("Sub Role Id",s.getSubRole().getId(), true);
+                Field subChannel = new Field("Sub Channel", s.getSubChannel().getAsMention(), true);
+                Field subChannelId = new Field("Sub Channel Id", s.getSubChannel().getId(), true);
+                embed.addField(subRole);
+                embed.addField(subRoleId);
+                embed.addBlankField(false);
+                embed.addField(subChannel);
+                embed.addField(subChannelId);
+                messageBuilder.addEmbeds(embed.build());
+                messageBuilder.addActionRow(Button.primary("editServerConfig", "edit"));
+
+                c.sendMessage(messageBuilder.build());
+
+                List<Team> teams = s.getTeamsAsList();
+                for (Team t : teams) {
+                    messageBuilder = new MessageCreateBuilder();
+                    messageBuilder.addContent(getEmoji(colouredDivieders[colourCount]).repeat(7) + t.getName() + getEmoji(colouredDivieders[colourCount]).repeat(7));
+                    embed = new EmbedBuilder();
+                    embed.setAuthor("FSM BOT");
+                    embed.setTitle("Team Info");
+                    // t.get
+                    //roster role, trial role, min rank, name abbv, sub role, timetable channel, teamup sub calendar
+                    Field rosterRole = new Field("Roster Role", t.getRosterRole().getAsMention(), true);
+                    Field rosterRoleId = new Field("Roster Role Id", t.getRosterRole().getId(), true);
+                    Field TrialRole = new Field("Trial Role", t.getTrialRole().getAsMention(), true);
+                    Field TrialRoleId = new Field("Trial Role Id", t.getTrialRole().getId(), true);
+                    Field minRank = new Field("Min Rank", t.getMinRank(), true);
+                    Field nameAbbv = new Field("Short Name", t.getNameAbbv(), true);
+                    Field teamSubRole = new Field("Roster Role", t.getSubRole().getAsMention(), true);
+                    Field teamSubRoleId = new Field("Roster Role", t.getSubRole().getId(), true);
+                    Field timetableChannel = new Field("Timetable Channel", t.getTimetable().getAsMention(), true);
+                    Field timetableChannelId = new Field("Timetable Channel Id", t.getTimetable().getId(), true);
+                    Field teamUp = new Field("teamup subcal ID", String.valueOf(t.getTeamupSubCalendar()), true);
+
+                    embed.addField(nameAbbv);
+                    embed.addField(minRank);
+                    embed.addField(teamUp);
+                    embed.addBlankField(false);
+                    embed.addField(rosterRole);
+                    embed.addField(rosterRoleId);
+                    embed.addBlankField(false);
+                    embed.addField(TrialRole);
+                    embed.addField(TrialRoleId);
+                    embed.addBlankField(false);
+                    embed.addField(teamSubRole);
+                    embed.addField(teamSubRoleId);
+                    embed.addBlankField(false);
+                    embed.addField(timetableChannel);
+                    embed.addField(timetableChannelId);
+
+                    messageBuilder.addActionRow(Button.primary("edit"+t.getName()+"Config", "edit"));
+
+                    c.sendMessage(messageBuilder.build());
+
+                }
+
             }
-            MessageChannel c = s.getGuild().createTextChannel("fsm-config").complete();
-            s.setBotConfigChannel(c);
         }
     }
 
@@ -797,7 +885,8 @@ public class DiscordBot extends ListenerAdapter {
             Event scrim = Event.getEvent(Long.valueOf(eventHash));
             Event.removeFromRepository(scrim);
             ZonedDateTime datetime = LocalDateTime.parse(dateTimeString,
-                    DateTimeFormatter.ofPattern("E dd/MM/yyyy h:mm a", Locale.US)).atZone(TimeZone.getTimeZone("Australia/Sydney").toZoneId());
+                    DateTimeFormatter.ofPattern("E dd/MM/yyyy h:mm a", Locale.US))
+                    .atZone(TimeZone.getTimeZone("Australia/Sydney").toZoneId());
             scrim.setDateTime(datetime);
             scrim.setContact1(disc);
             scrim.setContact2(bnet);

@@ -9,6 +9,7 @@ import FSM.services.DiscordBot;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
@@ -31,37 +32,66 @@ public class Server {
     // private Role tankRole = null;
     // private Role suppRole = null;
     // OptionData eventOptions = new OptionData(OptionType.STRING, "events",
-            // "unique event hash code that exists in the event footer");
+    // "unique event hash code that exists in the event footer");
 
+    // public Server(MessageChannel botConfiChannel) {
+    // this.botConfigChannel = botConfiChannel;
 
-    public Server(MessageChannel botConfiChannel) {
-        this.botConfigChannel = botConfiChannel;
+    // }
+
+    public Server(Guild guild) {
+        List<GuildChannel> channels = guild.getChannels();
+        for (GuildChannel guildChannel : channels) {
+            if (guildChannel.getName().equalsIgnoreCase("fsm-config")) {
+                botConfigChannel = guild.getTextChannelById(guildChannel.getId());
+            }
+        }
 
     }
 
-    public Server(Guild guild, MessageChannel subChannel, Role subRole) {
-                System.out.println("Creating " + guild.getName() + " Server");
+    public Server(Guild guild, MessageChannel subChannel, Role subRole, Team ... teams) {
+        System.out.println("Creating " + guild.getName() + " Server");
         this.guild = guild;
         this.subChannel = subChannel;
         // for (Team team : teams) {
-        //     this.teams.put(team.getName(), team);
+        // this.teams.put(team.getName(), team);
         // }
         this.subRole = subRole;
         System.out.println("adding commands...");
         guild.updateCommands()
-        .addCommands(
-                Commands.slash("update", "re-freshes an event details")
-                .addSubcommands(new SubcommandData("events", "updates all events in all servers").addOption(OptionType.ROLE, "teamrole", "role of the team to update events for")
-                ),
-                Commands.context(Type.MESSAGE, "edit"),
-                Commands.slash("role", "edit role of a player").addOption(OptionType.MENTIONABLE, "playerdiscord", "Discord").addOption(OptionType.ROLE, "newplayerrole", "role to make the player"),
-                Commands.slash("sort", "sort the events of a channel"))
-        .queue();
+                .addCommands(
+                        Commands.slash("update", "re-freshes an event details")
+                                .addSubcommands(
+                                        new SubcommandData("events", "updates all events in all servers").addOption(
+                                                OptionType.ROLE, "teamrole", "role of the team to update events for")),
+                        Commands.context(Type.MESSAGE, "edit"),
+                        Commands.slash("role", "edit role of a player")
+                                .addOption(OptionType.MENTIONABLE, "playerdiscord", "Discord")
+                                .addOption(OptionType.ROLE, "newplayerrole", "role to make the player"),
+                        Commands.slash("sort", "sort the events of a channel"))
+                .queue();
         if (guild.getName().equalsIgnoreCase("flying spaghetti monster")) {
-             System.out.println("adding config command");
-            guild.updateCommands().addCommands(Commands.slash("makeconfigchannel", "sets the current channel for the guild to the bot config channel")).queue();
+            System.out.println("adding config command");
+            guild.updateCommands().addCommands(
+                    Commands.slash("makeconfigchannel",
+                            "sets the current channel for the guild to the bot config channel"),
+                    Commands.slash("update", "re-freshes an event details")
+                            .addSubcommands(new SubcommandData("events", "updates all events in all servers")
+                                    .addOption(OptionType.ROLE, "teamrole", "role of the team to update events for")),
+                    Commands.context(Type.MESSAGE, "edit"),
+                    Commands.slash("role", "edit role of a player")
+                            .addOption(OptionType.MENTIONABLE, "playerdiscord", "Discord")
+                            .addOption(OptionType.ROLE, "newplayerrole", "role to make the player"),
+                    Commands.slash("sort", "sort the events of a channel")).queue();
         }
         System.out.println("added commands");
+        List<GuildChannel> channels = guild.getChannels();
+        for (GuildChannel guildChannel : channels) {
+            if (guildChannel.getName().equalsIgnoreCase("fsm-config"));
+        }
+        for (Team t : teams) {
+            this.teams.put(t.getName(), t);
+        }
         // this.dpsRole = dpsRole;
         // this.tankRole = tankRole;
         // this.suppRole = suppRole;
@@ -70,10 +100,13 @@ public class Server {
         repoos.put(guild.getIdLong(), this);
     }
 
+    public void addTeam(Team t) {
+        teams.put(t.getName(), t);
+    }
+
     public static Server getGuild(Long id) {
         return repoos.get(id);
     }
-
 
     public net.dv8tion.jda.api.entities.Guild getGuild() {
         return guild;
@@ -93,6 +126,10 @@ public class Server {
 
     public HashMap<String, Team> getTeams() {
         return teams;
+    }
+
+    public List<Team> getTeamsAsList() {
+        return List.copyOf(teams.values());
     }
 
     public void setTeams(HashMap<String, Team> teams) {
