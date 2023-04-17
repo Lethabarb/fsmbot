@@ -95,7 +95,7 @@ public class DiscordBot extends ListenerAdapter {
         Server serv = new Server(guild, subChannel, subRole);
         for (TeamDTO team : teams) {
             Team t = makeTeam(team.getName(), team.getNameAbbv(), team.getMinRank(), team.getTimetableId(),
-            team.getRosterRoleId(), team.getTrialRoleId(), team.getSubRoleId(), serv, team.getSubCalenderId());
+                    team.getRosterRoleId(), team.getTrialRoleId(), team.getSubRoleId(), serv, team.getSubCalenderId());
             // serv.addTeam(t);
         }
         // Role tankRole = guild.getRoleById(tankRoleId);
@@ -433,8 +433,9 @@ public class DiscordBot extends ListenerAdapter {
                 }
                 event.setSentAnnouncement(true);
 
-            } else if (event.getDateTime().minusDays(1).minusHours(event.getDateTime().getHour())
-                    .compareTo(ZonedDateTime.now(TimeZone.getTimeZone("Australia/Sydney").toZoneId())) < 0) {
+            } else if (!event.isSentReminders()
+                    && event.getDateTime().minusDays(1).minusHours(event.getDateTime().getHour())
+                            .compareTo(ZonedDateTime.now(TimeZone.getTimeZone("Australia/Sydney").toZoneId())) < 0) {
                 LinkedList<Player> players = event.getNotResponded();
                 for (Player player : players) {
                     User playerUser = player.getMember().getUser();
@@ -442,6 +443,7 @@ public class DiscordBot extends ListenerAdapter {
                             .sendMessage(String.format("reminder to respond to the event on <t:%s:F>", event.getUnix()))
                             .queue();
                 }
+                event.setSentReminders(true);
             }
             MessageEditBuilder message = new MessageEditBuilder();
             // message.setContent(
@@ -722,7 +724,8 @@ public class DiscordBot extends ListenerAdapter {
                 channelsll.add(guildChannel);
             }
             // GuildChannel chan = channels.get(0).getName()
-            Predicate<GuildChannel> pred = (GuildChannel gc) -> (gc.getType().compareTo(ChannelType.TEXT) != 0 || !gc.getName().equalsIgnoreCase("fsm-config"));
+            Predicate<GuildChannel> pred = (GuildChannel gc) -> (gc.getType().compareTo(ChannelType.TEXT) != 0
+                    || !gc.getName().equalsIgnoreCase("fsm-config"));
             Boolean found = channelsll.removeIf(pred);
             if (channelsll.size() > 0) {
                 commandEvent.reply(channelsll.get(0).getAsMention() + "already exists.").queue();
@@ -736,16 +739,17 @@ public class DiscordBot extends ListenerAdapter {
 
                 MessageCreateBuilder messageBuilder = new MessageCreateBuilder();
                 String grayDivider = "1043359291542872104";
-                String[] colouredDivieders = {"1043359280587350076", "1043359279014482011",
-                    "1043359277441618030", "1043359275403194450", "1043359283863113768", "1043359282227331193", 
-                    "1043359287541510234", "1043359289173102632", "1043359285469528135"};
+                String[] colouredDivieders = { "1043359280587350076", "1043359279014482011",
+                        "1043359277441618030", "1043359275403194450", "1043359283863113768", "1043359282227331193",
+                        "1043359287541510234", "1043359289173102632", "1043359285469528135" };
                 int colourCount = 0;
-                messageBuilder.addContent(getEmoji(grayDivider).repeat(7) + "Server Configuration" + getEmoji(grayDivider).repeat(7));
+                messageBuilder.addContent(
+                        getEmoji(grayDivider).repeat(7) + "Server Configuration" + getEmoji(grayDivider).repeat(7));
                 EmbedBuilder embed = new EmbedBuilder();
                 embed.setAuthor("FSM BOT");
                 embed.setTitle(s.getGuild().getName());
-                Field subRole = new Field("Sub Role",s.getSubRole().getAsMention(), true);
-                Field subRoleId = new Field("Sub Role Id",s.getSubRole().getId(), true);
+                Field subRole = new Field("Sub Role", s.getSubRole().getAsMention(), true);
+                Field subRoleId = new Field("Sub Role Id", s.getSubRole().getId(), true);
                 Field subChannel = new Field("Sub Channel", s.getSubChannel().getAsMention(), true);
                 Field subChannelId = new Field("Sub Channel Id", s.getSubChannel().getId(), true);
                 embed.addField(subRole);
@@ -761,12 +765,14 @@ public class DiscordBot extends ListenerAdapter {
                 List<Team> teams = s.getTeamsAsList();
                 for (Team t : teams) {
                     messageBuilder = new MessageCreateBuilder();
-                    messageBuilder.addContent(getEmoji(colouredDivieders[colourCount]).repeat(7) + t.getName() + getEmoji(colouredDivieders[colourCount]).repeat(7));
+                    messageBuilder.addContent(getEmoji(colouredDivieders[colourCount]).repeat(7) + t.getName()
+                            + getEmoji(colouredDivieders[colourCount]).repeat(7));
                     embed = new EmbedBuilder();
                     embed.setAuthor("FSM BOT");
                     embed.setTitle("Team Info");
                     // t.get
-                    //roster role, trial role, min rank, name abbv, sub role, timetable channel, teamup sub calendar
+                    // roster role, trial role, min rank, name abbv, sub role, timetable channel,
+                    // teamup sub calendar
                     Field rosterRole = new Field("Roster Role", t.getRosterRole().getAsMention(), true);
                     Field rosterRoleId = new Field("Roster Role Id", t.getRosterRole().getId(), true);
                     Field TrialRole = new Field("Trial Role", t.getTrialRole().getAsMention(), true);
@@ -795,7 +801,9 @@ public class DiscordBot extends ListenerAdapter {
                     embed.addField(timetableChannel);
                     embed.addField(timetableChannelId);
 
-                    messageBuilder.addActionRow(Button.primary("edit"+t.getName()+"Config", "edit"));
+                    messageBuilder.addEmbeds(embed.build());
+
+                    messageBuilder.addActionRow(Button.primary("edit" + t.getName() + "Config", "edit"));
 
                     c.sendMessage(messageBuilder.build()).queue();
 

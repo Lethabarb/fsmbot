@@ -40,6 +40,7 @@ public class Event implements Comparable<Event> {
     private Team team;
     private int type;
     private boolean sentAnnouncement = false;
+    private boolean sentReminders = false;
 
     private LinkedList<Player> notResponded = new LinkedList<>();
     private LinkedList<Player> confimed = new LinkedList<>();
@@ -541,5 +542,12 @@ public class Event implements Comparable<Event> {
         }
 
         return res;
+    }
+
+    public boolean isSentReminders() {
+        return sentReminders;
+    }
+    public void setSentReminders(boolean sentReminders) {
+        this.sentReminders = sentReminders;
     }
 }
