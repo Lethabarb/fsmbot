@@ -32,22 +32,22 @@ public class Program {
         int bolsubcal = 11997718;
         TeamDTO bolognaseBandits = new TeamDTO(bolName, bolNameAbbv, bolMinRank, bolTimetableId, bolRosterRoleId, bolTrialRoleId, bolSubRoleId, bolsubcal);
         
-        String ravName = "Ravioli Rabbis";
-        String ravNameAbbv = "Rav";
-        String ravMinRank = "Diamond2+";
-        String ravTimetableId = "1015001004720271552";
-        String ravRosterRoleId = "1014995273094791180";
-        String ravTrialRoleId = "1014996886391889930";
-        String ravSubRoleId = "1014996001045614712";
-        int ravSubCal = 11998119;
+        String LingName = "Linguini Lords";
+        String LingNameAbbv = "Ling";
+        String LingMinRank = "GM1";
+        String LingTimetableId = "968816107001638962";
+        String LingRosterRoleId = "948413016976793661";
+        String LingTrialRoleId = "952147100278325268";
+        String LingSubRoleId = "948413021871566868";
+        int LingSubCal = 11998119;
         
-        // TeamDTO ravioliRabbis = new TeamDTO(ravName, ravNameAbbv, ravMinRank, ravTimetableId, ravRosterRoleId, ravTrialRoleId, ravSubRoleId, ravSubCal);
+        TeamDTO LinguiniLords = new TeamDTO(LingName, LingNameAbbv, LingMinRank, LingTimetableId, LingRosterRoleId, LingTrialRoleId, LingSubRoleId, LingSubCal);
         
         String fsmGuildId = "734267704516673536";
         String fsmSubChannelId = "824447819690672132";
         String fsmSubRoleId = "948413633182974032";
 
-        Server fsm = bot.makeGuild(fsmGuildId, fsmSubChannelId, fsmSubRoleId, bolognaseBandits);
+        Server fsm = bot.makeGuild(fsmGuildId, fsmSubChannelId, fsmSubRoleId, bolognaseBandits, LinguiniLords);
 
 
         

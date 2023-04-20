@@ -329,17 +329,22 @@ public class DiscordBot extends ListenerAdapter {
         while (events.size() != 0) {
             Event l = events.get(0);
             ZonedDateTime lowest = events.get(0).getDateTime();
+            int lowIndex = 0;
             for (int i = 1; i < events.size(); i++) {
                 Event e = events.get(i);
                 if (e.getDateTime().isBefore(lowest)) {
                     lowest = e.getDateTime();
                     l = e;
+                    lowIndex = i;
                 }
             }
-            c.deleteMessageById(l.getMessage().getId()).queue();
+            if (lowIndex != events.size() -1) {
+                // delete + add to sort if its not already sorted
+                c.deleteMessageById(l.getMessage().getId()).queue();
+                sorted.add(l);
+            }
             events.remove(l);
 
-            sorted.add(l);
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
