@@ -610,46 +610,45 @@ public class DiscordBot extends ListenerAdapter {
         // System.out.println("key: " + eventKey);
         Event event = Event.getEvent(eventKey);
         Player trigger = Player.getPlayer(buttonEvent.getMember());
-
+        
         if (buttonUse.equals("ScrimButtYes")) {
             if (hasRosterOrTrialRole(event.getTeam(), buttonEvent.getMember())) {
+                buttonEvent.reply("You have accepted the scrim on <t:" + event.getUnix() + ":F>").setEphemeral(true).queue();
                 System.out.println(event.getTeam().getName() + ": " + buttonEvent.getMember().getUser().getName()
-                        + "accepted scrim on " + event.getDateTime().toString());
+                + "accepted scrim on " + event.getDateTime().toString());
                 boolean wasSub = event.addConfirmed(trigger);
                 if (wasSub) {
                     System.out.println("found sub for this role");
                     try {
                         if (trigger.getRole() == -1) {
                             buttonEvent.reply(
-                                    "you dont have a valid overwatch role for this event, please contact your manager");
-                            return;
+                                "you dont have a valid overwatch role for this event, please contact your manager");
+                                return;
+                            }
+                            int sub = event.getExistingSub(trigger.getRole(), false);
+                            try {
+                                deleteSubRequest(event, sub);
+                                event.removeSub(sub);
+                            } catch (Exception e) {
+                                System.out.println("no sub message found");
+                            }
+                        } catch (Exception e) {
+                            
                         }
+                    }
+                    if (!event.needsSub(trigger.getRole())) {
                         int sub = event.getExistingSub(trigger.getRole(), false);
-                        try {
+                        while (sub != -1) {
                             deleteSubRequest(event, sub);
                             event.removeSub(sub);
-                        } catch (Exception e) {
-                            System.out.println("no sub message found");
                         }
+                    }
+                    updateEvent(event);
+                } else {
+                    buttonEvent.reply("you are not on the roster!").setEphemeral(true).queue();
+                    try {
+                        Thread.sleep(2000);
                     } catch (Exception e) {
-
-                    }
-                }
-                if (!event.needsSub(trigger.getRole())) {
-                    int sub = event.getExistingSub(trigger.getRole(), false);
-                    while (sub != -1) {
-                        deleteSubRequest(event, sub);
-                        event.removeSub(sub);
-                    }
-                }
-                updateEvent(event);
-                buttonEvent.reply("You have accepted the scrim on <t:" + event.getUnix() + ":F>").setEphemeral(true)
-                        .queue();
-            } else {
-                buttonEvent.reply("you are not on the roster!").setEphemeral(true).queue();
-                try {
-                    Thread.sleep(2000);
-                } catch (Exception e) {
                     // TODO: handle exception
                 }
             }
