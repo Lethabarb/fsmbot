@@ -763,7 +763,7 @@ public class DiscordBot extends ListenerAdapter {
                     MessageChannel c = s.getGuild().getTextChannelById(channelsll.get(0).getIdLong());
                     s.setBotConfigChannel(c);
                     // commandEvent.reply("found existing channel").setEphemeral(true).queue();
-                    List<Message> messages = c.getHistory().getRetrievedHistory();
+                    List<Message> messages = MessageHistory.getHistoryFromBeginning(c).complete().getRetrievedHistory();
                     for (Message message : messages) {
                         c.deleteMessageById(message.getId()).complete();
                     }
