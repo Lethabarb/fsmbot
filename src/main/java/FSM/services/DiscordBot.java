@@ -43,6 +43,7 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.components.ActionComponent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.ItemComponent;
@@ -745,7 +746,7 @@ public class DiscordBot extends ListenerAdapter {
             MessageChannel c = commandEvent.getMessageChannel();
             sortChannel(c);
         } else if (command.equals("makeconfigchannel")) {
-            commandEvent.deferReply(true).queue();
+            InteractionHook reply = commandEvent.deferReply(true).complete();
             Server s = Server.getGuild(commandEvent.getGuild().getIdLong());
             List<GuildChannel> channels = s.getGuild().getChannels(false);
             LinkedList<GuildChannel> channelsll = new LinkedList<>();
@@ -757,14 +758,15 @@ public class DiscordBot extends ListenerAdapter {
                     || !gc.getName().equalsIgnoreCase("fsm-config"));
             Boolean found = channelsll.removeIf(pred);
             if (channelsll.size() > 0) {
-                commandEvent.reply(channelsll.get(0).getAsMention() + "already exists.").queue();
+                
+                reply.editOriginal(channelsll.get(0).getAsMention() + "already exists. editing channel").queue();
                 if (s.getBotConfigChannel() == null) {
                     MessageChannel c = s.getGuild().getTextChannelById(channelsll.get(0).getIdLong());
                     s.setBotConfigChannel(c);
                     // commandEvent.reply("found existing channel").setEphemeral(true).queue();
                     List<Message> messages = c.getHistory().getRetrievedHistory();
                     for (Message message : messages) {
-                        c.deleteMessageById(message.getId()).queue();
+                        c.deleteMessageById(message.getId()).complete();
                     }
                 }
             } else {
@@ -852,7 +854,7 @@ public class DiscordBot extends ListenerAdapter {
 
                 messageBuilder = new MessageCreateBuilder();
                 messageBuilder.addActionRow(Button.primary("newTeam", "add team"));
-                commandEvent.reply("Created Channel").setEphemeral(true).queue();
+                reply.editOriginal("Created Channel").queue();
 
             }
         } else if (command.equalsIgnoreCase("removesubs")) {
