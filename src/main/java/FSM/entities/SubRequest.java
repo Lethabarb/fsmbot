@@ -71,6 +71,7 @@ public class SubRequest {
         String res = " ";
         Predicate<SubRequest> pred = (SubRequest req) -> (req.getEvent().compareTo(e) != 0);
         LinkedList<SubRequest> requests = new LinkedList<>(repos.values());
+        System.out.println(requests.size());
         requests.removeIf(pred);
         for (int i = 0; i < requests.size(); i++) {
             if (requests.get(i).getPlayer() != null) {
