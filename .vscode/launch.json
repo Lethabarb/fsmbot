@@ -6,6 +6,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "GoogleSheet",
+            "request": "launch",
+            "mainClass": "FSM.services.GoogleSheet",
+            "projectName": "FSMBOT"
+        },
+        {
+            "type": "java",
             "name": "TeamUp",
             "request": "launch",
             "mainClass": "FSM.services.TeamUp",

@@ -95,7 +95,8 @@ public class DiscordBot extends ListenerAdapter {
         Server serv = new Server(guild, subChannel, subRole);
         for (TeamDTO team : teams) {
             Team t = makeTeam(team.getName(), team.getNameAbbv(), team.getMinRank(), team.getTimetableId(),
-                    team.getRosterRoleId(), team.getTrialRoleId(), team.getSubRoleId(), serv, team.getSubCalenderId());
+                    team.getRosterRoleId(), team.getTrialRoleId(), team.getSubRoleId(), serv, team.getSubCalenderId(),
+                    team.getSheetId());
             // serv.addTeam(t);
         }
         // Role tankRole = guild.getRoleById(tankRoleId);
@@ -104,20 +105,32 @@ public class DiscordBot extends ListenerAdapter {
         return serv;
     }
 
+    // public Team makeTeam(String name, String nameAbbv, String minRank, String
+    // timetableId,
+    // String rosterRoleId,
+    // String trialRoleId, String subRoleId, Server s, int subCalenderId) {
+    // MessageChannel timetable = bot.getTextChannelById(timetableId);
+    // Role rosterRole = bot.getRoleById(rosterRoleId);
+    // Role subRole = bot.getRoleById(subRoleId);
+    // Role trialRole = bot.getRoleById(trialRoleId);
+    // List<Member> mems = getMemberOfRole(s.getGuild(), trialRole, rosterRole);
+    // Team t = new Team(name, nameAbbv, minRank, timetable, rosterRole, trialRole,
+    // subRole, mems, subCalenderId);
+    // t.setServer(s);
+    // s.addTeam(t);
+    // return t;
+    // }
+
     public Team makeTeam(String name, String nameAbbv, String minRank, String timetableId,
             String rosterRoleId,
-            String trialRoleId, String subRoleId, Server s, int subCalenderId) {
+            String trialRoleId, String subRoleId, Server s, int subCalenderId, String sheetId) {
         MessageChannel timetable = bot.getTextChannelById(timetableId);
         Role rosterRole = bot.getRoleById(rosterRoleId);
         Role subRole = bot.getRoleById(subRoleId);
         Role trialRole = bot.getRoleById(trialRoleId);
         List<Member> mems = getMemberOfRole(s.getGuild(), trialRole, rosterRole);
-        Team t = new Team(name, nameAbbv, minRank, timetable, rosterRole, trialRole, subRole, mems, subCalenderId);
-        // try {
-        // // Thread.sleep(5000);
-        // } catch (Exception e) {
-        // e.printStackTrace();
-        // }
+        Team t = new Team(name, nameAbbv, minRank, timetable, rosterRole, trialRole, subRole, mems, subCalenderId,
+                sheetId);
         t.setServer(s);
         s.addTeam(t);
         return t;
@@ -126,7 +139,8 @@ public class DiscordBot extends ListenerAdapter {
     public synchronized void updateScrims(Team t) {
         System.out.println("updating scrims for " + t.getName());
         try {
-            GoogleSheet sheet = new GoogleSheet();
+            // GoogleSheet sheet = new GoogleSheet();
+            GoogleSheet sheet = t.getSheet();
             LinkedList<Event> events = sheet.getEvents(t.getNameAbbv(), t);
             for (int i = 0; i < events.size(); i++) {
                 sendEvent(events.get(i), true);
@@ -338,7 +352,7 @@ public class DiscordBot extends ListenerAdapter {
                     lowIndex = i;
                 }
             }
-            if (lowIndex != events.size() -1) {
+            if (lowIndex != events.size() - 1) {
                 // delete + add to sort if its not already sorted
                 c.deleteMessageById(l.getMessage().getId()).queue();
                 sorted.add(l);
@@ -588,7 +602,6 @@ public class DiscordBot extends ListenerAdapter {
 
     @Override
     public void onButtonInteraction(ButtonInteractionEvent buttonEvent) {
-        System.out.println(buttonEvent.getMember().getUser().getName());
         Button b = buttonEvent.getButton();
         String[] buttonData = b.getId().split("_");
         String buttonUse = buttonData[0];
@@ -599,8 +612,11 @@ public class DiscordBot extends ListenerAdapter {
 
         if (buttonUse.equals("ScrimButtYes")) {
             if (hasRosterOrTrialRole(event.getTeam(), buttonEvent.getMember())) {
+                System.out.println(event.getTeam().getName() + ": " + buttonEvent.getMember().getUser().getName()
+                        + "accepted scrim on " + event.getDateTime().toString());
                 boolean wasSub = event.addConfirmed(trigger);
                 if (wasSub) {
+                    System.out.println("found sub for this role");
                     try {
                         if (trigger.getRole() == -1) {
                             buttonEvent.reply(
@@ -610,10 +626,10 @@ public class DiscordBot extends ListenerAdapter {
                         int sub = event.getExistingSub(trigger.getRole(), false);
                         try {
                             deleteSubRequest(event, sub);
+                            event.removeSub(sub);
                         } catch (Exception e) {
                             System.out.println("no sub message found");
                         }
-                        event.removeSub(sub);
                     } catch (Exception e) {
 
                     }
@@ -637,11 +653,18 @@ public class DiscordBot extends ListenerAdapter {
                 }
             }
         } else if (buttonUse.equals("ScrimButtNo")) {
+            System.out.println(event.getTeam().getName() + ": " + buttonEvent.getMember().getUser().getName()
+                    + "declined scrim on " + event.getDateTime().toString());
+
             if (hasRosterOrTrialRole(event.getTeam(), buttonEvent.getMember())) {
                 event.addDeclined(trigger);
                 updateEvent(event);
-                if (event.needsSub(trigger.getRole()))
+                if (event.needsSub(trigger.getRole())) {
+                    System.out.println("sending sub req");
                     sendSubRequest(event, trigger.getRole());
+                } else {
+                    System.out.println("role filled, no sub needed");
+                }
                 buttonEvent.reply("You have declined the scrim on <t:" + event.getUnix() + ":F>").setEphemeral(true)
                         .queue();
             } else {
@@ -722,6 +745,7 @@ public class DiscordBot extends ListenerAdapter {
             MessageChannel c = commandEvent.getMessageChannel();
             sortChannel(c);
         } else if (command.equals("makeconfigchannel")) {
+            commandEvent.deferReply(true).queue();
             Server s = Server.getGuild(commandEvent.getGuild().getIdLong());
             List<GuildChannel> channels = s.getGuild().getChannels(false);
             LinkedList<GuildChannel> channelsll = new LinkedList<>();
@@ -737,83 +761,110 @@ public class DiscordBot extends ListenerAdapter {
                 if (s.getBotConfigChannel() == null) {
                     MessageChannel c = s.getGuild().getTextChannelById(channelsll.get(0).getIdLong());
                     s.setBotConfigChannel(c);
+                    // commandEvent.reply("found existing channel").setEphemeral(true).queue();
+                    List<Message> messages = c.getHistory().getRetrievedHistory();
+                    for (Message message : messages) {
+                        c.deleteMessageById(message.getId()).queue();
+                    }
                 }
             } else {
                 MessageChannel c = s.getGuild().createTextChannel("fsm-config").complete();
                 s.setBotConfigChannel(c);
+            }
+            MessageChannel c = s.getBotConfigChannel();
+            MessageCreateBuilder messageBuilder = new MessageCreateBuilder();
+            String grayDivider = "1043359291542872104";
+            String[] colouredDivieders = { "1043359280587350076", "1043359279014482011",
+                    "1043359277441618030", "1043359275403194450", "1043359283863113768", "1043359282227331193",
+                    "1043359287541510234", "1043359289173102632", "1043359285469528135" };
+            int colourCount = 0;
+            messageBuilder.addContent(
+                    getEmoji(grayDivider).repeat(7) + "Server Configuration" + getEmoji(grayDivider).repeat(7));
+            EmbedBuilder embed = new EmbedBuilder();
+            embed.setAuthor("FSM BOT");
+            embed.setTitle(s.getGuild().getName());
+            Field subRole = new Field("Sub Role", s.getSubRole().getAsMention(), true);
+            Field subRoleId = new Field("Sub Role Id", s.getSubRole().getId(), true);
+            Field subChannel = new Field("Sub Channel", s.getSubChannel().getAsMention(), true);
+            Field subChannelId = new Field("Sub Channel Id", s.getSubChannel().getId(), true);
+            Field duelScheduleSheet = new Field("Duel Schedule Sheet", "false", true);
+            Field DifferentTeamSheetSetups = new Field("different team sheet setups", "false", true);
+            Field googleSheetId = new Field("google sheet ID", "", false);
+            embed.addField(subRole);
+            embed.addField(subRoleId);
+            embed.addBlankField(false);
+            embed.addField(subChannel);
+            embed.addField(subChannelId);
+            embed.addBlankField(false);
+            embed.addField(duelScheduleSheet);
+            embed.addField(DifferentTeamSheetSetups);
+            embed.addField(googleSheetId);
+            messageBuilder.addEmbeds(embed.build());
+            messageBuilder.addActionRow(Button.primary("editServerConfig", "edit"));
+            messageBuilder.addActionRow(Button.danger("serverDuelSheets", "toggle duel sheet setup"), Button.success("uniqueTeamSheets", "toggle unique team sheets"));
 
-                MessageCreateBuilder messageBuilder = new MessageCreateBuilder();
-                String grayDivider = "1043359291542872104";
-                String[] colouredDivieders = { "1043359280587350076", "1043359279014482011",
-                        "1043359277441618030", "1043359275403194450", "1043359283863113768", "1043359282227331193",
-                        "1043359287541510234", "1043359289173102632", "1043359285469528135" };
-                int colourCount = 0;
-                messageBuilder.addContent(
-                        getEmoji(grayDivider).repeat(7) + "Server Configuration" + getEmoji(grayDivider).repeat(7));
-                EmbedBuilder embed = new EmbedBuilder();
+            c.sendMessage(messageBuilder.build()).queue();
+
+            List<Team> teams = s.getTeamsAsList();
+            for (Team t : teams) {
+                messageBuilder = new MessageCreateBuilder();
+                messageBuilder.addContent(getEmoji(colouredDivieders[colourCount]).repeat(7) + t.getName()
+                        + getEmoji(colouredDivieders[colourCount]).repeat(7));
+                embed = new EmbedBuilder();
                 embed.setAuthor("FSM BOT");
-                embed.setTitle(s.getGuild().getName());
-                Field subRole = new Field("Sub Role", s.getSubRole().getAsMention(), true);
-                Field subRoleId = new Field("Sub Role Id", s.getSubRole().getId(), true);
-                Field subChannel = new Field("Sub Channel", s.getSubChannel().getAsMention(), true);
-                Field subChannelId = new Field("Sub Channel Id", s.getSubChannel().getId(), true);
-                embed.addField(subRole);
-                embed.addField(subRoleId);
+                embed.setTitle("Team Info");
+                // t.get
+                // roster role, trial role, min rank, name abbv, sub role, timetable channel,
+                // teamup sub calendar
+                Field rosterRole = new Field("Roster Role", t.getRosterRole().getAsMention(), true);
+                Field rosterRoleId = new Field("Roster Role Id", t.getRosterRole().getId(), true);
+                Field TrialRole = new Field("Trial Role", t.getTrialRole().getAsMention(), true);
+                Field TrialRoleId = new Field("Trial Role Id", t.getTrialRole().getId(), true);
+                Field minRank = new Field("Min Rank", t.getMinRank(), true);
+                Field nameAbbv = new Field("Short Name", t.getNameAbbv(), true);
+                Field teamSubRole = new Field("Roster Role", t.getSubRole().getAsMention(), true);
+                Field teamSubRoleId = new Field("Roster Role", t.getSubRole().getId(), true);
+                Field timetableChannel = new Field("Timetable Channel", t.getTimetable().getAsMention(), true);
+                Field timetableChannelId = new Field("Timetable Channel Id", t.getTimetable().getId(), true);
+                Field teamUp = new Field("teamup subcal ID", String.valueOf(t.getTeamupSubCalendar()), true);
+
+                embed.addField(nameAbbv);
+                embed.addField(minRank);
+                embed.addField(teamUp);
                 embed.addBlankField(false);
-                embed.addField(subChannel);
-                embed.addField(subChannelId);
+                embed.addField(rosterRole);
+                embed.addField(rosterRoleId);
+                embed.addBlankField(false);
+                embed.addField(TrialRole);
+                embed.addField(TrialRoleId);
+                embed.addBlankField(false);
+                embed.addField(teamSubRole);
+                embed.addField(teamSubRoleId);
+                embed.addBlankField(false);
+                embed.addField(timetableChannel);
+                embed.addField(timetableChannelId);
+
                 messageBuilder.addEmbeds(embed.build());
-                messageBuilder.addActionRow(Button.primary("editServerConfig", "edit"));
+
+                messageBuilder.addActionRow(Button.primary("edit" + t.getName() + "Config", "edit"));
 
                 c.sendMessage(messageBuilder.build()).queue();
 
-                List<Team> teams = s.getTeamsAsList();
-                for (Team t : teams) {
-                    messageBuilder = new MessageCreateBuilder();
-                    messageBuilder.addContent(getEmoji(colouredDivieders[colourCount]).repeat(7) + t.getName()
-                            + getEmoji(colouredDivieders[colourCount]).repeat(7));
-                    embed = new EmbedBuilder();
-                    embed.setAuthor("FSM BOT");
-                    embed.setTitle("Team Info");
-                    // t.get
-                    // roster role, trial role, min rank, name abbv, sub role, timetable channel,
-                    // teamup sub calendar
-                    Field rosterRole = new Field("Roster Role", t.getRosterRole().getAsMention(), true);
-                    Field rosterRoleId = new Field("Roster Role Id", t.getRosterRole().getId(), true);
-                    Field TrialRole = new Field("Trial Role", t.getTrialRole().getAsMention(), true);
-                    Field TrialRoleId = new Field("Trial Role Id", t.getTrialRole().getId(), true);
-                    Field minRank = new Field("Min Rank", t.getMinRank(), true);
-                    Field nameAbbv = new Field("Short Name", t.getNameAbbv(), true);
-                    Field teamSubRole = new Field("Roster Role", t.getSubRole().getAsMention(), true);
-                    Field teamSubRoleId = new Field("Roster Role", t.getSubRole().getId(), true);
-                    Field timetableChannel = new Field("Timetable Channel", t.getTimetable().getAsMention(), true);
-                    Field timetableChannelId = new Field("Timetable Channel Id", t.getTimetable().getId(), true);
-                    Field teamUp = new Field("teamup subcal ID", String.valueOf(t.getTeamupSubCalendar()), true);
+                messageBuilder = new MessageCreateBuilder();
+                messageBuilder.addActionRow(Button.primary("newTeam", "add team"));
+                commandEvent.reply("Created Channel").setEphemeral(true).queue();
 
-                    embed.addField(nameAbbv);
-                    embed.addField(minRank);
-                    embed.addField(teamUp);
-                    embed.addBlankField(false);
-                    embed.addField(rosterRole);
-                    embed.addField(rosterRoleId);
-                    embed.addBlankField(false);
-                    embed.addField(TrialRole);
-                    embed.addField(TrialRoleId);
-                    embed.addBlankField(false);
-                    embed.addField(teamSubRole);
-                    embed.addField(teamSubRoleId);
-                    embed.addBlankField(false);
-                    embed.addField(timetableChannel);
-                    embed.addField(timetableChannelId);
-
-                    messageBuilder.addEmbeds(embed.build());
-
-                    messageBuilder.addActionRow(Button.primary("edit" + t.getName() + "Config", "edit"));
-
-                    c.sendMessage(messageBuilder.build()).queue();
-
-                }
-
+            }
+        } else if (command.equalsIgnoreCase("removesubs")) {
+            try {
+                Team t = Team.getTeamByRosterRole(commandEvent.getOption("teamrole").getAsRole());
+                Guild g = commandEvent.getGuild();
+                removeSubs(g, t);
+                commandEvent.reply("removed subs for team " + t.getRosterRole().getAsMention()).setEphemeral(true)
+                        .queue();
+            } catch (Exception e) {
+                commandEvent.reply("team does not exist within the fsm bot");
+                // TODO: handle exception
             }
         }
     }
@@ -836,6 +887,8 @@ public class DiscordBot extends ListenerAdapter {
                     .setValue(event.getContact2()).build();
             TextInput discPoc = TextInput.create("disc", "disc", TextInputStyle.SHORT)
                     .setValue(event.getContact1()).build();
+            TextInput teamName = TextInput.create("name", "team against", TextInputStyle.SHORT)
+                    .setValue(event.getTitle()).build();
 
             TextInput confirmed;
             try {
@@ -869,7 +922,8 @@ public class DiscordBot extends ListenerAdapter {
             }
 
             Modal modal = Modal.create("eventedit", "Event Edit: " + event.gethashCode())
-                    .addActionRows(ActionRow.of(eventhash), ActionRow.of(dateTime), ActionRow.of(confirmed),
+                    .addActionRows(ActionRow.of(eventhash), ActionRow.of(dateTime), ActionRow.of(teamName),
+                            ActionRow.of(bnetPoc), ActionRow.of(discPoc), ActionRow.of(confirmed),
                             ActionRow.of(NR),
                             ActionRow.of(declined))
                     .build();
@@ -894,6 +948,7 @@ public class DiscordBot extends ListenerAdapter {
             String eventHash = event.getValue("hash").getAsString();
             String bnet = event.getValue("bnet").getAsString();
             String disc = event.getValue("disc").getAsString();
+            String teamName = event.getValue("name").getAsString();
 
             Event scrim = Event.getEvent(Long.valueOf(eventHash));
             Event.removeFromRepository(scrim);
@@ -903,6 +958,7 @@ public class DiscordBot extends ListenerAdapter {
             scrim.setDateTime(datetime);
             scrim.setContact1(disc);
             scrim.setContact2(bnet);
+            scrim.setTitle(teamName);
 
             // confirmedString.replaceAll(" ", "");
             // notRespondedString.replaceAll(" ", "");
@@ -968,7 +1024,7 @@ public class DiscordBot extends ListenerAdapter {
 
             Event.addEvent(scrim.gethashCode(), scrim);
             updateEvent(scrim);
-            GoogleSheet sheet = new GoogleSheet();
+            GoogleSheet sheet = scrim.getTeam().getSheet();
             sheet.updateEvent(scrim.getTeam().getNameAbbv(), scrim);
             event.reply("Thanks for your request!").setEphemeral(true).queue();
 
@@ -1038,6 +1094,14 @@ public class DiscordBot extends ListenerAdapter {
             if (Player.roleHash(r.getName()) != -1) {
                 g.removeRoleFromMember(m, r);
             }
+        }
+    }
+
+    public void removeSubs(Guild g, Team t) {
+        Role subRole = t.getSubRole();
+        List<Member> members = g.getMembersWithRoles(subRole);
+        for (Member member : members) {
+            g.removeRoleFromMember(member, subRole).queue();
         }
     }
 }

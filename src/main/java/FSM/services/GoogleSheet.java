@@ -35,33 +35,54 @@ import FSM.entities.Event;
 import FSM.entities.Team;
 
 public class GoogleSheet {
+    private static Sheets sheet;
     private static String name = "Google Sheets API Java Quickstart";
     private static JsonFactory gson = GsonFactory.getDefaultInstance();
     private static String tokens = "tokens";
     private static List<String> scopes = Collections.singletonList(SheetsScopes.SPREADSHEETS);
     private static String credsPath = "/creds.json";
-    private boolean connected = false;
+    private static boolean connected = false;
 
     private String sheetId = "1HXcsb3Yt2tad_38UqIiAhFePZQ4-g-mMqIGYfLxnYcM";
-    private Sheets sheet;
 
-    public GoogleSheet() {
-        NetHttpTransport httpTransport = null;
-        try {
-            httpTransport = GoogleNetHttpTransport.newTrustedTransport();
-        } catch (GeneralSecurityException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
+    // public static void main(String[] args) {
+    //     GoogleSheet sheet = new GoogleSheet("1XFTypVaoFoQCf-TY8tKIN57JN7JDjccXGUH2wlhFiZg");
+    //     try {
+    //         LinkedList<LinkedList<String>> vals = sheet.getValues("A2:B2");
+    //         for (LinkedList<String> ll : vals) {
+    //             for (String str : ll) {
+    //                 System.out.println(str);
+    //             }
+    //         }
+    //     } catch (IOException e) {
+    //         // TODO Auto-generated catch block
+    //         e.printStackTrace();
+    //     }
+    // }
+
+    /**
+     * @param sheetId default is FSM MASTER scrim sheet
+     */
+    public GoogleSheet(String sheetId) {
+        if (!connected) {
+            NetHttpTransport httpTransport = null;
+            try {
+                httpTransport = GoogleNetHttpTransport.newTrustedTransport();
+            } catch (GeneralSecurityException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            try {
+                sheet = new Sheets.Builder(httpTransport, gson, getCreds(httpTransport))
+                        .setApplicationName("FSM BOT")
+                        .build();
+                connected = true;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
-        try {
-            sheet = new Sheets.Builder(httpTransport, gson, getCreds(httpTransport))
-                    .setApplicationName("FSM BOT")
-                    .build();
-            connected = true;
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        this.sheetId = sheetId;
     }
 
     public LinkedList<LinkedList<String>> getValues(String range) throws IOException {
@@ -109,16 +130,16 @@ public class GoogleSheet {
         int numOfScrims = Integer.parseInt(getValues(page + "A1:A1").get(0).get(0));
         LinkedList<Event> events = new LinkedList<>();
         for (int i = 0; i < numOfScrims; i++) {
-            LinkedList<LinkedList<String>> vals = getValues(String.format("%sB%s:C%s",page, 2 + (i * 5), 5 + (i * 5)));
+            LinkedList<LinkedList<String>> vals = getValues(String.format("%sB%s:C%s", page, 2 + (i * 5), 5 + (i * 5)));
             int a = 0;
             int b = 0;
             // for (LinkedList<String> ll : vals) {
-            //     for (String s : ll)  {
-            //         System.out.println(String.format("[%s][%s] = %s", a, b, s));
-            //         b++;
-            //     }
-            //     a++;
-            //     b = 0;
+            // for (String s : ll) {
+            // System.out.println(String.format("[%s][%s] = %s", a, b, s));
+            // b++;
+            // }
+            // a++;
+            // b = 0;
             // }
             String title = vals.get(0).get(0);
             String typeString = title.split(" vs ")[0];
@@ -147,7 +168,10 @@ public class GoogleSheet {
             }
 
             if (!title.equals("#N/A")) {
-                Event e = new Event(title, LocalDateTime.parse(time + date + "", DateTimeFormatter.ofPattern("h:mm a zE dd/MM/yyyy",Locale.US)), null, disc, bnet, t, type);
+                Event e = new Event(title,
+                        LocalDateTime.parse(time + date + "",
+                                DateTimeFormatter.ofPattern("h:mm a zE dd/MM/yyyy", Locale.US)),
+                        null, disc, bnet, t, type);
                 events.add(e);
             }
         }
@@ -156,12 +180,15 @@ public class GoogleSheet {
     }
 
     // public static void main(String[] args) {
-    //     LocalDateTime dt1 = LocalDateTime.parse("7:30 PM AESTMon 09/01/2023", DateTimeFormatter.ofPattern("h:mm a zE dd/MM/yyyy",Locale.US));
-    //     LocalDateTime dt2 = LocalDateTime.parse("7:30 PM AEDTMon 09/01/2023", DateTimeFormatter.ofPattern("h:mm a zE dd/MM/yyyy",Locale.US));
-    //     LocalDateTime dt3 = LocalDateTime.parse("7:30 PM GSTMon 09/01/2023", DateTimeFormatter.ofPattern("h:mm a zE dd/MM/yyyy",Locale.US));
-    //     System.out.println(dt1.toEpochSecond(ZoneOffset.of("+11")));
-    //     System.out.println(dt2.toEpochSecond(ZoneOffset.of("+11")));
-    //     System.out.println(dt3.toEpochSecond(ZoneOffset.of("+11")));
+    // LocalDateTime dt1 = LocalDateTime.parse("7:30 PM AESTMon 09/01/2023",
+    // DateTimeFormatter.ofPattern("h:mm a zE dd/MM/yyyy",Locale.US));
+    // LocalDateTime dt2 = LocalDateTime.parse("7:30 PM AEDTMon 09/01/2023",
+    // DateTimeFormatter.ofPattern("h:mm a zE dd/MM/yyyy",Locale.US));
+    // LocalDateTime dt3 = LocalDateTime.parse("7:30 PM GSTMon 09/01/2023",
+    // DateTimeFormatter.ofPattern("h:mm a zE dd/MM/yyyy",Locale.US));
+    // System.out.println(dt1.toEpochSecond(ZoneOffset.of("+11")));
+    // System.out.println(dt2.toEpochSecond(ZoneOffset.of("+11")));
+    // System.out.println(dt3.toEpochSecond(ZoneOffset.of("+11")));
     // }
 
     public void updateEvent(String teamname, Event event) {
@@ -171,7 +198,7 @@ public class GoogleSheet {
         String fulltitle = String.format("%s vs %s", types[event.getType()], event.getTitle());
         vals.add(fulltitle);
         vals.add(event.getDateTime().format(DateTimeFormatter.ofPattern("h:mm a", Locale.US)));
-        System.out.print("'"+event.getDateTime().format(DateTimeFormatter.ofPattern("h:mm a", Locale.US))+"'");
+        System.out.print("'" + event.getDateTime().format(DateTimeFormatter.ofPattern("h:mm a", Locale.US)) + "'");
         vals.add(event.getDateTime().format(DateTimeFormatter.ofPattern("MM/dd/YY", Locale.US)));
         vals.add(event.getContact1());
         vals.add(event.getContact2());
@@ -188,7 +215,7 @@ public class GoogleSheet {
                 }
             }
 
-            String range = String.format("'%s'!B%s:F%s", page,c,c);
+            String range = String.format("'%s'!B%s:F%s", page, c, c);
             List<List<Object>> vvals = new LinkedList<>();
             vvals.add(vals);
             setValues(range, vvals);
@@ -196,7 +223,6 @@ public class GoogleSheet {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-
 
     }
 

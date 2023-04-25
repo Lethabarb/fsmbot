@@ -6,6 +6,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import FSM.services.DiscordBot;
+import FSM.services.GoogleSheet;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Role;
@@ -28,6 +29,9 @@ public class Server {
     private HashMap<String, Team> teams = new HashMap<>();
     private Role subRole = null;
     private MessageChannel botConfigChannel;
+    private boolean hasDuelSheetSetup = false;
+    private boolean DifferentTeamSheetSetups = false;
+    private GoogleSheet sheet;
     // private Role dpsRole = null;
     // private Role tankRole = null;
     // private Role suppRole = null;
@@ -49,7 +53,7 @@ public class Server {
 
     }
 
-    public Server(Guild guild, MessageChannel subChannel, Role subRole, Team ... teams) {
+    public Server(Guild guild, MessageChannel subChannel, Role subRole, Team... teams) {
         System.out.println("Creating " + guild.getName() + " Server");
         this.guild = guild;
         this.subChannel = subChannel;
@@ -68,7 +72,9 @@ public class Server {
                         Commands.slash("role", "edit role of a player")
                                 .addOption(OptionType.MENTIONABLE, "playerdiscord", "Discord")
                                 .addOption(OptionType.ROLE, "newplayerrole", "role to make the player"),
-                        Commands.slash("sort", "sort the events of a channel"))
+                        Commands.slash("sort", "sort the events of a channel"),
+                        Commands.slash("removesubs", "removes the subs of a given team").addOption(OptionType.ROLE,
+                                "teamrole", "the team main roster role", true))
                 .queue();
         if (guild.getName().equalsIgnoreCase("flying spaghetti monster")) {
             System.out.println("adding config command");
@@ -82,12 +88,16 @@ public class Server {
                     Commands.slash("role", "edit role of a player")
                             .addOption(OptionType.MENTIONABLE, "playerdiscord", "Discord")
                             .addOption(OptionType.ROLE, "newplayerrole", "role to make the player"),
-                    Commands.slash("sort", "sort the events of a channel")).queue();
+                    Commands.slash("sort", "sort the events of a channel"),
+                    Commands.slash("removesubs", "removes the subs of a given team").addOption(OptionType.ROLE,
+                            "teamrole", "the team main roster role", true))
+                    .queue();
         }
         System.out.println("added commands");
         List<GuildChannel> channels = guild.getChannels();
         for (GuildChannel guildChannel : channels) {
-            if (guildChannel.getName().equalsIgnoreCase("fsm-config"));
+            if (guildChannel.getName().equalsIgnoreCase("fsm-config"))
+                ;
         }
         for (Team t : teams) {
             this.teams.put(t.getName(), t);
@@ -150,6 +160,30 @@ public class Server {
 
     public void setBotConfigChannel(MessageChannel botConfigChannel) {
         this.botConfigChannel = botConfigChannel;
+    }
+
+    public static HashMap<Long, Server> getRepoos() {
+        return repoos;
+    }
+
+    public static void setRepoos(HashMap<Long, Server> repoos) {
+        Server.repoos = repoos;
+    }
+
+    public boolean isHasDuelSheetSetup() {
+        return hasDuelSheetSetup;
+    }
+
+    public void setHasDuelSheetSetup(boolean hasDuelSheetSetup) {
+        this.hasDuelSheetSetup = hasDuelSheetSetup;
+    }
+
+    public boolean isDifferentTeamSheetSetups() {
+        return DifferentTeamSheetSetups;
+    }
+
+    public void setDifferentTeamSheetSetups(boolean differentTeamSheetSetups) {
+        DifferentTeamSheetSetups = differentTeamSheetSetups;
     }
 
     // public Role getDpsRole() {

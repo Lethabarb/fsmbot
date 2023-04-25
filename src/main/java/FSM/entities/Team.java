@@ -24,12 +24,29 @@ public class Team implements Runnable {
     private Role subRole;
     private List<Member> members = new LinkedList<>();
     private int teamupSubCalendar;
+    private boolean hasDuelSheetSetup = false;
 
+    private GoogleSheet sheet;
 
-    private GoogleSheet sheet = new GoogleSheet();
+    // public Team(String name, String nameAbbv, String minRank, MessageChannel timetable, Role rosterRole, Role trialRole,
+    //         Role subRole, List<Member> members, int teamupSubCalendar) {
+    //     this.name = name;
+    //     this.nameAbbv = nameAbbv;
+    //     this.minRank = minRank;
+    //     this.timetable = timetable;
+    //     this.rosterRole = rosterRole;
+    //     this.trialRole = trialRole;
+    //     this.subRole = subRole;
+    //     this.members = members;
+    //     this.teamupSubCalendar = teamupSubCalendar;
+    //     this.sheet = new GoogleSheet();
+    //     Thread t = new Thread(this, name);
+    //     teams.add(this);
+    //     t.start();
+    // }
 
     public Team(String name, String nameAbbv, String minRank, MessageChannel timetable, Role rosterRole, Role trialRole,
-            Role subRole, List<Member> members, int teamupSubCalendar) {
+            Role subRole, List<Member> members, int teamupSubCalendar, String sheetId) {
         this.name = name;
         this.nameAbbv = nameAbbv;
         this.minRank = minRank;
@@ -39,6 +56,7 @@ public class Team implements Runnable {
         this.subRole = subRole;
         this.members = members;
         this.teamupSubCalendar = teamupSubCalendar;
+        this.sheet = new GoogleSheet(sheetId);
         Thread t = new Thread(this, name);
         teams.add(this);
         t.start();
@@ -46,7 +64,7 @@ public class Team implements Runnable {
 
     @Override
     public void run() {
-        
+
         DiscordBot bot = DiscordBot.getInstance();
         Boolean first = true;
         while (true) {
@@ -60,7 +78,7 @@ public class Team implements Runnable {
                 }
             }
             try {
-                System.out.println("=========="+name+"==========");
+                System.out.println("==========" + name + "==========");
                 avail = false;
                 if (first) {
                     bot.createEventsFromChanel(timetable, this);
@@ -69,7 +87,8 @@ public class Team implements Runnable {
                 bot.updateScrims(this);
                 bot.sortChannel(timetable);
                 avail = true;
-                Thread.sleep(12*60*60*1000);;
+                Thread.sleep(12 * 60 * 60 * 1000);
+                ;
             } catch (Exception e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -78,21 +97,21 @@ public class Team implements Runnable {
     }
 
     // public synchronized static void updateScrims(Team t) {
-    //             System.out.println("updating scrims for " + t.getName());
-    //             DiscordBot bot = DiscordBot.getInstance();
-    //     try {
-    //         GoogleSheet sheet = new GoogleSheet();
-    //         LinkedList<Event> events = sheet.getEvents(t.getNameAbbv(), t);
-    //         for (int i = 0; i < events.size(); i++) {
-    //             bot.sendEvent(events.get(i), true);
-    //         }
-    //         // updateAllEvents(t);
-    //         MessageChannel c = t.getTimetable();
-    //         bot.sortChannel(c);
-    //         System.out.println("done updating scrims");
-    //     } catch (Exception e) {
-    //         e.printStackTrace();
-    //     }
+    // System.out.println("updating scrims for " + t.getName());
+    // DiscordBot bot = DiscordBot.getInstance();
+    // try {
+    // GoogleSheet sheet = new GoogleSheet();
+    // LinkedList<Event> events = sheet.getEvents(t.getNameAbbv(), t);
+    // for (int i = 0; i < events.size(); i++) {
+    // bot.sendEvent(events.get(i), true);
+    // }
+    // // updateAllEvents(t);
+    // MessageChannel c = t.getTimetable();
+    // bot.sortChannel(c);
+    // System.out.println("done updating scrims");
+    // } catch (Exception e) {
+    // e.printStackTrace();
+    // }
     // }
 
     public String getName() {
