@@ -80,15 +80,19 @@ public class Team implements Runnable {
             try {
                 System.out.println("==========" + name + "==========");
                 avail = false;
-                if (first) {
-                    bot.createEventsFromChanel(timetable, this);
+                try {
+                    if (first) {
+                        bot.createEventsFromChanel(timetable, this);
+                    }
+                    first = false;
+                    bot.updateScrims(this);
+                    bot.sortChannel(timetable);
+                } catch (Exception e) {
+                    // TODO: handle exception
+                } finally {
+                    avail = true;
                 }
-                first = false;
-                bot.updateScrims(this);
-                bot.sortChannel(timetable);
-                avail = true;
                 Thread.sleep(12 * 60 * 60 * 1000);
-                ;
             } catch (Exception e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
