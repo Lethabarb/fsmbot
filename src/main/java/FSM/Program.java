@@ -52,17 +52,17 @@ public class Program {
         String desSubRoleId = "1099948114510618727";
         int desSubCal = 11997719;
 
+        TeamDTO abitionDesire = new TeamDTO(desName, desNameAbbv, desMinRank, desTimetableId, desRosterRoleId, desTrialRoleId, desSubRoleId, desSubCal);
 
         String fsmGuildId = "734267704516673536";
         String fsmSubChannelId = "824447819690672132";
         String fsmSubRoleId = "948413633182974032";
 
-        Server fsm = bot.makeGuild(fsmGuildId, fsmSubChannelId, fsmSubRoleId, bolognaseBandits, LinguiniLords);
+        Server fsm = bot.makeGuild(fsmGuildId, fsmSubChannelId, fsmSubRoleId, bolognaseBandits, LinguiniLords, abitionDesire);
 
 
         
         
-        TeamDTO abitionDesire = new TeamDTO(desName, desNameAbbv, desMinRank, desTimetableId, desRosterRoleId, desTrialRoleId, desSubRoleId, desSubCal);
         
         String ambitionGuildId = "883319891543867402";
         String ambitionSubChannelId = "900575082781503529";
