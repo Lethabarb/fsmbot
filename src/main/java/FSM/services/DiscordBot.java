@@ -567,7 +567,11 @@ public class DiscordBot extends ListenerAdapter {
     public synchronized void deleteSubRequest(Event event, int role) {
         MessageChannel c = event.getTeam().getServer().getSubChannel();
         SubRequest req = SubRequest.getRequestByRole(event, role);
-        c.deleteMessageById(req.getMessage().getId()).queue();
+        try {
+            c.deleteMessageById(req.getMessage().getId()).queue();
+        } catch (Exception e) {
+            // TODO: handle exception
+        }
         try {
             Thread.sleep(500);
         } catch (Exception e) {

@@ -45,7 +45,7 @@ public class Program {
         
         String desName = "Ambition Desire";
         String desNameAbbv = "Des";
-        String desMinRank = "Daimond3+";
+        String desMinRank = "Master5+";
         String desTimetableId = "1099949798838243388";
         String desRosterRoleId = "1099948306760749147";
         String desTrialRoleId = "1099948024844791918";

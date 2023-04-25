@@ -67,6 +67,7 @@ public class SubRequest {
         return requests.getFirst();
     }
     public static String getSubString(Event e) {
+        System.out.println("called getSubString for event " + e.getTitle());
         String res = " ";
         Predicate<SubRequest> pred = (SubRequest req) -> (req.getEvent().compareTo(e) != 0);
         LinkedList<SubRequest> requests = new LinkedList<>(repos.values());
@@ -85,6 +86,7 @@ public class SubRequest {
                 }
             }
         }
+        System.out.println(res);
         return res;
     }
     public static HashMap<String, SubRequest> getRepos() {
