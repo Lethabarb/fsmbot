@@ -697,6 +697,8 @@ public class DiscordBot extends ListenerAdapter {
                 deleteSubRequest(event, req.getSubRole());
                 giveMemberRole(event.getTeam().getServer().getGuild(), buttonEvent.getMember(),
                         event.getTeam().getSubRole());
+                // event.updateScrim();
+                updateAllEvents(event.getTeam());
                 buttonEvent.reply("you are now subbing").setEphemeral(true).queue();
                 try {
                     Thread.sleep(2000);
