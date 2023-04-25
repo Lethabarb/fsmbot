@@ -43,6 +43,16 @@ public class Program {
         
         TeamDTO LinguiniLords = new TeamDTO(LingName, LingNameAbbv, LingMinRank, LingTimetableId, LingRosterRoleId, LingTrialRoleId, LingSubRoleId, LingSubCal);
         
+        String desName = "Ambition Desire";
+        String desNameAbbv = "Des";
+        String desMinRank = "Daimond3+";
+        String desTimetableId = "1099949798838243388";
+        String desRosterRoleId = "1099948306760749147";
+        String desTrialRoleId = "1099948024844791918";
+        String desSubRoleId = "1099948114510618727";
+        int desSubCal = 11997719;
+
+
         String fsmGuildId = "734267704516673536";
         String fsmSubChannelId = "824447819690672132";
         String fsmSubRoleId = "948413633182974032";
@@ -51,14 +61,6 @@ public class Program {
 
 
         
-        String desName = "Ambition Desire";
-        String desNameAbbv = "Des";
-        String desMinRank = "Daimond3+";
-        String desTimetableId = "1039862285440647198";
-        String desRosterRoleId = "883323099083317268";
-        String desTrialRoleId = "883323646008000562";
-        String desSubRoleId = "883323423915384934";
-        int desSubCal = 11997719;
         
         TeamDTO abitionDesire = new TeamDTO(desName, desNameAbbv, desMinRank, desTimetableId, desRosterRoleId, desTrialRoleId, desSubRoleId, desSubCal);
         
