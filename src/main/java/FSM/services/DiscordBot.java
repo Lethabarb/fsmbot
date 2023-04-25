@@ -713,7 +713,7 @@ public class DiscordBot extends ListenerAdapter {
             buttonEvent.getChannel().sendMessage("toggle unique sheets").queue();
 
         } else if (buttonUse.equalsIgnoreCase("editTeamConfig")) {
-            String teamRosterRoleId = buttonData[0];
+            String teamRosterRoleId = Data;
             Role r = guild.getRoleById(teamRosterRoleId);
             Team t = Team.getTeamByRosterRole(r);
             buttonEvent.getChannel().sendMessage("editing " + t.getName()).queue();
