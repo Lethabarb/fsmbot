@@ -253,8 +253,8 @@ public class DiscordBot extends ListenerAdapter {
                             p = new Player(m, OWrole);
                         }
                         int r = Player.roleHash(roleString);
-                        SubRequest sub = new SubRequest(p, null, r);
-                        event.addSub(sub);
+                        // SubRequest sub = new SubRequest(p, null, r);
+                        // event.addSub(sub);
                         event.setMessage(message);
                     }
                 }
@@ -553,19 +553,21 @@ public class DiscordBot extends ListenerAdapter {
 
         m.addEmbeds(embed.build());
         long eventKey = event.gethashCode();
+        SubRequest req = new SubRequest(null, null, role, event);
         m.addActionRow(Button.primary(
-                String.format("%s_%s_%s_%s", "Sub", eventKey, event.getSubIndex(), role),
+                String.format("%s_%s", "Sub", req.getUuid()),
                 "Sub "));
         MessageChannel c = event.getTeam().getServer().getSubChannel();
         c.sendMessage(m.build()).queue((message) -> {
-            event.addSub(new SubRequest(null, message, role));
+            req.setMessage(message);
         });
 
     }
 
-    public synchronized void deleteSubRequest(Event event, int subIndex) {
+    public synchronized void deleteSubRequest(Event event, int role) {
         MessageChannel c = event.getTeam().getServer().getSubChannel();
-        c.deleteMessageById(event.getSubMessage(subIndex).getId()).queue();
+        SubRequest req = SubRequest.getRequestByRole(event, role);
+        c.deleteMessageById(req.getMessage().getId()).queue();
         try {
             Thread.sleep(500);
         } catch (Exception e) {
@@ -628,10 +630,10 @@ public class DiscordBot extends ListenerAdapter {
                                     "you dont have a valid overwatch role for this event, please contact your manager");
                             return;
                         }
-                        int sub = event.getExistingSub(trigger.getRole(), false);
+                        // int sub = event.getExistingSub(trigger.getRole(), false);
                         try {
-                            deleteSubRequest(event, sub);
-                            event.removeSub(sub);
+                            deleteSubRequest(event, trigger.getRole());
+                            // event.removeSub(sub);
                         } catch (Exception e) {
                             System.out.println("no sub message found");
                         }
@@ -639,13 +641,13 @@ public class DiscordBot extends ListenerAdapter {
 
                     }
                 }
-                if (!event.needsSub(trigger.getRole())) {
-                    int sub = event.getExistingSub(trigger.getRole(), false);
-                    while (sub != -1) {
-                        deleteSubRequest(event, sub);
-                        event.removeSub(sub);
-                    }
-                }
+                // if (!event.needsSub(trigger.getRole())) {
+                //     int sub = event.getExistingSub(trigger.getRole(), false);
+                //     while (sub != -1) {
+                //         deleteSubRequest(event, sub);
+                //         event.removeSub(sub);
+                //     }
+                // }
                 updateEvent(event);
             } else {
                 buttonEvent.reply("you are not on the roster!").setEphemeral(true).queue();
@@ -680,15 +682,19 @@ public class DiscordBot extends ListenerAdapter {
                 // }
             }
         } else if (buttonUse.equals("Sub")) {
-            Event event = Event.getEvent(Long.parseLong(Data));
-            int subIndex = Integer.parseInt(buttonData[2]);
-            int role = Integer.parseInt(buttonData[3]);
+            System.out.println(String.format("sub for subId: %s", Data));
+            SubRequest req = SubRequest.getRequest(Data);
+            Event event = req.getEvent();
+            // Event event = Event.getEvent(Long.parseLong(Data));
+            // int subIndex = Integer.parseInt(buttonData[2]);
+            // int role = Integer.parseInt(buttonData[3]);
             if (trigger == null) {
-                trigger = new Player(buttonEvent.getMember(), role);
+                trigger = new Player(buttonEvent.getMember(), req.getSubRole());
             }
             if (!hasRosterOrTrialRole(event.getTeam(), buttonEvent.getMember())) {
-                event.setSubPlayer(subIndex, trigger);
-                deleteSubRequest(event, subIndex);
+                // event.setSubPlayer(subIndex, trigger);
+                // SubRequest req = SubRequest.getRequest(Data);
+                deleteSubRequest(event, req.getSubRole());
                 giveMemberRole(event.getTeam().getServer().getGuild(), buttonEvent.getMember(),
                         event.getTeam().getSubRole());
                 buttonEvent.reply("you are now subbing").setEphemeral(true).queue();
@@ -817,8 +823,10 @@ public class DiscordBot extends ListenerAdapter {
             Field direction = new Field("", "", false);
             Field step = new Field("", "", false);
             Field combinedNameAndType = new Field("", "", false);
+            Field order = new Field("", "", false);
+            Field eventSize = new Field("", "", false);
             String sheetJSON = "{\"SheetID\":\"1HXcsb3Yt2tad_38UqIiAhFePZQ4-g-mMqIGYfLxnYcM\",\"SheetPage\":\"Event Input\",\"Start\":\"2B\",\"Direction\":\"right\",\"Step\":-1,\"CombinedNameAndType\":true,\"Order\":[\"Title\",\"Time\",\"Date\",\"Disc\",\"bnet\"],\"EventSize\":3}";
-            Field sheetConfig = new Field("google sheet ID", sheetJSON, false);
+            // Field sheetConfig = new Field("google sheet ID", sheetJSON, false);
             embed.addField(subRole);
             embed.addField(subRoleId);
             embed.addBlankField(false);
@@ -827,7 +835,16 @@ public class DiscordBot extends ListenerAdapter {
             embed.addBlankField(false);
             // embed.addField(duelScheduleSheet);
             embed.addField(DifferentTeamSheetSetups);
-            embed.addField(sheetConfig);
+            embed.addField(sheetID);
+            embed.addField(sheetPage);
+            embed.addField(sheetID);
+            embed.addField(sheetID);
+            embed.addField(sheetID);
+            embed.addField(sheetID);
+            embed.addField(sheetID);
+            embed.addField(sheetID);
+            embed.addField(sheetID);
+            embed.addField(sheetID);
             messageBuilder.addEmbeds(embed.build());
             messageBuilder.addActionRow(Button.primary("editServerConfig_.", "edit"));
             messageBuilder.addActionRow(Button.danger("serverDuelSheets_.", "toggle duel sheet setup"),

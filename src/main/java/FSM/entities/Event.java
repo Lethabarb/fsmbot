@@ -45,7 +45,7 @@ public class Event implements Comparable<Event> {
     private LinkedList<Player> notResponded = new LinkedList<>();
     private LinkedList<Player> confimed = new LinkedList<>();
     private LinkedList<Player> declined = new LinkedList<>();
-    private SubRequest[] subs = new SubRequest[5];
+    // private SubRequest[] subs = new SubRequest[5];
 
     // i love you
 
@@ -128,34 +128,34 @@ public class Event implements Comparable<Event> {
         return getUnix() + hashCode();
     }
 
-    public boolean hasFullRoster() {
-        int dpsCount = 0;
-        int tankCount = 0;
-        int supportCount = 0;
+    // public boolean hasFullRoster() {
+    //     int dpsCount = 0;
+    //     int tankCount = 0;
+    //     int supportCount = 0;
 
-        for (Player player : confimed) {
-            if (player.getRole() == Player.DPS)
-                dpsCount++;
-            if (player.getRole() == Player.TANK)
-                tankCount++;
-            if (player.getRole() == Player.SUPPORT)
-                supportCount++;
-        }
-        for (int i = 0; i < 5; i++) {
-            if (subs[i] != null && subs[i].getPlayer() != null) {
-                if (subs[i].getSubRole() == Player.TANK)
-                    tankCount++;
-                if (subs[i].getSubRole() == Player.DPS)
-                    dpsCount++;
-                if (subs[i].getSubRole() == Player.SUPPORT)
-                    supportCount++;
-            }
-        }
-        if (tankCount >= 1 && dpsCount >= 2 && supportCount >= 2) {
-            return true;
-        }
-        return false;
-    }
+    //     for (Player player : confimed) {
+    //         if (player.getRole() == Player.DPS)
+    //             dpsCount++;
+    //         if (player.getRole() == Player.TANK)
+    //             tankCount++;
+    //         if (player.getRole() == Player.SUPPORT)
+    //             supportCount++;
+    //     }
+    //     for (int i = 0; i < 5; i++) {
+    //         if (subs[i] != null && subs[i].getPlayer() != null) {
+    //             if (subs[i].getSubRole() == Player.TANK)
+    //                 tankCount++;
+    //             if (subs[i].getSubRole() == Player.DPS)
+    //                 dpsCount++;
+    //             if (subs[i].getSubRole() == Player.SUPPORT)
+    //                 supportCount++;
+    //         }
+    //     }
+    //     if (tankCount >= 1 && dpsCount >= 2 && supportCount >= 2) {
+    //         return true;
+    //     }
+    //     return false;
+    // }
 
     public void updateScrim() {
         DiscordBot bot = DiscordBot.getInstance();
@@ -276,18 +276,19 @@ public class Event implements Comparable<Event> {
     }
 
     public void deleteAllSubs() {
-        int c = 0;
-        while (c < 5) {
-            SubRequest sub = subs[0];
-            try {
-                team.getServer().getGuild().removeRoleFromMember(sub.getPlayer().getMember(), team.getSubRole());
-                sub.getMessage().delete().queue();
-            } catch (Exception e) {
-                System.out.println("no sub message, deleting sub");
-            }
-            subs[0] = null;
-            c++;
-        }
+        SubRequest.deleteSubRequestsForEvent(this);
+        // int c = 0;
+        // while (c < 5) {
+        //     SubRequest sub = subs[0];
+        //     try {
+        //         team.getServer().getGuild().removeRoleFromMember(sub.getPlayer().getMember(), team.getSubRole());
+        //         sub.getMessage().delete().queue();
+        //     } catch (Exception e) {
+        //         System.out.println("no sub message, deleting sub");
+        //     }
+        //     subs[0] = null;
+        //     c++;
+        // }
     }
     public String declined() {
         String s = "";
@@ -329,13 +330,13 @@ public class Event implements Comparable<Event> {
         return repository.put(key,e);
     }
 
-    public void addSub(SubRequest sub) {
-        // subs.add(sub);
-        for (int i =0; i < 5; i++) {
-            if (subs[i] == null) {
-                subs[i] = sub;
-            }
-        }
+    // public void addSub(SubRequest sub) {
+    //     // subs.add(sub);
+    //     for (int i =0; i < 5; i++) {
+    //         if (subs[i] == null) {
+    //             subs[i] = sub;
+    //         }
+    //     }
 
         // TODO: plan sub shit cuz its complicated af
         /*
@@ -350,7 +351,7 @@ public class Event implements Comparable<Event> {
          * sub press accept -> add check
          * do nothing
          */
-    }
+    // }
 
     public boolean needsSub(int role) {
         int count = 0;
@@ -359,12 +360,12 @@ public class Event implements Comparable<Event> {
             if (player.getRole() == role)
                 count++;
         }
-        for (int i = 0; i < subs.length; i++) {
-            if (subs[i] != null && subs[i].getPlayer() != null) {
-                if (subs[i].getSubRole() == role)
-                    count++;
-            }
-        }
+        // for (int i = 0; i < subs.length; i++) {
+        //     if (subs[i] != null && subs[i].getPlayer() != null) {
+        //         if (subs[i].getSubRole() == role)
+        //             count++;
+        //     }
+        // }
         if (role == Player.TANK && count >= 1)
             return false;
         if (role == Player.DPS && count >= 2)
@@ -385,40 +386,40 @@ public class Event implements Comparable<Event> {
     // }
     // return -1;
     // }
-    public int getSubIndex() {
-        int c = 0;
-        for (int i = 0; i < 5; i++) {
-            if (subs[i] != null) c++;
-        }
-        return c;
-    }
+    // public int getSubIndex() {
+    //     int c = 0;
+    //     for (int i = 0; i < 5; i++) {
+    //         if (subs[i] != null) c++;
+    //     }
+    //     return c;
+    // }
 
-    public int getExistingSub(int role, boolean isFilled) {
-        for (int i = 0; i < subs.length; i++) {
-            if (subs[i].getSubRole() == role) {
-                if (isFilled) {
-                    if (subs[i].getPlayer() != null)
-                        return i;
-                } else {
-                    return i;
-                }
-            }
-            ;
-        }
-        return -1;
-    }
+    // public int getExistingSub(int role, boolean isFilled) {
+    //     for (int i = 0; i < subs.length; i++) {
+    //         if (subs[i].getSubRole() == role) {
+    //             if (isFilled) {
+    //                 if (subs[i].getPlayer() != null)
+    //                     return i;
+    //             } else {
+    //                 return i;
+    //             }
+    //         }
+    //         ;
+    //     }
+    //     return -1;
+    // }
 
-    public void removeSub(int i) {
-        subs[i] = null;
-    }
+    // public void removeSub(int i) {
+    //     subs[i] = null;
+    // }
 
-    public Message getSubMessage(int i) {
-        return subs[i].getMessage();
-    }
+    // public Message getSubMessage(int i) {
+    //     return subs[i].getMessage();
+    // }
 
-    public void setSubPlayer(int i, Player p) {
-        subs[i].setPlayer(p);
-    }
+    // public void setSubPlayer(int i, Player p) {
+    //     subs[i].setPlayer(p);
+    // }
 
     // public int subHash(int role) {
     // if (subs[role*2] == null) {
@@ -430,22 +431,23 @@ public class Event implements Comparable<Event> {
     // }
 
     public String subs() {
-        String res = " ";
-        for (int i = 0; i < subs.length; i++) {
-            if (subs[i].getPlayer() != null) {
-                res += subs[i].getPlayer().at;
-                if (subs[i].getSubRole() == Player.TANK) {
-                    res += " - Tank\n";
-                }
-                if (subs[i].getSubRole() == Player.DPS) {
-                    res += " - DPS\n";
-                }
-                if (subs[i].getSubRole() == Player.SUPPORT) {
-                    res += " - Support\n";
-                }
-            }
-        }
-        return res;
+        return SubRequest.getSubString(this);
+        // String res = " ";
+        // for (int i = 0; i < subs.length; i++) {
+        //     if (subs[i].getPlayer() != null) {
+        //         res += subs[i].getPlayer().at;
+        //         if (subs[i].getSubRole() == Player.TANK) {
+        //             res += " - Tank\n";
+        //         }
+        //         if (subs[i].getSubRole() == Player.DPS) {
+        //             res += " - DPS\n";
+        //         }
+        //         if (subs[i].getSubRole() == Player.SUPPORT) {
+        //             res += " - Support\n";
+        //         }
+        //     }
+        // }
+        // return res;
     }
 
     public LinkedList<Player> getNotResponded() {
