@@ -1,0 +1,16 @@
+{
+    "SheetID": "1HXcsb3Yt2tad_38UqIiAhFePZQ4-g-mMqIGYfLxnYcM",
+    "SheetPage": "Event_Input",
+    "Start": "2B",
+    "Direction": "right",
+    "Step": -1,
+    "CombinedNameAndType": true,
+    "Order": [
+        "Title",
+        "Time",
+        "Date",
+        "Disc",
+        "bnet"
+    ],
+    "EventSize": 3
+}

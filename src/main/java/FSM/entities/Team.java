@@ -16,6 +16,7 @@ public class Team implements Runnable {
     private static boolean avail = true;
     private String name;
     private String nameAbbv;
+    private String sheetPageName;
     private String minRank;
     private MessageChannel timetable;
     private Server guild;
@@ -28,25 +29,43 @@ public class Team implements Runnable {
 
     private GoogleSheet sheet;
 
-    // public Team(String name, String nameAbbv, String minRank, MessageChannel timetable, Role rosterRole, Role trialRole,
-    //         Role subRole, List<Member> members, int teamupSubCalendar) {
-    //     this.name = name;
-    //     this.nameAbbv = nameAbbv;
-    //     this.minRank = minRank;
-    //     this.timetable = timetable;
-    //     this.rosterRole = rosterRole;
-    //     this.trialRole = trialRole;
-    //     this.subRole = subRole;
-    //     this.members = members;
-    //     this.teamupSubCalendar = teamupSubCalendar;
-    //     this.sheet = new GoogleSheet();
-    //     Thread t = new Thread(this, name);
-    //     teams.add(this);
-    //     t.start();
+    // public Team(String name, String nameAbbv, String minRank, MessageChannel
+    // timetable, Role rosterRole, Role trialRole,
+    // Role subRole, List<Member> members, int teamupSubCalendar) {
+    // this.name = name;
+    // this.nameAbbv = nameAbbv;
+    // this.minRank = minRank;
+    // this.timetable = timetable;
+    // this.rosterRole = rosterRole;
+    // this.trialRole = trialRole;
+    // this.subRole = subRole;
+    // this.members = members;
+    // this.teamupSubCalendar = teamupSubCalendar;
+    // this.sheet = new GoogleSheet();
+    // Thread t = new Thread(this, name);
+    // teams.add(this);
+    // t.start();
     // }
 
     public Team(String name, String nameAbbv, String minRank, MessageChannel timetable, Role rosterRole, Role trialRole,
             Role subRole, List<Member> members, int teamupSubCalendar, String sheetId) {
+        this.name = name;
+        this.nameAbbv = nameAbbv;
+        this.minRank = minRank;
+        this.timetable = timetable;
+        this.rosterRole = rosterRole;
+        this.trialRole = trialRole;
+        this.subRole = subRole;
+        this.members = members;
+        this.teamupSubCalendar = teamupSubCalendar;
+        this.sheet = new GoogleSheet(sheetId);
+        Thread t = new Thread(this, name);
+        teams.add(this);
+        t.start();
+    }
+
+    public Team(String name, String nameAbbv, String minRank, MessageChannel timetable, Role rosterRole, Role trialRole,
+            Role subRole, List<Member> members, int teamupSubCalendar, String sheetId, String sheetPageName) {
         this.name = name;
         this.nameAbbv = nameAbbv;
         this.minRank = minRank;
@@ -250,5 +269,45 @@ public class Team implements Runnable {
             }
         }
         return teams.getFirst();
+    }
+
+    public static LinkedList<Team> getTeams() {
+        return teams;
+    }
+
+    public static void setTeams(LinkedList<Team> teams) {
+        Team.teams = teams;
+    }
+
+    public static boolean isAvail() {
+        return avail;
+    }
+
+    public static void setAvail(boolean avail) {
+        Team.avail = avail;
+    }
+
+    public String getSheetPageName() {
+        return sheetPageName;
+    }
+
+    public void setSheetPageName(String sheetPageName) {
+        this.sheetPageName = sheetPageName;
+    }
+
+    public Server getGuild() {
+        return guild;
+    }
+
+    public void setGuild(Server guild) {
+        this.guild = guild;
+    }
+
+    public boolean isHasDuelSheetSetup() {
+        return hasDuelSheetSetup;
+    }
+
+    public void setHasDuelSheetSetup(boolean hasDuelSheetSetup) {
+        this.hasDuelSheetSetup = hasDuelSheetSetup;
     }
 }

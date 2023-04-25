@@ -1,0 +1,17 @@
+{
+    "SheetID": "1n8If7QckQehbntyagDdtg8Il6aZ2jN169smIs5BULKY",
+    "SheetPage": "Scrim Schedule",
+    "Start": "4A",
+    "Direction": "down",
+    "Step": 7,
+    "CombinedNameAndType": false,
+    "Order": [
+        "Day",
+        "Type",
+        "Team",
+        "Time",
+        "Disc",
+        "bnet"
+    ],
+    "EventSize": 3
+}

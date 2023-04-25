@@ -792,7 +792,7 @@ public class DiscordBot extends ListenerAdapter {
                 MessageChannel c = s.getGuild().createTextChannel("fsm-config").complete();
                 s.setBotConfigChannel(c);
             }
-            String sheetId = commandEvent.getOption("sheetid").getAsString();
+            // String sheetId = commandEvent.getOption("sheetid").getAsString();
             MessageChannel c = s.getBotConfigChannel();
             MessageCreateBuilder messageBuilder = new MessageCreateBuilder();
             String grayDivider = "1043359291542872104";
@@ -809,22 +809,29 @@ public class DiscordBot extends ListenerAdapter {
             Field subRoleId = new Field("Sub Role Id", s.getSubRole().getId(), true);
             Field subChannel = new Field("Sub Channel", s.getSubChannel().getAsMention(), true);
             Field subChannelId = new Field("Sub Channel Id", s.getSubChannel().getId(), true);
-            Field duelScheduleSheet = new Field("Duel Schedule Sheet", "false", true);
+            // Field duelScheduleSheet = new Field("Duel Schedule Sheet", "false", true);
             Field DifferentTeamSheetSetups = new Field("different team sheet setups", "false", true);
-            Field googleSheetId = new Field("google sheet ID", sheetId, false);
+            Field sheetID = new Field("", "", false);
+            Field sheetPage = new Field("", "", false);
+            Field startCell = new Field("", "", false);
+            Field direction = new Field("", "", false);
+            Field step = new Field("", "", false);
+            Field combinedNameAndType = new Field("", "", false);
+            String sheetJSON = "{\"SheetID\":\"1HXcsb3Yt2tad_38UqIiAhFePZQ4-g-mMqIGYfLxnYcM\",\"SheetPage\":\"Event Input\",\"Start\":\"2B\",\"Direction\":\"right\",\"Step\":-1,\"CombinedNameAndType\":true,\"Order\":[\"Title\",\"Time\",\"Date\",\"Disc\",\"bnet\"],\"EventSize\":3}";
+            Field sheetConfig = new Field("google sheet ID", sheetJSON, false);
             embed.addField(subRole);
             embed.addField(subRoleId);
             embed.addBlankField(false);
             embed.addField(subChannel);
             embed.addField(subChannelId);
             embed.addBlankField(false);
-            embed.addField(duelScheduleSheet);
+            // embed.addField(duelScheduleSheet);
             embed.addField(DifferentTeamSheetSetups);
-            embed.addField(googleSheetId);
+            embed.addField(sheetConfig);
             messageBuilder.addEmbeds(embed.build());
             messageBuilder.addActionRow(Button.primary("editServerConfig_.", "edit"));
             messageBuilder.addActionRow(Button.danger("serverDuelSheets_.", "toggle duel sheet setup"),
-                    Button.success("uniqueTeamSheets", "toggle unique team sheets"));
+                    Button.success("uniqueTeamSheets_.", "toggle unique team sheets"));
 
             c.sendMessage(messageBuilder.build()).queue();
 

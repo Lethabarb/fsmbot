@@ -80,7 +80,7 @@ public class Server {
             System.out.println("adding config command");
             guild.updateCommands().addCommands(
                     Commands.slash("makeconfigchannel",
-                            "sets the current channel for the guild to the bot config channel").addOption(OptionType.STRING, "sheetid", "google sheets id", true),
+                            "sets the current channel for the guild to the bot config channel"),
                     Commands.slash("update", "re-freshes an event details")
                             .addSubcommands(new SubcommandData("events", "updates all events in all servers")
                                     .addOption(OptionType.ROLE, "teamrole", "role of the team to update events for")),

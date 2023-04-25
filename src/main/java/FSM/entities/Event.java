@@ -45,7 +45,7 @@ public class Event implements Comparable<Event> {
     private LinkedList<Player> notResponded = new LinkedList<>();
     private LinkedList<Player> confimed = new LinkedList<>();
     private LinkedList<Player> declined = new LinkedList<>();
-    private LinkedList<SubRequest> subs = new LinkedList<>();
+    private SubRequest[] subs = new SubRequest[5];
 
     // i love you
 
@@ -142,12 +142,12 @@ public class Event implements Comparable<Event> {
                 supportCount++;
         }
         for (int i = 0; i < 5; i++) {
-            if (subs.get(i) != null && subs.get(i).getPlayer() != null) {
-                if (subs.get(i).getSubRole() == Player.TANK)
+            if (subs[i] != null && subs[i].getPlayer() != null) {
+                if (subs[i].getSubRole() == Player.TANK)
                     tankCount++;
-                if (subs.get(i).getSubRole() == Player.DPS)
+                if (subs[i].getSubRole() == Player.DPS)
                     dpsCount++;
-                if (subs.get(i).getSubRole() == Player.SUPPORT)
+                if (subs[i].getSubRole() == Player.SUPPORT)
                     supportCount++;
             }
         }
@@ -276,15 +276,17 @@ public class Event implements Comparable<Event> {
     }
 
     public void deleteAllSubs() {
-        while (!subs.isEmpty()) {
-            SubRequest sub = subs.getFirst();
+        int c = 0;
+        while (c < 5) {
+            SubRequest sub = subs[0];
             try {
                 team.getServer().getGuild().removeRoleFromMember(sub.getPlayer().getMember(), team.getSubRole());
                 sub.getMessage().delete().queue();
             } catch (Exception e) {
                 System.out.println("no sub message, deleting sub");
             }
-            subs.remove(sub);
+            subs[0] = null;
+            c++;
         }
     }
     public String declined() {
@@ -328,7 +330,12 @@ public class Event implements Comparable<Event> {
     }
 
     public void addSub(SubRequest sub) {
-        subs.add(sub);
+        // subs.add(sub);
+        for (int i =0; i < 5; i++) {
+            if (subs[i] == null) {
+                subs[i] = sub;
+            }
+        }
 
         // TODO: plan sub shit cuz its complicated af
         /*
@@ -352,9 +359,9 @@ public class Event implements Comparable<Event> {
             if (player.getRole() == role)
                 count++;
         }
-        for (int i = 0; i < subs.size(); i++) {
-            if (subs.get(i) != null && subs.get(i).getPlayer() != null) {
-                if (subs.get(i).getSubRole() == role)
+        for (int i = 0; i < subs.length; i++) {
+            if (subs[i] != null && subs[i].getPlayer() != null) {
+                if (subs[i].getSubRole() == role)
                     count++;
             }
         }
@@ -368,7 +375,7 @@ public class Event implements Comparable<Event> {
     }
 
     // public int getSubIndex(int role) {
-    // // subs.get(i)
+    // // subs[i]
     // if (role == Player.TANK) {
     // return 0 + tankSubCount;
     // } else if (role == Player.DPS) {
@@ -379,14 +386,18 @@ public class Event implements Comparable<Event> {
     // return -1;
     // }
     public int getSubIndex() {
-        return subs.size();
+        int c = 0;
+        for (int i = 0; i < 5; i++) {
+            if (subs[i] != null) c++;
+        }
+        return c;
     }
 
     public int getExistingSub(int role, boolean isFilled) {
-        for (int i = 0; i < subs.size(); i++) {
-            if (subs.get(i).getSubRole() == role) {
+        for (int i = 0; i < subs.length; i++) {
+            if (subs[i].getSubRole() == role) {
                 if (isFilled) {
-                    if (subs.get(i).getPlayer() != null)
+                    if (subs[i].getPlayer() != null)
                         return i;
                 } else {
                     return i;
@@ -398,15 +409,15 @@ public class Event implements Comparable<Event> {
     }
 
     public void removeSub(int i) {
-        subs.remove(subs.get(i));
+        subs[i] = null;
     }
 
     public Message getSubMessage(int i) {
-        return subs.get(i).getMessage();
+        return subs[i].getMessage();
     }
 
     public void setSubPlayer(int i, Player p) {
-        subs.get(i).setPlayer(p);
+        subs[i].setPlayer(p);
     }
 
     // public int subHash(int role) {
@@ -420,16 +431,16 @@ public class Event implements Comparable<Event> {
 
     public String subs() {
         String res = " ";
-        for (int i = 0; i < subs.size(); i++) {
-            if (subs.get(i).getPlayer() != null) {
-                res += subs.get(i).getPlayer().at;
-                if (subs.get(i).getSubRole() == Player.TANK) {
+        for (int i = 0; i < subs.length; i++) {
+            if (subs[i].getPlayer() != null) {
+                res += subs[i].getPlayer().at;
+                if (subs[i].getSubRole() == Player.TANK) {
                     res += " - Tank\n";
                 }
-                if (subs.get(i).getSubRole() == Player.DPS) {
+                if (subs[i].getSubRole() == Player.DPS) {
                     res += " - DPS\n";
                 }
-                if (subs.get(i).getSubRole() == Player.SUPPORT) {
+                if (subs[i].getSubRole() == Player.SUPPORT) {
                     res += " - Support\n";
                 }
             }
