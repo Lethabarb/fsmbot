@@ -603,6 +603,7 @@ public class DiscordBot extends ListenerAdapter {
 
     @Override
     public void onButtonInteraction(ButtonInteractionEvent buttonEvent) {
+        Guild guild = buttonEvent.getGuild();
         Button b = buttonEvent.getButton();
         String[] buttonData = b.getId().split("_");
         String buttonUse = buttonData[0];
@@ -701,6 +702,21 @@ public class DiscordBot extends ListenerAdapter {
                     // TODO: handle exception
                 }
             }
+        } else if (buttonUse.equalsIgnoreCase("editserverconfig")) {
+            buttonEvent.getChannel().sendMessage("edit Server Config").queue();
+
+        } else if (buttonUse.equalsIgnoreCase("serverduelsheets")) {
+            buttonEvent.getChannel().sendMessage("etoggle duel sheets").queue();
+
+        } else if (buttonUse.equalsIgnoreCase("uniqueteamsheets")) {
+            buttonEvent.getChannel().sendMessage("toggle unique sheets").queue();
+
+        } else if (buttonUse.split("-")[0].equalsIgnoreCase("editTeamConfig")) {
+            String teamRosterRoleId = buttonUse.split("-")[1];
+            Role r = guild.getRoleById(teamRosterRoleId);
+            Team t = Team.getTeamByRosterRole(r);
+            buttonEvent.getChannel().sendMessage("editing " + t.getName()).queue();
+
         }
     }
 
@@ -772,6 +788,7 @@ public class DiscordBot extends ListenerAdapter {
                 MessageChannel c = s.getGuild().createTextChannel("fsm-config").complete();
                 s.setBotConfigChannel(c);
             }
+            String sheetId = commandEvent.getOption("sheetid").getAsString();
             MessageChannel c = s.getBotConfigChannel();
             MessageCreateBuilder messageBuilder = new MessageCreateBuilder();
             String grayDivider = "1043359291542872104";
@@ -790,7 +807,7 @@ public class DiscordBot extends ListenerAdapter {
             Field subChannelId = new Field("Sub Channel Id", s.getSubChannel().getId(), true);
             Field duelScheduleSheet = new Field("Duel Schedule Sheet", "false", true);
             Field DifferentTeamSheetSetups = new Field("different team sheet setups", "false", true);
-            Field googleSheetId = new Field("google sheet ID", "", false);
+            Field googleSheetId = new Field("google sheet ID", sheetId, false);
             embed.addField(subRole);
             embed.addField(subRoleId);
             embed.addBlankField(false);
@@ -847,7 +864,7 @@ public class DiscordBot extends ListenerAdapter {
 
                 messageBuilder.addEmbeds(embed.build());
 
-                messageBuilder.addActionRow(Button.primary("edit" + t.getName() + "Config", "edit"));
+                messageBuilder.addActionRow(Button.primary("editTeamConfig-" + t.getRosterRole().getId(), "edit"));
 
                 c.sendMessage(messageBuilder.build()).queue();
 
