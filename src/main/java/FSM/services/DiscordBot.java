@@ -605,11 +605,12 @@ public class DiscordBot extends ListenerAdapter {
     public void onButtonInteraction(ButtonInteractionEvent buttonEvent) {
         Guild guild = buttonEvent.getGuild();
         Button b = buttonEvent.getButton();
+    
         String[] buttonData = b.getId().split("_");
         String buttonUse = buttonData[0];
-        long eventKey = Long.parseLong(buttonData[1]);
+        String Data = buttonData[1];
         // System.out.println("key: " + eventKey);
-        Event event = Event.getEvent(eventKey);
+        Event event = Event.getEvent(Long.parseLong(Data));
         Player trigger = Player.getPlayer(buttonEvent.getMember());
         
         if (buttonUse.equals("ScrimButtYes")) {
@@ -711,8 +712,8 @@ public class DiscordBot extends ListenerAdapter {
         } else if (buttonUse.equalsIgnoreCase("uniqueteamsheets")) {
             buttonEvent.getChannel().sendMessage("toggle unique sheets").queue();
 
-        } else if (buttonUse.split("-")[0].equalsIgnoreCase("editTeamConfig")) {
-            String teamRosterRoleId = buttonUse.split("-")[1];
+        } else if (buttonUse.equalsIgnoreCase("editTeamConfig")) {
+            String teamRosterRoleId = buttonData[0];
             Role r = guild.getRoleById(teamRosterRoleId);
             Team t = Team.getTeamByRosterRole(r);
             buttonEvent.getChannel().sendMessage("editing " + t.getName()).queue();
@@ -818,8 +819,8 @@ public class DiscordBot extends ListenerAdapter {
             embed.addField(DifferentTeamSheetSetups);
             embed.addField(googleSheetId);
             messageBuilder.addEmbeds(embed.build());
-            messageBuilder.addActionRow(Button.primary("editServerConfig", "edit"));
-            messageBuilder.addActionRow(Button.danger("serverDuelSheets", "toggle duel sheet setup"), Button.success("uniqueTeamSheets", "toggle unique team sheets"));
+            messageBuilder.addActionRow(Button.primary("editServerConfig_.", "edit"));
+            messageBuilder.addActionRow(Button.danger("serverDuelSheets_.", "toggle duel sheet setup"), Button.success("uniqueTeamSheets", "toggle unique team sheets"));
 
             c.sendMessage(messageBuilder.build()).queue();
 
@@ -864,7 +865,7 @@ public class DiscordBot extends ListenerAdapter {
 
                 messageBuilder.addEmbeds(embed.build());
 
-                messageBuilder.addActionRow(Button.primary("editTeamConfig-" + t.getRosterRole().getId(), "edit"));
+                messageBuilder.addActionRow(Button.primary("editTeamConfig_" + t.getRosterRole().getId(), "edit"));
 
                 c.sendMessage(messageBuilder.build()).queue();
 
