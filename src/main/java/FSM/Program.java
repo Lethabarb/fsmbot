@@ -64,10 +64,10 @@ public class Program {
         
         
         
-        String ambitionGuildId = "883319891543867402";
-        String ambitionSubChannelId = "900575082781503529";
-        String ambitionSubRoleId = "883883773232562347";
-        Server ambition = bot.makeGuild(ambitionGuildId, ambitionSubChannelId, ambitionSubRoleId, abitionDesire);
+        // String ambitionGuildId = "883319891543867402";
+        // String ambitionSubChannelId = "900575082781503529";
+        // String ambitionSubRoleId = "883883773232562347";
+        // Server ambition = bot.makeGuild(ambitionGuildId, ambitionSubChannelId, ambitionSubRoleId, abitionDesire);
         // String andromedaGuildId = "861832597553152010";
         // String andromedaSubChannelId = "1039822109179908177";
         // String andromedaSubRoleId = "1039812765881225246";
