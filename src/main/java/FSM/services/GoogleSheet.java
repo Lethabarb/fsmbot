@@ -207,7 +207,7 @@ public class GoogleSheet {
         try {
             LinkedList<LinkedList<String>> numOfScrims = getValues(String.format("'%s'!A1:A1", page));
             int numScrims = Integer.parseInt(numOfScrims.getFirst().getFirst()) + 2;
-            LinkedList<LinkedList<String>> scrims = getValues(String.format("'%s'!B2:B%s", page, numScrims));
+            LinkedList<LinkedList<String>> scrims = getValues(String.format("'%s'!B2:D%s", page, numScrims));
             int c = 0;
             for (int i = 0; i < scrims.size(); i++) {
                 String eventDate = event.getDateTime().toLocalDate().toString().replace("-", "/");

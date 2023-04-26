@@ -1008,7 +1008,7 @@ public class DiscordBot extends ListenerAdapter {
             }
 
             Modal modal = null;
-            if (command.equalsIgnoreCase("edit resopnses")) {
+            if (command.equalsIgnoreCase("edit responses")) {
                 modal = Modal.create("eventeditresponses", "Event Edit: " + event.gethashCode())
                         .addActionRows(ActionRow.of(eventhash),
                                 ActionRow.of(confirmed),
