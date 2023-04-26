@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.security.GeneralSecurityException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
@@ -210,7 +211,8 @@ public class GoogleSheet {
             LinkedList<LinkedList<String>> scrims = getValues(String.format("'%s'!B2:D%s", page, numScrims));
             int c = 0;
             for (int i = 0; i < scrims.size(); i++) {
-                String eventDate = event.getDateTime().toLocalDate().toString().replace("-", "/");
+                LocalDate dt = event.getDateTime().toLocalDate();
+                String eventDate = dt.getDayOfMonth() + "/" + dt.getMonthValue() + "/" + dt.getYear();
                 System.out.println(String.format("%s == %s", eventDate, scrims.get(i).get(2)));
                 if (scrims.get(i).get(2).equals(event.getDateTime().toLocalDate().toString().replace("-", "/"))) {
                     c = i + 2;
