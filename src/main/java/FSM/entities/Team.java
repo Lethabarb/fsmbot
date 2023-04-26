@@ -10,6 +10,7 @@ import io.opencensus.trace.Link;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
+import okhttp3.internal.ws.RealWebSocket.Message;
 
 public class Team implements Runnable {
     private static LinkedList<Team> teams = new LinkedList<>();
@@ -19,6 +20,7 @@ public class Team implements Runnable {
     private String sheetPageName;
     private String minRank;
     private MessageChannel timetable;
+    private MessageChannel announcement;
     private Server guild;
     private Role rosterRole;
     private Role trialRole;
@@ -47,12 +49,13 @@ public class Team implements Runnable {
     // t.start();
     // }
 
-    public Team(String name, String nameAbbv, String minRank, MessageChannel timetable, Role rosterRole, Role trialRole,
+    public Team(String name, String nameAbbv, String minRank, MessageChannel timetable, MessageChannel announcement, Role rosterRole, Role trialRole,
             Role subRole, List<Member> members, int teamupSubCalendar, String sheetId) {
         this.name = name;
         this.nameAbbv = nameAbbv;
         this.minRank = minRank;
         this.timetable = timetable;
+        this.announcement = announcement;
         this.rosterRole = rosterRole;
         this.trialRole = trialRole;
         this.subRole = subRole;
@@ -117,6 +120,12 @@ public class Team implements Runnable {
                 e.printStackTrace();
             }
         }
+    }
+
+    public boolean hasTrials() {
+        DiscordBot bot = DiscordBot.getInstance();
+        List<Member> mems = bot.getMemberOfRole(guild.getGuild(), trialRole);
+        return mems.size() > 0;
     }
 
     // public synchronized static void updateScrims(Team t) {
@@ -309,5 +318,13 @@ public class Team implements Runnable {
 
     public void setHasDuelSheetSetup(boolean hasDuelSheetSetup) {
         this.hasDuelSheetSetup = hasDuelSheetSetup;
+    }
+
+    public MessageChannel getAnnouncement() {
+        return announcement;
+    }
+
+    public void setAnnouncement(MessageChannel announcement) {
+        this.announcement = announcement;
     }
 }

@@ -19,10 +19,12 @@ import java.util.TimeZone;
 import javax.sound.midi.SysexMessage;
 
 import FSM.services.DiscordBot;
+import FSM.services.Reminder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 
 public class Event implements Comparable<Event> {
     //test
@@ -30,6 +32,8 @@ public class Event implements Comparable<Event> {
     public static final int AAOL = 1;
     public static final int COACHING = 2;
     public static final int OPENDIV = 3;
+    public static final String[] typeStrings = { "Scrim", "AAOL", "Coaching", "Open Div" };
+    private static Reminder reminder = Reminder.getInstance();
 
     private static HashMap<Long, Event> repository = new HashMap<>();
     private String title;
@@ -49,40 +53,41 @@ public class Event implements Comparable<Event> {
 
     // i love you
 
-    public Event(String title, LocalDateTime dateTime, Message message, String contact1, String contact2, Team team,
-            int type) {
-        this.title = title;
-        this.dateTime = dateTime.atZone(TimeZone.getTimeZone("Australia/Sydney").toZoneId());
-        System.out.println(dateTime.toString());
-        this.message = message;
-        this.contact1 = contact1;
-        this.contact2 = contact2;
-        this.team = team;
-        this.type = type;
-        List<Member> members = DiscordBot.getInstance().getMemberOfRole(team.getServer().getGuild(),
-                team.getRosterRole(), team.getTrialRole());
-        for (Member member : members) {
-            // System.out.println("========" + member.getUser().getName() + "========");
-            if (Player.getPlayer(member) == null) {
-                int OWrole = -1;
-                for (Role role : member.getRoles()) {
-                    if (OWrole == -1) {
-                        OWrole = Player.roleHash(role.getName());
-                    }
-                }
-                Player p = new Player(member, OWrole);
-                notResponded.add(p);
-            } else {
-                notResponded.add(Player.getPlayer(member));
-            }
-        }
-        if (repository.get(gethashCode()) == null) {
-            System.out.println(title + " is new");
-            repository.put(gethashCode(), this);
-        }
-        // System.out.println(gethashCode());
-        // team.getServer().addEventChoice(this);
-    }
+    // public Event(String title, LocalDateTime dateTime, Message message, String contact1, String contact2, Team team,
+    //         int type) {
+    //     this.title = title;
+    //     this.dateTime = dateTime.atZone(TimeZone.getTimeZone("Australia/Sydney").toZoneId());
+    //     System.out.println(dateTime.toString());
+    //     this.message = message;
+    //     this.contact1 = contact1;
+    //     this.contact2 = contact2;
+    //     this.team = team;
+    //     this.type = type;
+    //     List<Member> members = DiscordBot.getInstance().getMemberOfRole(team.getServer().getGuild(),
+    //             team.getRosterRole(), team.getTrialRole());
+    //     for (Member member : members) {
+    //         // System.out.println("========" + member.getUser().getName() + "========");
+    //         if (Player.getPlayer(member) == null) {
+    //             int OWrole = -1;
+    //             for (Role role : member.getRoles()) {
+    //                 if (OWrole == -1) {
+    //                     OWrole = Player.roleHash(role.getName());
+    //                 }
+    //             }
+    //             Player p = new Player(member, OWrole);
+    //             notResponded.add(p);
+    //         } else {
+    //             notResponded.add(Player.getPlayer(member));
+    //         }
+    //     }
+    //     if (repository.get(gethashCode()) == null) {
+    //         System.out.println(title + " is new");
+    //         repository.put(gethashCode(), this);
+    //     }
+    //     // System.out.println(gethashCode());
+    //     // team.getServer().addEventChoice(this);
+    // }
+    
     public Event(String title, ZonedDateTime dateTime, Message message, String contact1, String contact2, Team team,
             int type) {
         this.title = title;
@@ -116,6 +121,7 @@ public class Event implements Comparable<Event> {
         }
         // System.out.println(gethashCode());
         // team.getServer().addEventChoice(this);
+        reminder.addToQueue(this);
     }
 
     public long getUnix() {
@@ -134,6 +140,14 @@ public class Event implements Comparable<Event> {
             if (subRequest.getPlayer().getUserId().equalsIgnoreCase(p.getUserId())) return true;
         }
         return false;
+    }
+
+    public void sendReminder() {
+        MessageChannel c = team.getAnnouncement();
+        
+        String roleAts = team.getRosterRole().getAsMention();
+        if (team.hasTrials()) roleAts += " " + team.getTrialRole().getAsMention();
+        c.sendMessage(roleAts + " " + typeStrings[type] + " in 30 mins!").queue();
     }
 
     // public boolean hasFullRoster() {

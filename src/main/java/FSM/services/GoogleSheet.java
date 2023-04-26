@@ -13,6 +13,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
+import java.util.TimeZone;
 
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
@@ -170,7 +171,7 @@ public class GoogleSheet {
             if (!title.equals("#N/A")) {
                 Event e = new Event(title,
                         LocalDateTime.parse(time + date + "",
-                                DateTimeFormatter.ofPattern("h:mm a zE dd/MM/yyyy", Locale.US)),
+                                DateTimeFormatter.ofPattern("h:mm a zE dd/MM/yyyy", Locale.US)).atZone(TimeZone.getTimeZone("Australia/Sydney").toZoneId()),
                         null, disc, bnet, t, type);
                 events.add(e);
             }

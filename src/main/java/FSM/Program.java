@@ -26,33 +26,36 @@ public class Program {
         String bolNameAbbv = "Bol";
         String bolMinRank = "Masters5+";
         String bolTimetableId = "1026762361081696316";
+        String bolAnnounceId = "1026762342664503296";
         String bolRosterRoleId = "1026762517046886420";
         String bolTrialRoleId = "1026763075405230180";
         String bolSubRoleId = "1026763171115053066";
         int bolsubcal = 11997718;
-        TeamDTO bolognaseBandits = new TeamDTO(bolName, bolNameAbbv, bolMinRank, bolTimetableId, bolRosterRoleId, bolTrialRoleId, bolSubRoleId, bolsubcal);
+        TeamDTO bolognaseBandits = new TeamDTO(bolName, bolNameAbbv, bolMinRank, bolTimetableId, bolAnnounceId, bolRosterRoleId, bolTrialRoleId, bolSubRoleId, bolsubcal);
         
         String LingName = "Linguini Lords";
         String LingNameAbbv = "Ling";
         String LingMinRank = "GM1";
         String LingTimetableId = "968816107001638962";
+        String LingAnnounceId = "967029608052559904";
         String LingRosterRoleId = "948413016976793661";
         String LingTrialRoleId = "952147100278325268";
         String LingSubRoleId = "948413021871566868";
         int LingSubCal = 11998119;
         
-        TeamDTO LinguiniLords = new TeamDTO(LingName, LingNameAbbv, LingMinRank, LingTimetableId, LingRosterRoleId, LingTrialRoleId, LingSubRoleId, LingSubCal);
+        TeamDTO LinguiniLords = new TeamDTO(LingName, LingNameAbbv, LingMinRank, LingTimetableId, LingAnnounceId, LingRosterRoleId, LingTrialRoleId, LingSubRoleId, LingSubCal);
         
         String desName = "Ambition Desire";
         String desNameAbbv = "Des";
         String desMinRank = "Master5+";
         String desTimetableId = "1099949798838243388";
+        String desAnnounceId = "1099949772397367387";
         String desRosterRoleId = "1099948306760749147";
         String desTrialRoleId = "1099948024844791918";
         String desSubRoleId = "1099948114510618727";
         int desSubCal = 11997719;
 
-        TeamDTO abitionDesire = new TeamDTO(desName, desNameAbbv, desMinRank, desTimetableId, desRosterRoleId, desTrialRoleId, desSubRoleId, desSubCal);
+        TeamDTO abitionDesire = new TeamDTO(desName, desNameAbbv, desMinRank, desTimetableId, desAnnounceId, desRosterRoleId, desTrialRoleId, desSubRoleId, desSubCal);
 
         String fsmGuildId = "734267704516673536";
         String fsmSubChannelId = "824447819690672132";

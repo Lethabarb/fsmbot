@@ -72,7 +72,8 @@ public class DiscordBot extends ListenerAdapter {
                             GatewayIntent.MESSAGE_CONTENT);
             jda.addEventListeners(this);
 
-            //TODO: make event / sub request event listeners. This can make the code WAY cleaner.
+            // TODO: make event / sub request event listeners. This can make the code WAY
+            // cleaner.
 
             // jda.lis/
             bot = jda.build();
@@ -99,9 +100,10 @@ public class DiscordBot extends ListenerAdapter {
         Role subRole = guild.getRoleById(subRoleId);
         Server serv = new Server(guild, subChannel, subRole);
         for (TeamDTO team : teams) {
-            Team t = makeTeam(team.getName(), team.getNameAbbv(), team.getMinRank(), team.getTimetableId(),
+            Team t = makeTeam(team.getName(), team.getNameAbbv(), team.getMinRank(), team.getTimetableId(), team.getAnnounceId(),
                     team.getRosterRoleId(), team.getTrialRoleId(), team.getSubRoleId(), serv, team.getSubCalenderId(),
                     team.getSheetId());
+            t.setGuild(serv);
             // serv.addTeam(t);
         }
         // Role tankRole = guild.getRoleById(tankRoleId);
@@ -126,15 +128,16 @@ public class DiscordBot extends ListenerAdapter {
     // return t;
     // }
 
-    public Team makeTeam(String name, String nameAbbv, String minRank, String timetableId,
+    public Team makeTeam(String name, String nameAbbv, String minRank, String timetableId, String announceId,
             String rosterRoleId,
             String trialRoleId, String subRoleId, Server s, int subCalenderId, String sheetId) {
         MessageChannel timetable = bot.getTextChannelById(timetableId);
+        MessageChannel announce = bot.getTextChannelById(announceId);
         Role rosterRole = bot.getRoleById(rosterRoleId);
         Role subRole = bot.getRoleById(subRoleId);
         Role trialRole = bot.getRoleById(trialRoleId);
         List<Member> mems = getMemberOfRole(s.getGuild(), trialRole, rosterRole);
-        Team t = new Team(name, nameAbbv, minRank, timetable, rosterRole, trialRole, subRole, mems, subCalenderId,
+        Team t = new Team(name, nameAbbv, minRank, timetable, announce, rosterRole, trialRole, subRole, mems, subCalenderId,
                 sheetId);
         t.setServer(s);
         s.addTeam(t);
@@ -716,6 +719,22 @@ public class DiscordBot extends ListenerAdapter {
                         event.getTeam().getSubRole());
                 // event.updateScrim();
                 updateAllEvents(event.getTeam());
+                User u = trigger.getMember().getUser();
+
+                MessageCreateBuilder messageBuilder = new MessageCreateBuilder();
+                EmbedBuilder embed = new EmbedBuilder();
+                Field team = new Field("Team", event.getTeam().getName(), true);
+                Field time = new Field("Time", "<t:" + event.getUnix() + ":F>", true);
+                Field channel = new Field("Where", event.getTeam().getTimetable().getAsMention(), true);
+                embed.addField(team);
+                embed.addField(time);
+                embed.addField(channel);
+                messageBuilder.addEmbeds(embed.build());
+                messageBuilder.addActionRow(Button.primary(
+                        String.format("%s_%s", "Sub", req.getUuid()),
+                        "cancel"));
+
+                u.openPrivateChannel().complete().sendMessage(messageBuilder.build()).queue();
                 buttonEvent.reply("you are now subbing").setEphemeral(true).queue();
                 try {
                     Thread.sleep(2000);
