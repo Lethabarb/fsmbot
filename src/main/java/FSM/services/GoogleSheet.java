@@ -214,7 +214,7 @@ public class GoogleSheet {
                 LocalDate dt = event.getDateTime().toLocalDate();
                 String eventDate = dt.getDayOfMonth() + "/" + dt.getMonthValue() + "/" + dt.getYear();
                 System.out.println(String.format("%s == %s", eventDate, scrims.get(i).get(2)));
-                if (scrims.get(i).get(2).equals(event.getDateTime().toLocalDate().toString().replace("-", "/"))) {
+                if (scrims.get(i).get(2).equals(eventDate)) {
                     c = i + 2;
                 }
             }
