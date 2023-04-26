@@ -466,10 +466,10 @@ public class DiscordBot extends ListenerAdapter {
                 LinkedList<Player> players = event.getNotResponded();
                 for (Player player : players) {
                     User playerUser = player.getMember().getUser();
-                    // playerUser.openPrivateChannel().complete()
-                    // .sendMessage(String.format("reminder to respond to the event on <t:%s:F>",
-                    // event.getUnix()))
-                    // .queue();
+                    playerUser.openPrivateChannel().complete()
+                    .sendMessage(String.format("reminder to respond to the event on <t:%s:F>",
+                    event.getUnix()))
+                    .queue();
                 }
                 event.setSentReminders(true);
             }
