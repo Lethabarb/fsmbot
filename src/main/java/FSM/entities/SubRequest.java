@@ -60,11 +60,27 @@ public class SubRequest {
     public static SubRequest getRequest(String UUID) {
         return repos.get(UUID);
     }
-    public static SubRequest getRequestByRole(Event e, int role) {
+    public static SubRequest getRequestByRole(Event e, int role, boolean filled) {
         Predicate<SubRequest> pred = (SubRequest req) -> (req.getEvent().compareTo(e) != 0 && req.getSubRole() != role);
+        if (filled) pred = (SubRequest req) -> (req.getEvent().compareTo(e) != 0 && req.getSubRole() != role && req.getPlayer() != null);
         LinkedList<SubRequest> requests = new LinkedList<>(repos.values());
         requests.removeIf(pred);
         return requests.getFirst();
+    }
+    public static SubRequest getRequestByPlayer(Event e, Player p) {
+        Predicate<SubRequest> pred = (SubRequest req) -> (req.getEvent().compareTo(e) != 0 && req.getPlayer().equals(p));
+        LinkedList<SubRequest> requests = new LinkedList<>(repos.values());
+        requests.removeIf(pred);
+        return requests.getFirst();
+    }
+    public static LinkedList<SubRequest> getRequestForEvent(Event e) {
+        Predicate<SubRequest> pred = (SubRequest req) -> (req.getEvent().compareTo(e) != 0);
+        LinkedList<SubRequest> requests = new LinkedList<>(repos.values());
+        requests.removeIf(pred);
+        return requests;
+    }
+    public boolean deleteRequest() {
+        return repos.remove(uuid, this);
     }
     public static String getSubString(Event e) {
         System.out.println("called getSubString for event " + e.getTitle());

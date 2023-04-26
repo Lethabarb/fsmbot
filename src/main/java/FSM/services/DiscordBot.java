@@ -71,6 +71,10 @@ public class DiscordBot extends ListenerAdapter {
                     .enableIntents(GatewayIntent.DIRECT_MESSAGES, GatewayIntent.GUILD_MEMBERS,
                             GatewayIntent.MESSAGE_CONTENT);
             jda.addEventListeners(this);
+
+            //TODO: make event / sub request event listeners. This can make the code WAY cleaner.
+
+            // jda.lis/
             bot = jda.build();
             try {
                 bot.awaitReady();
@@ -460,8 +464,9 @@ public class DiscordBot extends ListenerAdapter {
                 for (Player player : players) {
                     User playerUser = player.getMember().getUser();
                     // playerUser.openPrivateChannel().complete()
-                    //         .sendMessage(String.format("reminder to respond to the event on <t:%s:F>", event.getUnix()))
-                    //         .queue();
+                    // .sendMessage(String.format("reminder to respond to the event on <t:%s:F>",
+                    // event.getUnix()))
+                    // .queue();
                 }
                 event.setSentReminders(true);
             }
@@ -564,9 +569,9 @@ public class DiscordBot extends ListenerAdapter {
 
     }
 
-    public synchronized void deleteSubRequest(Event event, int role) {
+    public synchronized void deleteSubRequest(Event event, int role, boolean filled) {
         MessageChannel c = event.getTeam().getServer().getSubChannel();
-        SubRequest req = SubRequest.getRequestByRole(event, role);
+        SubRequest req = SubRequest.getRequestByRole(event, role, filled);
         try {
             c.deleteMessageById(req.getMessage().getId()).queue();
         } catch (Exception e) {
@@ -636,7 +641,7 @@ public class DiscordBot extends ListenerAdapter {
                         }
                         // int sub = event.getExistingSub(trigger.getRole(), false);
                         try {
-                            deleteSubRequest(event, trigger.getRole());
+                            deleteSubRequest(event, trigger.getRole(), false);
                             // event.removeSub(sub);
                         } catch (Exception e) {
                             System.out.println("no sub message found");
@@ -646,11 +651,11 @@ public class DiscordBot extends ListenerAdapter {
                     }
                 }
                 // if (!event.needsSub(trigger.getRole())) {
-                //     int sub = event.getExistingSub(trigger.getRole(), false);
-                //     while (sub != -1) {
-                //         deleteSubRequest(event, sub);
-                //         event.removeSub(sub);
-                //     }
+                // int sub = event.getExistingSub(trigger.getRole(), false);
+                // while (sub != -1) {
+                // deleteSubRequest(event, sub);
+                // event.removeSub(sub);
+                // }
                 // }
                 updateEvent(event);
             } else {
@@ -677,6 +682,13 @@ public class DiscordBot extends ListenerAdapter {
                 }
                 buttonEvent.reply("You have declined the scrim on <t:" + event.getUnix() + ":F>").setEphemeral(true)
                         .queue();
+            } else if (event.isSub(trigger)) {
+                SubRequest req = SubRequest.getRequestByPlayer(event, trigger);
+                Member m = req.getPlayer().getMember();
+                if (req.deleteRequest()) {
+                    buttonEvent.reply("you are no longer subbing");
+                    removeMemberRole(guild, m, event.getTeam().getSubRole());
+                }
             } else {
                 buttonEvent.reply("you are not on the roster!").setEphemeral(true).queue();
                 // try {
@@ -699,7 +711,7 @@ public class DiscordBot extends ListenerAdapter {
                 // event.setSubPlayer(subIndex, trigger);
                 // SubRequest req = SubRequest.getRequest(Data);
                 req.setPlayer(trigger);
-                deleteSubRequest(event, req.getSubRole());
+                deleteSubRequest(event, req.getSubRole(), true);
                 giveMemberRole(event.getTeam().getServer().getGuild(), buttonEvent.getMember(),
                         event.getTeam().getSubRole());
                 // event.updateScrim();
@@ -926,11 +938,12 @@ public class DiscordBot extends ListenerAdapter {
     @Override
     public void onMessageContextInteraction(@Nonnull MessageContextInteractionEvent context) {
         Message message = context.getTarget();
+        String command = context.getName();
+        System.out.println("Context: " + command);
         System.out.println(context.getMember().getUser().getName());
         if (message.getAuthor().getName().equals(bot.getSelfUser().getName())) {
             MessageEmbed embed = message.getEmbeds().get(0);
             Event event = Event.getEvent(Long.parseLong(embed.getFooter().getText()));
-
             TextInput dateTime = TextInput.create("datetime", "event date + time", TextInputStyle.SHORT)
                     .setValue(event.getDateTime().format(DateTimeFormatter.ofPattern("E dd/MM/yyyy h:mm a", Locale.US)))
                     .build();
@@ -975,14 +988,27 @@ public class DiscordBot extends ListenerAdapter {
                         .build();
             }
 
-            Modal modal = Modal.create("eventedit", "Event Edit: " + event.gethashCode())
-                    .addActionRows(ActionRow.of(eventhash), ActionRow.of(dateTime), ActionRow.of(teamName),
-                            ActionRow.of(bnetPoc), ActionRow.of(discPoc), ActionRow.of(confirmed),
-                            ActionRow.of(NR),
-                            ActionRow.of(declined))
-                    .build();
+            Modal modal = null;
+            if (command.equalsIgnoreCase("edit resopnses")) {
+                modal = Modal.create("eventeditresponses", "Event Edit: " + event.gethashCode())
+                        .addActionRows(ActionRow.of(eventhash),
+                                ActionRow.of(confirmed),
+                                ActionRow.of(NR),
+                                ActionRow.of(declined))
+                        .build();
 
-            context.replyModal(modal).queue();
+            } else if (command.equalsIgnoreCase("edit details")) {
+                modal = Modal.create("eventeditdetails", "Event Edit: " + event.gethashCode())
+                        .addActionRows(ActionRow.of(eventhash),
+                                ActionRow.of(bnetPoc),
+                                ActionRow.of(discPoc),
+                                ActionRow.of(teamName),
+                                ActionRow.of(dateTime))
+                        .build();
+            }
+            if (modal != null) {
+                context.replyModal(modal).queue();
+            }
 
         } else {
             context.reply("this isnt an event message").setEphemeral(true).queue();
@@ -994,25 +1020,18 @@ public class DiscordBot extends ListenerAdapter {
     public void onModalInteraction(@Nonnull ModalInteractionEvent event) {
         System.out.println(event.getMember().getUser().getName());
 
-        if (event.getModalId().equals("eventedit")) {
-            String dateTimeString = event.getValue("datetime").getAsString();
+        if (event.getModalId().equals("eventeditresponses")) {
             String confirmedString = event.getValue("confirmed").getAsString();
             String notRespondedString = event.getValue("notresponded").getAsString();
             String declinedString = event.getValue("declined").getAsString();
             String eventHash = event.getValue("hash").getAsString();
-            String bnet = event.getValue("bnet").getAsString();
-            String disc = event.getValue("disc").getAsString();
-            String teamName = event.getValue("name").getAsString();
 
             Event scrim = Event.getEvent(Long.valueOf(eventHash));
-            Event.removeFromRepository(scrim);
-            ZonedDateTime datetime = LocalDateTime.parse(dateTimeString,
-                    DateTimeFormatter.ofPattern("E dd/MM/yyyy h:mm a", Locale.US))
-                    .atZone(TimeZone.getTimeZone("Australia/Sydney").toZoneId());
-            scrim.setDateTime(datetime);
-            scrim.setContact1(disc);
-            scrim.setContact2(bnet);
-            scrim.setTitle(teamName);
+            // Event.removeFromRepository(scrim);
+            // ZonedDateTime datetime = LocalDateTime.parse(dateTimeString,
+            // DateTimeFormatter.ofPattern("E dd/MM/yyyy h:mm a", Locale.US))
+            // .atZone(TimeZone.getTimeZone("Australia/Sydney").toZoneId());
+            // scrim.setDateTime(datetime);
 
             // confirmedString.replaceAll(" ", "");
             // notRespondedString.replaceAll(" ", "");
@@ -1082,6 +1101,27 @@ public class DiscordBot extends ListenerAdapter {
             sheet.updateEvent(scrim.getTeam().getNameAbbv(), scrim);
             event.reply("Thanks for your request!").setEphemeral(true).queue();
 
+        } else if (event.getModalId().equals("eventeditdetails")) {
+            String eventHash = event.getValue("hash").getAsString();
+            String dateTimeString = event.getValue("datetime").getAsString();
+            String bnet = event.getValue("bnet").getAsString();
+            String disc = event.getValue("disc").getAsString();
+            String teamName = event.getValue("name").getAsString();
+            Event scrim = Event.getEvent(Long.valueOf(eventHash));
+            scrim.setContact1(disc);
+            scrim.setContact2(bnet);
+            scrim.setTitle(teamName);
+
+            Event.removeFromRepository(scrim);
+            ZonedDateTime datetime = LocalDateTime.parse(dateTimeString,
+                    DateTimeFormatter.ofPattern("E dd/MM/yyyy h:mm a", Locale.US))
+                    .atZone(TimeZone.getTimeZone("Australia/Sydney").toZoneId());
+            scrim.setDateTime(datetime);
+            Event.addEvent(scrim.gethashCode(), scrim);
+            updateEvent(scrim);
+            GoogleSheet sheet = scrim.getTeam().getSheet();
+            sheet.updateEvent(scrim.getTeam().getNameAbbv(), scrim);
+            event.reply("Thanks for your request!").setEphemeral(true).queue();
         }
     }
 

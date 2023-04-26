@@ -128,6 +128,14 @@ public class Event implements Comparable<Event> {
         return getUnix() + hashCode();
     }
 
+    public boolean isSub(Player p) {
+        LinkedList<SubRequest> requests = SubRequest.getRequestForEvent(this);
+        for (SubRequest subRequest : requests) {
+            if (subRequest.getPlayer().getUserId().equalsIgnoreCase(p.getUserId())) return true;
+        }
+        return false;
+    }
+
     // public boolean hasFullRoster() {
     //     int dpsCount = 0;
     //     int tankCount = 0;
@@ -165,7 +173,9 @@ public class Event implements Comparable<Event> {
 
     @Override
     public int compareTo(Event o) {
-        return dateTime.compareTo(o.getDateTime());
+        boolean res = dateTime.compareTo(o.getDateTime()) == 0;
+        res = res && team.getName().equalsIgnoreCase(o.getTeam().getName());
+        return res ? 1 : 0;
     }
 
     public String getTitle() {

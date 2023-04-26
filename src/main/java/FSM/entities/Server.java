@@ -84,7 +84,8 @@ public class Server {
                     Commands.slash("update", "re-freshes an event details")
                             .addSubcommands(new SubcommandData("events", "updates all events in all servers")
                                     .addOption(OptionType.ROLE, "teamrole", "role of the team to update events for")),
-                    Commands.context(Type.MESSAGE, "edit"),
+                    Commands.context(Type.MESSAGE, "edit responses"),
+                    Commands.context(Type.MESSAGE, "edit details"),
                     Commands.slash("role", "edit role of a player")
                             .addOption(OptionType.MENTIONABLE, "playerdiscord", "Discord")
                             .addOption(OptionType.ROLE, "newplayerrole", "role to make the player"),
