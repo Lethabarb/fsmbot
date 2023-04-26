@@ -210,8 +210,9 @@ public class GoogleSheet {
             LinkedList<LinkedList<String>> scrims = getValues(String.format("'%s'!B2:B%s", page, numScrims));
             int c = 0;
             for (int i = 0; i < scrims.size(); i++) {
-                System.out.println(String.format("%s == %s", fulltitle, scrims.get(i).getFirst()));
-                if (scrims.get(i).getFirst().equals(fulltitle)) {
+                String eventDate = event.getDateTime().toLocalDate().toString().replace("-", "/");
+                System.out.println(String.format("%s == %s", eventDate, scrims.get(i).get(2)));
+                if (scrims.get(i).get(2).equals(event.getDateTime().toLocalDate().toString().replace("-", "/"))) {
                     c = i + 2;
                 }
             }
