@@ -144,11 +144,12 @@ public class Event implements Comparable<Event> {
     }
 
     public void sendReminder() {
-        MessageChannel c = team.getAnnouncement();
+        // MessageChannel c = team.getAnnouncement();
         
         String roleAts = team.getRosterRole().getAsMention();
         if (team.hasTrials()) roleAts += " " + team.getTrialRole().getAsMention();
-        c.sendMessage(roleAts + " " + typeStrings[type] + " in 30 mins!").queue();
+        
+        // c.sendMessage(roleAts + " " + typeStrings[type] + " in 30 mins!").queue();
     }
 
     // public boolean hasFullRoster() {

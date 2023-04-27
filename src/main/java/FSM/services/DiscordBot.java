@@ -107,7 +107,8 @@ public class DiscordBot extends ListenerAdapter {
             t.setGuild(serv);
             // serv.addTeam(t);
         }
-        createSubReqestsFromChannel(subChannel);
+        SubRequestGrabber grabber = new SubRequestGrabber(subChannel);
+        // createSubReqestsFromChannel(subChannel);
         // Role tankRole = guild.getRoleById(tankRoleId);
         // Role dpsRole = guild.getRoleById(dpsRoleId);
         // Role suppRole = guild.getRoleById(suppRoleId);
@@ -279,43 +280,96 @@ public class DiscordBot extends ListenerAdapter {
         System.out.println("finished finding scrims");
     }
 
-    public static void main(String[] args) {
-        DiscordBot bot = getInstance();
-    }
+    // public static void main(String[] args) {
+    //     DiscordBot bot = getInstance("");
+    //     String desName = "Ambition Desire";
+    //     String desNameAbbv = "Des";
+    //     String desMinRank = "Master5+";
+    //     String desTimetableId = "1099949798838243388";
+    //     String desAnnounceId = "1099949772397367387";
+    //     String desRosterRoleId = "1099948306760749147";
+    //     String desTrialRoleId = "1099948024844791918";
+    //     String desSubRoleId = "1099948114510618727";
+    //     int desSubCal = 11997719;
+
+    //     TeamDTO abitionDesire = new TeamDTO(desName, desNameAbbv, desMinRank, desTimetableId, desAnnounceId, desRosterRoleId, desTrialRoleId, desSubRoleId, desSubCal);
+
+    //     String fsmGuildId = "734267704516673536";
+    //     String fsmSubChannelId = "824447819690672132";
+    //     String fsmSubRoleId = "948413633182974032";
+
+    //     Server fsm = bot.makeGuild(fsmGuildId, fsmSubChannelId, fsmSubRoleId, abitionDesire);
+
+    //     // MessageChannel c = bot.get
+    //     // bot.createSubReqestsFromChannel("824447819690672132");
+    // }
 
     public void createSubReqestsFromChannel(MessageChannel c) {
+        // MessageChannel c = bot.getTextChannelById(id);
         System.out.println("Finding sub requests....");
-        LinkedList<Message> messages = new LinkedList<>(
-                MessageHistory.getHistoryFromBeginning(c).complete().getRetrievedHistory());
-        Predicate<Message> pred = (Message m) -> (!m.getAuthor().isBot());
-        messages.removeIf(pred);
-        System.out.println("Number of messages: ");
-        for (Message message : messages) {
-            String title = message.getEmbeds().get(0).getTitle();
-            String unixString = title.split(":")[1];
-            System.out.println(title + " -> " + unixString);
-            long unix = Long.parseLong(unixString);
-            ZonedDateTime dt = ZonedDateTime.ofInstant(Instant.ofEpochSecond(unix),
-                    TimeZone.getTimeZone("Australia/Sydney").toZoneId());
-            if (dt.compareTo(ZonedDateTime.now(TimeZone.getTimeZone("Australia/Sydney").toZoneId())) > 0) {
-
-                // int width = 14;
-                String desc = message.getEmbeds().get(0).getDescription();
-                String[] descSplit = desc.split(">");
-                String name = "";
-                for (String word : descSplit) {
-                    if (!word.startsWith("<")) {
-                        name = word;
-                    }
-                }
-
-                Team team = Team.getTeamByName(name);
-                Event e = Event.getByTeamAndUnix(team, unix);
-                String UUID = message.getActionRows().get(0).getButtons().get(0).getId().split("_")[1];
-                String role = message.getEmbeds().get(0).getFields().get(0).getValue();
-                SubRequest req = new SubRequest(UUID, e, Player.roleHash(role));
+        System.out.println("finding last message...");
+        int size = 50;
+        // boolean firstPass = true;
+        String lastId = "";
+        while (size == 50) {
+            List<Message> messages = null;
+            if (lastId.equalsIgnoreCase("")) {
+                System.out.println("first");
+                messages = MessageHistory.getHistoryFromBeginning(c).complete().getRetrievedHistory();
             } else {
+                // messages = MessageHistory.getHistoryAfter(c,
+                // id).complete().getRetrievedHistory();
+                messages = c.getHistoryAfter(lastId, 50).complete().getRetrievedHistory();
+            }
+            System.out.println(messages.size());
+            size = messages.size();
+            int index = 0;
+            lastId = messages.get(index).getId();
+            System.out.println(lastId + ": " + messages.get(index).getContentRaw() + " @ "
+                    + messages.get(index).getTimeCreated().toString());
+        }
+        LinkedList<Message> messages = new LinkedList<>(
+                MessageHistory.getHistoryBefore(c, lastId).complete().getRetrievedHistory());
+        Predicate<Message> pred = (Message m) -> (!m.getAuthor().isBot());
+        System.out.println("Number of messages: " + messages.size());
+        messages.removeIf(pred);
+        System.out.println("Number of messages: " + messages.size());
+        for (Message message : messages) {
+            try {
+                String title = message.getEmbeds().get(0).getTitle();
+                System.out.println(title);
+                String unixString = title.split(":")[1];
+                System.out.println(title + " -> " + unixString);
+                long unix = Long.parseLong(unixString);
+                ZonedDateTime dt = ZonedDateTime.ofInstant(Instant.ofEpochSecond(unix),
+                        TimeZone.getTimeZone("Australia/Sydney").toZoneId());
+                if (dt.compareTo(ZonedDateTime.now(TimeZone.getTimeZone("Australia/Sydney").toZoneId())) > 0) {
+
+                    // int width = 14;
+                    String desc = message.getEmbeds().get(0).getDescription();
+                    String[] descSplit = desc.split(">");
+                    String name = "";
+                    for (String word : descSplit) {
+                        if (!word.startsWith("<")) {
+                            name = word;
+                        }
+                    }
+
+                    Team team = Team.getTeamByName(name);
+                    Event e = Event.getByTeamAndUnix(team, unix);
+                    if (e != null) {
+                        String UUID = message.getActionRows().get(0).getButtons().get(0).getId().split("_")[1];
+                        String role = message.getEmbeds().get(0).getFields().get(0).getValue();
+                     SubRequest req = new SubRequest(UUID, e, Player.roleHash(role));
+                    } else {
+                        message.delete().complete();
+                    }
+                } else {
+                    message.delete().complete();
+                }
+            } catch (Exception e) {
                 message.delete().complete();
+                // TODO: handle exception
             }
         }
     }

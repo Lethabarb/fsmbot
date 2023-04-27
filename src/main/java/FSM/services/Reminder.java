@@ -34,7 +34,7 @@ public class Reminder implements Runnable {
         ZonedDateTime dt = ZonedDateTime.now(TimeZone.getTimeZone("Australia/Sydney").toZoneId());
         boolean isBefore = true;
         while (isBefore) {
-            if (queue.peek().getDateTime().minusMinutes(30).compareTo(dt) < 0) {
+            if (queue.peek() != null && queue.peek().getDateTime().minusMinutes(30).compareTo(dt) < 0) {
                 Event e = queue.poll();
                 e.sendReminder();
             }

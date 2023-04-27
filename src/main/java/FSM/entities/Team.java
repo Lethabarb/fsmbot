@@ -86,7 +86,6 @@ public class Team implements Runnable {
 
     @Override
     public void run() {
-
         DiscordBot bot = DiscordBot.getInstance();
         Boolean first = true;
         while (true) {
@@ -128,6 +127,9 @@ public class Team implements Runnable {
         return mems.size() > 0;
     }
 
+    public static boolean getAvailability() {
+        return avail;
+    }
     // public synchronized static void updateScrims(Team t) {
     // System.out.println("updating scrims for " + t.getName());
     // DiscordBot bot = DiscordBot.getInstance();

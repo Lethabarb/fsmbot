@@ -87,6 +87,7 @@ public class Server {
                                     .addOption(OptionType.ROLE, "teamrole", "role of the team to update events for")),
                     Commands.context(Type.MESSAGE, "edit responses"),
                     Commands.context(Type.MESSAGE, "edit details"),
+                    Commands.context(Type.MESSAGE, "delete event"),
                     Commands.slash("role", "edit role of a player")
                             .addOption(OptionType.MENTIONABLE, "playerdiscord", "Discord")
                             .addOption(OptionType.ROLE, "newplayerrole", "role to make the player"),
