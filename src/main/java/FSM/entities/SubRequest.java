@@ -56,7 +56,12 @@ public class SubRequest {
         LinkedList<SubRequest> requests = new LinkedList<>(repos.values());
         for (SubRequest req : requests) {
             if (req.getEvent().compareTo(e) == 0) {
-                req.message.delete().complete();
+                try {
+                    req.message.delete().complete();
+                    
+                } catch (Exception ex) {
+                    System.out.println("couldnt del scrim, continueing...");
+                }
             }
         }
     }
