@@ -5,6 +5,7 @@
     "Direction": "down",
     "Step": 7,
     "CombinedNameAndType": false,
+    "TitleDelimiter": "",
     "Order": [
         "Day",
         "Type",

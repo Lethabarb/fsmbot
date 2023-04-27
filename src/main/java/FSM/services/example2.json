@@ -5,6 +5,7 @@
     "Direction": "right",
     "Step": -1,
     "CombinedNameAndType": true,
+    "TitleDelimiter": " vs ",
     "Order": [
         "Title",
         "Time",

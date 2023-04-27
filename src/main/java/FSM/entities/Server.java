@@ -32,6 +32,7 @@ public class Server {
     private boolean hasDuelSheetSetup = false;
     private boolean DifferentTeamSheetSetups = false;
     private GoogleSheet sheet;
+    private SheetConfig sheetConfig;
     // private Role dpsRole = null;
     // private Role tankRole = null;
     // private Role suppRole = null;

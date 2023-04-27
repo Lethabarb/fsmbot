@@ -280,6 +280,13 @@ public class Team implements Runnable {
         return teams.getFirst();
     }
 
+    public static Team getTeamByName(String name) {
+        for (Team team : teams) {
+            if (team.getName().equalsIgnoreCase(name)) return team;
+        }
+        return null;
+    }
+
     public static LinkedList<Team> getTeams() {
         return teams;
     }

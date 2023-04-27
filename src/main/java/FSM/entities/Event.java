@@ -15,6 +15,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
+import java.util.function.Predicate;
 
 import javax.sound.midi.SysexMessage;
 
@@ -512,6 +513,22 @@ public class Event implements Comparable<Event> {
 
     public static LinkedList<Event> getAllEvents() {
         return new LinkedList<>(repository.values());
+    }
+
+    public static Event getByTeamAndUnix(Team t, long unix) {
+        ZonedDateTime dt = ZonedDateTime.ofInstant(Instant.ofEpochSecond(unix), TimeZone.getTimeZone("Australia/Sydney").toZoneId());
+        LinkedList<Event> events = getAllEvents();
+        Predicate<Event> pred = (Event req) -> (!req.getTeam().getName().equalsIgnoreCase(t.getName()) && dt.compareTo(req.getDateTime()) != 0);
+        events.removeIf(pred);
+        if (events.size() == 0) {
+            System.out.println("could not find event by team and unix");
+            return null;
+        } else if (events.size() == 1) {
+            return events.getFirst();
+        } else {
+            System.out.println("more than 1 event found when searching by team and date");
+            return events.getFirst();
+        }
     }
 
     @Override

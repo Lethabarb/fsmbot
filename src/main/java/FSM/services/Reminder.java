@@ -12,15 +12,21 @@ public class Reminder implements Runnable {
     private static Reminder instance = null;
     private PriorityQueue<Event> queue = new PriorityQueue<>(new EventComparator());
 
-    private Reminder() {}
+    private Reminder() {
+    }
 
     public static Reminder getInstance() {
-        if (instance == null) instance = new Reminder();
+        if (instance == null) {
+            instance = new Reminder();
+            Thread t = new Thread(instance, "reminders");
+            t.start();
+        }
         return instance;
     }
 
     public void addToQueue(Event e) {
-        if (!queue.contains(e)) queue.add(e);
+        if (!queue.contains(e))
+            queue.add(e);
     }
 
     @Override
@@ -42,5 +48,5 @@ public class Reminder implements Runnable {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'run'");
     }
-    
+
 }

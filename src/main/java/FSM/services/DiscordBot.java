@@ -100,12 +100,14 @@ public class DiscordBot extends ListenerAdapter {
         Role subRole = guild.getRoleById(subRoleId);
         Server serv = new Server(guild, subChannel, subRole);
         for (TeamDTO team : teams) {
-            Team t = makeTeam(team.getName(), team.getNameAbbv(), team.getMinRank(), team.getTimetableId(), team.getAnnounceId(),
+            Team t = makeTeam(team.getName(), team.getNameAbbv(), team.getMinRank(), team.getTimetableId(),
+                    team.getAnnounceId(),
                     team.getRosterRoleId(), team.getTrialRoleId(), team.getSubRoleId(), serv, team.getSubCalenderId(),
                     team.getSheetId());
             t.setGuild(serv);
             // serv.addTeam(t);
         }
+        createSubReqestsFromChannel(subChannel);
         // Role tankRole = guild.getRoleById(tankRoleId);
         // Role dpsRole = guild.getRoleById(dpsRoleId);
         // Role suppRole = guild.getRoleById(suppRoleId);
@@ -137,7 +139,8 @@ public class DiscordBot extends ListenerAdapter {
         Role subRole = bot.getRoleById(subRoleId);
         Role trialRole = bot.getRoleById(trialRoleId);
         List<Member> mems = getMemberOfRole(s.getGuild(), trialRole, rosterRole);
-        Team t = new Team(name, nameAbbv, minRank, timetable, announce, rosterRole, trialRole, subRole, mems, subCalenderId,
+        Team t = new Team(name, nameAbbv, minRank, timetable, announce, rosterRole, trialRole, subRole, mems,
+                subCalenderId,
                 sheetId);
         t.setServer(s);
         s.addTeam(t);
@@ -260,7 +263,7 @@ public class DiscordBot extends ListenerAdapter {
                             p = new Player(m, OWrole);
                         }
                         int r = Player.roleHash(roleString);
-                        // SubRequest sub = new SubRequest(p, null, r);
+                        SubRequest sub = new SubRequest(p, null, r, event);
                         // event.addSub(sub);
                         event.setMessage(message);
                     }
@@ -274,6 +277,47 @@ public class DiscordBot extends ListenerAdapter {
             }
         }
         System.out.println("finished finding scrims");
+    }
+
+    public static void main(String[] args) {
+        DiscordBot bot = getInstance();
+    }
+
+    public void createSubReqestsFromChannel(MessageChannel c) {
+        System.out.println("Finding sub requests....");
+        LinkedList<Message> messages = new LinkedList<>(
+                MessageHistory.getHistoryFromBeginning(c).complete().getRetrievedHistory());
+        Predicate<Message> pred = (Message m) -> (!m.getAuthor().isBot());
+        messages.removeIf(pred);
+        System.out.println("Number of messages: ");
+        for (Message message : messages) {
+            String title = message.getEmbeds().get(0).getTitle();
+            String unixString = title.split(":")[1];
+            System.out.println(title + " -> " + unixString);
+            long unix = Long.parseLong(unixString);
+            ZonedDateTime dt = ZonedDateTime.ofInstant(Instant.ofEpochSecond(unix),
+                    TimeZone.getTimeZone("Australia/Sydney").toZoneId());
+            if (dt.compareTo(ZonedDateTime.now(TimeZone.getTimeZone("Australia/Sydney").toZoneId())) > 0) {
+
+                // int width = 14;
+                String desc = message.getEmbeds().get(0).getDescription();
+                String[] descSplit = desc.split(">");
+                String name = "";
+                for (String word : descSplit) {
+                    if (!word.startsWith("<")) {
+                        name = word;
+                    }
+                }
+
+                Team team = Team.getTeamByName(name);
+                Event e = Event.getByTeamAndUnix(team, unix);
+                String UUID = message.getActionRows().get(0).getButtons().get(0).getId().split("_")[1];
+                String role = message.getEmbeds().get(0).getFields().get(0).getValue();
+                SubRequest req = new SubRequest(UUID, e, Player.roleHash(role));
+            } else {
+                message.delete().complete();
+            }
+        }
     }
 
     public synchronized void sendEvent(Event event, boolean sort) {
@@ -467,9 +511,9 @@ public class DiscordBot extends ListenerAdapter {
                 for (Player player : players) {
                     User playerUser = player.getMember().getUser();
                     playerUser.openPrivateChannel().complete()
-                    .sendMessage(String.format("reminder to respond to the event on <t:%s:F>",
-                    event.getUnix()))
-                    .queue();
+                            .sendMessage(String.format("reminder to respond to the event on <t:%s:F>",
+                                    event.getUnix()))
+                            .queue();
                 }
                 event.setSentReminders(true);
             }
@@ -520,7 +564,7 @@ public class DiscordBot extends ListenerAdapter {
         if (event.getType() == 2)
             return; // if its coaching
         MessageCreateBuilder m = new MessageCreateBuilder();
-        m.setContent(event.getTeam().getServer().getSubRole().getAsMention());
+        // m.setContent(event.getTeam().getServer().getSubRole().getAsMention());
 
         EmbedBuilder embed = new EmbedBuilder();
         embed.setColor(Color.BLUE);
@@ -557,6 +601,7 @@ public class DiscordBot extends ListenerAdapter {
         embed.addField(rolefield);
         Field rank = new Field("```Rank```", event.getTeam().getMinRank(), true);
         embed.addField(rank);
+        embed.setFooter(String.valueOf(event.gethashCode()));
         // embed.addField(time);
 
         m.addEmbeds(embed.build());

@@ -31,6 +31,9 @@ public class SubRequest {
         uuid = UUID.randomUUID().toString();
         repos.put(uuid, this);
     }
+    public SubRequest(String UUID, Event e, int role) {
+        
+    }
     public Player getPlayer() {
         return player;
     }
