@@ -55,7 +55,7 @@ public class GoogleSheet2 {
     private static JsonFactory gson = GsonFactory.getDefaultInstance();
     private static String tokens = "tokens";
     private static List<String> scopes = Collections.singletonList(SheetsScopes.SPREADSHEETS);
-    private static String credsPath = "creds.json";
+    private static String credsPath = "/creds.json";
     private static boolean connected = false;
     private static String[] alphabet = { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L" };
 
