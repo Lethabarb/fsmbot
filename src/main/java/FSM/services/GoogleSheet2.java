@@ -722,23 +722,11 @@ public class GoogleSheet2 {
                 .execute();
     }
 
-    public void testDelete() {
-        BatchUpdateSpreadsheetRequest content = new BatchUpdateSpreadsheetRequest();
-        Request request = new Request()
-                .setDeleteDimension(new DeleteDimensionRequest()
-                        .setRange(new DimensionRange()
-                                .setSheetId(1911388484)
-                                .setDimension("ROWS")
-                                .setStartIndex(6)
-                                .setEndIndex(7)));
-        ListBuilder<Request> reqs = new ListBuilder<>();
-        reqs.add(request);
-        content.setRequests(reqs.build());
-        try {
-            sheet.spreadsheets().batchUpdate("1HXcsb3Yt2tad_38UqIiAhFePZQ4-g-mMqIGYfLxnYcM", content).execute();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-    }
+
+
+
+    // public static void main(String[] args) {
+    //     GoogleSheet2 sheet = new GoogleSheet2();
+    //     sheet.getCreds(null)
+    // }
 }
