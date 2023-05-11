@@ -150,16 +150,11 @@ public class Server extends ListenerAdapter implements Runnable {
                     }
                 }
                 bot.sortChannel(team.getTimetable());
-                try {
-                    Thread.sleep(2 * 60 * 60 * 1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
             }
             try {
-                Thread.sleep(2 * 60 * 1000);
-            } catch (Exception e) {
-                // TODO: handle exception
+                Thread.sleep(2 * 60 * 60 * 1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
         }
     }
