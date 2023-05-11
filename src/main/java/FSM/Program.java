@@ -95,6 +95,8 @@ public class Program {
         SheetConfig config = new SheetConfig(sheetId, sheetPage, start, direction, step, combinedNameandType,
                 titleDelimiter, order, eventSize, dateFormat, timeFormat);
 
+        System.out.println(config.getSheetPage());
+
         Server fsm = bot.makeGuild(fsmGuildId, fsmSubChannelId, fsmSubRoleId, config, bolognaseBandits);
 
         // String ambitionGuildId = "883319891543867402";
