@@ -72,11 +72,12 @@ public class TeamUp {
         JsonArray subcal = new JsonArray(1);
         subcal.add(new JsonPrimitive(event.getTeam().getTeamupSubCalendar()));
         data.add("subcalendar_ids", subcal);
-        int offset = TimeZone.getTimeZone("Australia/Sydney").getOffset(0, event.getDateTime().getYear(),
-        event.getDateTime().getMonthValue(), event.getDateTime().getDayOfMonth(),
-        event.getDateTime().getDayOfWeek().getValue(), 0);
-        offset /= 60000; // mins
-        offset /= 60; //hours
+        // int offset = TimeZone.getTimeZone("Australia/Sydney");
+        // .getOffset(0, event.getDateTime().getYear(),
+        // event.getDateTime().getMonthValue(), event.getDateTime().getDayOfMonth(),
+        // event.getDateTime().getDayOfWeek().getValue(), 0);
+        // offset /= 60000; // mins
+        // offset /= 60; //hours
         
         String startdt = event.getDateTime().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
         System.out.println(startdt);

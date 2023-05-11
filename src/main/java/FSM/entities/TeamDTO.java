@@ -11,10 +11,11 @@ public class TeamDTO {
     private String subRoleId;
     private int subCalenderId;
     private String sheetId = "1HXcsb3Yt2tad_38UqIiAhFePZQ4-g-mMqIGYfLxnYcM";
+    private String managerId;
 
     
     public TeamDTO(String name, String nameAbbv, String minRank, String timetableId, String announceId, String rosterRoleId,
-    String trialRoleId, String subRoleId, int subCalenderId) {
+    String trialRoleId, String subRoleId, int subCalenderId, String managerId) {
         this.name = name;
         this.nameAbbv = nameAbbv;
         this.minRank = minRank;
@@ -24,6 +25,7 @@ public class TeamDTO {
         this.trialRoleId = trialRoleId;
         this.subRoleId = subRoleId;
         this.subCalenderId = subCalenderId;
+        this.managerId = managerId;
     }
     
     public TeamDTO(String name, String nameAbbv, String minRank, String timetableId, String rosterRoleId,
@@ -122,5 +124,13 @@ public class TeamDTO {
 
     public void setAnnounceId(String announceId) {
         this.announceId = announceId;
+    }
+
+    public String getManagerId() {
+        return managerId;
+    }
+
+    public void setManagerId(String managerId) {
+        this.managerId = managerId;
     }
 }

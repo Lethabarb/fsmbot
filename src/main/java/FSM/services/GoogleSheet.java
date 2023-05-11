@@ -202,8 +202,8 @@ public class GoogleSheet {
         vals.add(event.getDateTime().format(DateTimeFormatter.ofPattern("h:mm a", Locale.US)));
         System.out.print("'" + event.getDateTime().format(DateTimeFormatter.ofPattern("h:mm a", Locale.US)) + "'");
         vals.add(event.getDateTime().format(DateTimeFormatter.ofPattern("MM/dd/YY", Locale.US)));
-        vals.add(event.getContact1());
-        vals.add(event.getContact2());
+        vals.add(event.getDisc());
+        vals.add(event.getBnet());
 
         try {
             LinkedList<LinkedList<String>> numOfScrims = getValues(String.format("'%s'!A1:A1", page));

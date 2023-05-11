@@ -6,6 +6,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "GoogleSheet2",
+            "request": "launch",
+            "mainClass": "FSM.services.GoogleSheet2",
+            "projectName": "FSMBOT"
+        },
+        {
+            "type": "java",
             "name": "DiscordBot",
             "request": "launch",
             "mainClass": "FSM.services.DiscordBot",

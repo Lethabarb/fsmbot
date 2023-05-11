@@ -1,6 +1,7 @@
 package FSM;
 
 import FSM.entities.Server;
+import FSM.entities.SheetConfig;
 import FSM.entities.Team;
 import FSM.entities.TeamDTO;
 import FSM.services.DiscordBot;
@@ -30,8 +31,19 @@ public class Program {
         String bolRosterRoleId = "1026762517046886420";
         String bolTrialRoleId = "1026763075405230180";
         String bolSubRoleId = "1026763171115053066";
+        String bolManager = "251578157822509057";
         int bolsubcal = 11997718;
-        TeamDTO bolognaseBandits = new TeamDTO(bolName, bolNameAbbv, bolMinRank, bolTimetableId, bolAnnounceId, bolRosterRoleId, bolTrialRoleId, bolSubRoleId, bolsubcal);
+        // String bolName = "Bolognase Bandits";
+        // String bolNameAbbv = "Bol";
+        // String bolMinRank = "Masters5+";
+        // String bolTimetableId = "913380950119948318";
+        // String bolAnnounceId = "913380615129301032";
+        // String bolRosterRoleId = "913376182634971156";
+        // String bolTrialRoleId = "913380151595794443";
+        // String bolSubRoleId = "1102795133876965436";
+        // int bolsubcal = 12115557;
+        // String bolManager = "251578157822509057";
+        TeamDTO bolognaseBandits = new TeamDTO(bolName, bolNameAbbv, bolMinRank, bolTimetableId, bolAnnounceId, bolRosterRoleId, bolTrialRoleId, bolSubRoleId, bolsubcal, bolManager);
         
         String LingName = "Linguini Lords";
         String LingNameAbbv = "Ling";
@@ -43,7 +55,7 @@ public class Program {
         String LingSubRoleId = "948413021871566868";
         int LingSubCal = 11998119;
         
-        TeamDTO LinguiniLords = new TeamDTO(LingName, LingNameAbbv, LingMinRank, LingTimetableId, LingAnnounceId, LingRosterRoleId, LingTrialRoleId, LingSubRoleId, LingSubCal);
+        TeamDTO LinguiniLords = new TeamDTO(LingName, LingNameAbbv, LingMinRank, LingTimetableId, LingAnnounceId, LingRosterRoleId, LingTrialRoleId, LingSubRoleId, LingSubCal, bolManager);
         
         String desName = "Ambition Desire";
         String desNameAbbv = "Des";
@@ -55,13 +67,31 @@ public class Program {
         String desSubRoleId = "1099948114510618727";
         int desSubCal = 11997719;
 
-        TeamDTO abitionDesire = new TeamDTO(desName, desNameAbbv, desMinRank, desTimetableId, desAnnounceId, desRosterRoleId, desTrialRoleId, desSubRoleId, desSubCal);
+        TeamDTO abitionDesire = new TeamDTO(desName, desNameAbbv, desMinRank, desTimetableId, desAnnounceId, desRosterRoleId, desTrialRoleId, desSubRoleId, desSubCal, bolManager);
 
         String fsmGuildId = "734267704516673536";
         String fsmSubChannelId = "824447819690672132";
         String fsmSubRoleId = "948413633182974032";
 
-        Server fsm = bot.makeGuild(fsmGuildId, fsmSubChannelId, fsmSubRoleId, bolognaseBandits, LinguiniLords, abitionDesire);
+        // String fsmGuildId = "913366063792685058";
+        // String fsmSubChannelId = "913388820173561866";
+        // String fsmSubRoleId = "1102795169201393674";
+
+        String sheetId = "1HXcsb3Yt2tad_38UqIiAhFePZQ4-g-mMqIGYfLxnYcM";
+        String sheetPage = "<NAME>_Test";
+        String start = "B2";
+        String direction = "right";
+        int step = -1;
+        boolean combinedNameandType = true;
+        String titleDelimiter = " vs ";
+        String[] order = { "Title", "Time", "Date", "Disc", "Bnet" };
+        int eventSize = 3;
+        String dateFormat = "d/M/yyyy";
+        String timeFormat = "h:mm a";
+        SheetConfig config = new SheetConfig(sheetId, sheetPage, start, direction, step, combinedNameandType,
+                titleDelimiter, order, eventSize, dateFormat, timeFormat);
+
+        Server fsm = bot.makeGuild(fsmGuildId, fsmSubChannelId, fsmSubRoleId, config, bolognaseBandits);
 
 
         
