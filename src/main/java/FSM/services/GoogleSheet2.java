@@ -135,7 +135,7 @@ public class GoogleSheet2 {
                 } else {
                     int row = startRow + i;
                     String lastCol = alphabet[alpha + config.getOrder().length - 1];
-                    range = "'" + config.getSheetPage().replace("<NAME>", "Bol") + "'!" + startColumn + row + ":"
+                    range = "'" + config.getSheetPage().replace("<NAME>", t.getNameAbbv()) + "'!" + startColumn + row + ":"
                             + lastCol
                             + row;
                     vals = getValues(range, config.getSheetId());
@@ -435,7 +435,7 @@ public class GoogleSheet2 {
             }
 
             // find number of scrims
-            String range = "'" + config.getSheetPage().replace("<NAME>", "Bol") + "'!" + config.getStart() + ":"
+            String range = "'" + config.getSheetPage().replace("<NAME>", e.getTeam().getNameAbbv()) + "'!" + config.getStart() + ":"
                     + startColumn
                     + (startRow + 100);
             System.out.println(range);
@@ -449,7 +449,7 @@ public class GoogleSheet2 {
                 } else {
                     int row = startRow + i;
                     String lastCol = alphabet[alpha + config.getOrder().length - 1];
-                    range = "'" + config.getSheetPage().replace("<NAME>", "Bol") + "'!" + startColumn + row + ":"
+                    range = "'" + config.getSheetPage().replace("<NAME>", e.getTeam().getNameAbbv()) + "'!" + startColumn + row + ":"
                             + lastCol
                             + row;
                     vals = getValues(range, config.getSheetId());
@@ -598,7 +598,7 @@ public class GoogleSheet2 {
                 alpha++;
             }
             System.out.println("alpha: " + alpha);
-            String range = "'" + config.getSheetPage().replace("<NAME>", "Bol") + "'!" + config.getStart() + ":"
+            String range = "'" + config.getSheetPage().replace("<NAME>", oldEvent.getTeam().getNameAbbv()) + "'!" + config.getStart() + ":"
                     + startColumn
                     + (startRow + 100);
             System.out.println(range);
@@ -612,7 +612,7 @@ public class GoogleSheet2 {
                 } else {
                     int row = startRow + i;
                     String lastCol = alphabet[alpha + config.getOrder().length - 1];
-                    range = "'" + config.getSheetPage().replace("<NAME>", "Bol") + "'!" + startColumn + row + ":"
+                    range = "'" + config.getSheetPage().replace("<NAME>", oldEvent.getTeam().getNameAbbv()) + "'!" + startColumn + row + ":"
                             + lastCol
                             + row;
                     vals = getValues(range, config.getSheetId());
