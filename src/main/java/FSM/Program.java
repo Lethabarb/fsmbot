@@ -82,7 +82,7 @@ public class Program {
         // String fsmSubRoleId = "1102795169201393674";
 
         String sheetId = "1HXcsb3Yt2tad_38UqIiAhFePZQ4-g-mMqIGYfLxnYcM";
-        String sheetPage = "<NAME>_Test";
+        String sheetPage = "<NAME>_Event Input";
         String start = "B2";
         String direction = "right";
         int step = -1;
