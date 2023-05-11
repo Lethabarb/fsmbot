@@ -593,7 +593,7 @@ public class Team extends ListenerAdapter {
         events.add(e);
     }
 
-    public void checkEventSubRequests() {
+    public synchronized void checkEventSubRequests() {
         System.out.println(String.format("[%s]: checking sub requests", name));
         for (Event event : events) {
             event.checkSubRequests();

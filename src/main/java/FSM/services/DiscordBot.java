@@ -203,7 +203,7 @@ public class DiscordBot extends ListenerAdapter {
         return false;
     }
 
-    public void createEventsFromChanel(Team t) {
+    public synchronized void createEventsFromChanel(Team t) {
         MessageChannel c = t.getTimetable();
         // System.out.println("=========="+t.getName()+"==========");
         System.out.println("["+ t.getName() + "]: Finding existing scrims for ");
