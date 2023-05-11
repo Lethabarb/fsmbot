@@ -97,7 +97,7 @@ public class Program {
 
         System.out.println(config.getSheetPage());
 
-        Server fsm = bot.makeGuild(fsmGuildId, fsmSubChannelId, fsmSubRoleId, config, bolognaseBandits);
+        Server fsm = bot.makeGuild(fsmGuildId, fsmSubChannelId, fsmSubRoleId, config, bolognaseBandits, LinguiniLords, abitionDesire);
 
         // String ambitionGuildId = "883319891543867402";
         // String ambitionSubChannelId = "900575082781503529";
