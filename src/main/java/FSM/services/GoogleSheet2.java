@@ -121,7 +121,7 @@ public class GoogleSheet2 {
                 alpha++;
             }
             System.out.println("alpha: " + alpha);
-            String range = "'" + config.getSheetPage().replace("<NAME>", "Bol") + "'!" + config.getStart() + ":"
+            String range = "'" + config.getSheetPage().replace("<NAME>", t.getNameAbbv()) + "'!" + config.getStart() + ":"
                     + startColumn
                     + (startRow + 100);
             System.out.println(range);
