@@ -188,11 +188,14 @@ public class Event extends ListenerAdapter implements Comparable<Event> {
 
     public void updateRoster() {
         // Guild g = team.getServer().getGuild();
+        System.out.println(String.format("[%s]: current roster roles - %s + %s", team.getName(), team.getRosterRole(), team.getTrialRole()));
         List<Member> members = DiscordBot.getInstance().getMemberOfRole(team.getServer().getGuild(), team.getTrialRole(), team.getRosterRole());
         LinkedList<Player> players = new LinkedList<>();
         for (Member m : members) {
+            System.out.println(String.format("[]: instance", m.getUser().getName()));
             Player p = Player.getPlayer(m);
             if (p == null) {
+                System.out.println(String.format("[]: is new", m.getUser().getName()));
                 int OWrole = -1;
                 for (Role role : m.getRoles()) {
                     if (OWrole == -1) {
@@ -202,22 +205,28 @@ public class Event extends ListenerAdapter implements Comparable<Event> {
                 p = new Player(m, OWrole);
             }
             players.add(p);
-            if (!inRoster(p))
+            if (!inRoster(p)) {
                 notResponded.add(p);
+
+                System.out.println(String.format("[]: not in roster, adding", p.getMember().getUser().getName()));
+            }
         }
 
         for (Player player : confimed) {
             if (!players.contains(player)) {
                 confimed.remove(player);
+                System.out.println(String.format("[]: no longer in roster, removing", player.getMember().getUser().getName()));
             }
         }
         for (Player player : notResponded) {
             if (!players.contains(player)) {
                 notResponded.remove(player);
+                System.out.println(String.format("[]: no longer in roster, removing", player.getMember().getUser().getName()));
             }
         }
         for (Player player : declined) {
             if (!players.contains(player)) {
+                System.out.println(String.format("[]: no longer in roster, removing", player.getMember().getUser().getName()));
                 declined.remove(player);
                 SubRequest req = getReqByPlayer(player);
                 subRequests.remove(req);
