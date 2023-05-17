@@ -44,5 +44,10 @@ public class SendManagerMessage extends EventJob {
         SendManagerMessage next = new SendManagerMessage(t, timeToAction.plusDays(1));
         EventJobRunner.getInstance().addJob(next);
     }
+
+    @Override
+    public String toString() {
+        return t.getName();
+    }
     
 }
