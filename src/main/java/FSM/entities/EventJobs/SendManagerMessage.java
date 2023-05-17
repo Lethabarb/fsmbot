@@ -24,8 +24,7 @@ public class SendManagerMessage extends EventJob {
     public void action() {
         List<Event> events = t.getEvents();
 
-        Predicate<Event> pred = (Event e) -> e.getDateTime().compareTo(ZonedDateTime.now(TimeZone.getTimeZone("Australia/Sydney").toZoneId())) > 0
-        && e.getDateTime().compareTo(ZonedDateTime.now(TimeZone.getTimeZone("Australia/Sydney").toZoneId()).plusDays(1)) < 0;
+        Predicate<Event> pred = (Event e) -> e.getDateTime().isAfter(timeToAction) && e.getDateTime().isBefore(timeToAction.plusDays(1));
 
         events.removeIf(pred);
 
