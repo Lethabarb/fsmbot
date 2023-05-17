@@ -221,8 +221,11 @@ public class Server extends ListenerAdapter implements Runnable {
                     }
                 }
             } catch (Exception e) {
+                e.printStackTrace();
                 reply.editOriginal(e.getMessage()).queue();
                 // TODO: handle exception
+            } finally {
+                
             }
         } else if (command.equalsIgnoreCase("Role")) {
             InteractionHook reply = slashCommand.deferReply(true).complete();
