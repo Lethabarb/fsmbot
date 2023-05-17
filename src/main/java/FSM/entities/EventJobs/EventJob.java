@@ -1,5 +1,6 @@
 package FSM.entities.EventJobs;
 
+import java.lang.reflect.Method;
 import java.time.ZonedDateTime;
 import java.util.Comparator;
 
@@ -7,6 +8,7 @@ import FSM.entities.Event;
 
 public abstract class EventJob {
     protected Event event;
+    protected Method action;
     protected ZonedDateTime timeToAction;
 
     public EventJob(Event e, ZonedDateTime timeToAction) {

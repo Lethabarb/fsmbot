@@ -2,10 +2,13 @@ package FSM.entities;
 
 import java.io.File;
 import java.lang.StackWalker.Option;
+import java.time.LocalDate;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.TimeZone;
 
 import javax.annotation.Nonnull;
 import javax.swing.Action;
@@ -13,7 +16,9 @@ import javax.swing.Action;
 import com.google.common.base.Predicate;
 import com.google.gson.Gson;
 
+import FSM.entities.EventJobs.SendManagerMessage;
 import FSM.services.DiscordBot;
+import FSM.services.EventJobRunner;
 import FSM.services.GoogleSheet;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
@@ -136,6 +141,9 @@ public class Server extends ListenerAdapter implements Runnable {
         bot.createSubReqestsFromChannel(subChannel);
         for (Team team : teams.values()) {
             team.checkEventSubRequests();
+            ZonedDateTime dt = LocalDate.now().atStartOfDay(TimeZone.getTimeZone("Australia/Sydney").toZoneId());
+            SendManagerMessage job = new SendManagerMessage(team, dt);
+            EventJobRunner.getInstance().addJob(job);
         }
         while (true) {
             // ArrayList<Team> teamsList = new ArrayList<>(teams.values());
