@@ -105,7 +105,6 @@ public class Event extends ListenerAdapter implements Comparable<Event> {
                 notResponded.add(Player.getPlayer(member));
             }
         }
-        team.addEvent(this);
     }
 
     public Event(String title, ZonedDateTime dateTime, String contact1, String contact2, Team team,

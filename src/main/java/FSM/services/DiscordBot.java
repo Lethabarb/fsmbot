@@ -240,6 +240,7 @@ public class DiscordBot extends ListenerAdapter {
                         break;
                 }
                 event = new Event(title, dateTime, message, contact1, contact2, t, type);
+                t.addEvent(event);
                 Event.addEvent(event.gethashCode(), event);
                 bot.addEventListener(event);
                 event.createJobs();

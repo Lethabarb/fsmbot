@@ -159,6 +159,7 @@ public class GoogleSheet2 {
                     Event e = createFromMapping(eventMap, config, t);
                     if (e != null && Event.getEvent(e.gethashCode()) == null) {
                         events.add(e);
+                        t.addEvent(e);
                         Event.addEvent(e.gethashCode(), e);
                     }
                 } catch (DateTimeParseException e) {

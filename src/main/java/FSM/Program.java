@@ -98,45 +98,6 @@ public class Program {
         System.out.println(config.getSheetPage());
 
         Server fsm = bot.makeGuild(fsmGuildId, fsmSubChannelId, fsmSubRoleId, config, bolognaseBandits, LinguiniLords, abitionDesire);
-
-        // String ambitionGuildId = "883319891543867402";
-        // String ambitionSubChannelId = "900575082781503529";
-        // String ambitionSubRoleId = "883883773232562347";
-        // Server ambition = bot.makeGuild(ambitionGuildId, ambitionSubChannelId,
-        // ambitionSubRoleId, abitionDesire);
-        // String andromedaGuildId = "861832597553152010";
-        // String andromedaSubChannelId = "1039822109179908177";
-        // String andromedaSubRoleId = "1039812765881225246";
-        // Server andromeda = bot.makeGuild(andromedaGuildId, andromedaSubChannelId,
-        // andromedaSubRoleId);
-
-        // String oberonName = "[ADR] Oberon";
-        // String oberonNameAbbv = "Obr";
-        // String oberonMinRank = "Daimond1+";
-        // String oberonTimetableId = "982251123203252336";
-        // String oberonRosterRoleId = "862202681945620481";
-        // String oberonTrialRoleId = "862202608466919436";
-        // String oberonSubRoleId = "862202822849724416";
-
-        // Team oberon = bot.makeTeam(oberonName, oberonNameAbbv, oberonMinRank,
-        // oberonTimetableId, oberonRosterRoleId, oberonTrialRoleId, oberonSubRoleId,
-        // andromeda);
-
-        // Server fsm = new Server("734267704516673536", "824447819690672132",
-        // "948413633182974032", "948413221235204116",
-        // "948413221629489252", "948413222006964275");
-        // Server ambition = new Server("883319891543867402", "900575082781503529",
-        // "883871793818005534",
-        // "883871842476097589", "883871823807279135");
-
-        // Team ravioli = new Team("Ravioli Rabbis", "1015001004720271552",
-        // "1014995273094791180", "Rav", "plat3+",
-        // "1014996001045614712", fsm);
-        // Team bolognase = new Team("Bolognase Bandits", "1026762361081696316",
-        // "1026762517046886420", "Bol", "diamond4+",
-        // "1026763171115053066", fsm);
-        // Team Desire = new Team("Ambition Desire", "923453836167905320",
-        // "883323099083317268", "Des", "diamond3+",
-        // "883323423915384934", ambition);
+        // Server fsm = bot.makeGuild(fsmGuildId, fsmSubChannelId, fsmSubRoleId, config, bolognaseBandits);
     }
 }
