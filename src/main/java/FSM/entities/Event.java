@@ -18,6 +18,7 @@ import javax.annotation.Nonnull;
 import javax.swing.text.StyledEditorKit.BoldAction;
 
 import org.apache.poi.sl.draw.geom.Guide;
+import org.apache.poi.ss.usermodel.DataFormat;
 
 import FSM.entities.EventJobs.DeleteEvent;
 import FSM.entities.EventJobs.SendEventAnnouncement;
@@ -187,8 +188,10 @@ public class Event extends ListenerAdapter implements Comparable<Event> {
 
     public void updateRoster() {
         // Guild g = team.getServer().getGuild();
-        System.out.println(String.format("[%s]: current roster roles - %s + %s", team.getName(), team.getRosterRole(), team.getTrialRole()));
-        List<Member> members = DiscordBot.getInstance().getMemberOfRole(team.getServer().getGuild(), team.getTrialRole(), team.getRosterRole());
+        System.out.println(String.format("[%s]: current roster roles - %s + %s", team.getName(), team.getRosterRole(),
+                team.getTrialRole()));
+        List<Member> members = DiscordBot.getInstance().getMemberOfRole(team.getServer().getGuild(),
+                team.getTrialRole(), team.getRosterRole());
         LinkedList<Player> players = new LinkedList<>();
         for (Member m : members) {
             System.out.println(String.format("[]: instance", m.getUser().getName()));
@@ -214,18 +217,21 @@ public class Event extends ListenerAdapter implements Comparable<Event> {
         for (Player player : confimed) {
             if (!players.contains(player)) {
                 confimed.remove(player);
-                System.out.println(String.format("[]: no longer in roster, removing", player.getMember().getUser().getName()));
+                System.out.println(
+                        String.format("[]: no longer in roster, removing", player.getMember().getUser().getName()));
             }
         }
         for (Player player : notResponded) {
             if (!players.contains(player)) {
                 notResponded.remove(player);
-                System.out.println(String.format("[]: no longer in roster, removing", player.getMember().getUser().getName()));
+                System.out.println(
+                        String.format("[]: no longer in roster, removing", player.getMember().getUser().getName()));
             }
         }
         for (Player player : declined) {
             if (!players.contains(player)) {
-                System.out.println(String.format("[]: no longer in roster, removing", player.getMember().getUser().getName()));
+                System.out.println(
+                        String.format("[]: no longer in roster, removing", player.getMember().getUser().getName()));
                 declined.remove(player);
                 SubRequest req = getReqByPlayer(player);
                 subRequests.remove(req);
@@ -381,8 +387,8 @@ public class Event extends ListenerAdapter implements Comparable<Event> {
         }
         if (key == 0 || key != gethashCode())
             return;
-            String command = context.getCommandString();
-            if (command.equalsIgnoreCase("delete event")) {
+        String command = context.getCommandString();
+        if (command.equalsIgnoreCase("delete event")) {
             InteractionHook reply = context.deferReply(true).complete();
             reply.editOriginal("processing");
             try {
@@ -903,7 +909,7 @@ public class Event extends ListenerAdapter implements Comparable<Event> {
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern(config.getTimeFormatter(), Locale.US);
                 res.add(dateTime.format(formatter));
             } else if (orderElement.equalsIgnoreCase("date")) {
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern(config.getDateFormatter(), Locale.US);
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/YYYY", Locale.US);
                 res.add(dateTime.format(formatter));
             } else if (orderElement.equalsIgnoreCase("disc")) {
                 res.add(disc);
