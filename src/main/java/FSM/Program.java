@@ -92,7 +92,7 @@ public class Program {
         String nathanTeamAnnounceId = "1123826016935219210";
         String nathanTeamRosterRoleId = "1123602824513720330";
         String nathanTeamTrialRoleId = "1123602881124257912";
-        String nathanTeamSubRoleId = "948413633182974032";
+        String nathanTeamSubRoleId = "1123827344319197195";
         String naughtswartUserId = "955260852427186186";
 
         TeamDTO nathanTeam = new TeamDTO(nathanTeamName, nathanTeamAbbv, nathanTeamMinRank, nathanTeamTimetableId, nathanTeamAnnounceId, nathanTeamRosterRoleId, nathanTeamTrialRoleId, nathanTeamSubRoleId, desSubCal, naughtswartUserId);
@@ -114,7 +114,7 @@ public class Program {
         System.out.println(config.getSheetPage());
         
         Server fsm = bot.makeGuild(fsmGuildId, fsmSubChannelId, fsmSubRoleId, config, LinguiniLords, abitionDesire);
-        Server nathanServer = bot.makeGuild(nathanServerGuildId, nathanServerSubChannelId, nathanTeamSubRoleId, null, nathanTeam);
+        Server nathanServer = bot.makeGuild(nathanServerGuildId, nathanServerSubChannelId, nathanTeamSubRoleId, config, nathanTeam);
         // Server fsm = bot.makeGuild(fsmGuildId, fsmSubChannelId, fsmSubRoleId, config, bolognaseBandits);
     }
 }
