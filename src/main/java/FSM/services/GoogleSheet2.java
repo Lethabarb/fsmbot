@@ -127,9 +127,10 @@ public class GoogleSheet2 {
             System.out.println(range);
             LinkedList<LinkedList<String>> vals = getValues(range, config.getSheetId());
             numOfScrim = vals.size();
+            System.out.println("num of scrim: " + numOfScrim);
 
             // iterate over rows
-            for (int i = 1; i <= numOfScrim; i++) {
+            for (int i = 1; i < numOfScrim; i++) {
                 if (config.getStep() > 0) {
 
                 } else {
