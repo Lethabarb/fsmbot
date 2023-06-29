@@ -81,6 +81,22 @@ public class Program {
         // String fsmSubChannelId = "913388820173561866";
         // String fsmSubRoleId = "1102795169201393674";
 
+        String nathanServerGuildId = "1123577537436581908";
+        String nathanServerSubChannelId = "1123826238771970199";
+        String nathanServerSubRoleId = "1123827344319197195";
+
+        String nathanTeamName = "Team";
+        String nathanTeamAbbv = "Team";
+        String nathanTeamMinRank = "Silver 5";
+        String nathanTeamTimetableId = "1123603708186472571";
+        String nathanTeamAnnounceId = "1123826016935219210";
+        String nathanTeamRosterRoleId = "1123602824513720330";
+        String nathanTeamTrialRoleId = "1123602881124257912";
+        String nathanTeamSubRoleId = "948413633182974032";
+        String naughtswartUserId = "955260852427186186";
+
+        TeamDTO nathanTeam = new TeamDTO(nathanTeamName, nathanTeamAbbv, nathanTeamMinRank, nathanTeamTimetableId, nathanTeamAnnounceId, nathanTeamRosterRoleId, nathanTeamTrialRoleId, nathanTeamSubRoleId, desSubCal, naughtswartUserId);
+        
         String sheetId = "1HXcsb3Yt2tad_38UqIiAhFePZQ4-g-mMqIGYfLxnYcM";
         String sheetPage = "<NAME>_Event Input";
         String start = "B2";
@@ -93,11 +109,12 @@ public class Program {
         String dateFormat = "d/M/yyyy";
         String timeFormat = "h:mm a";
         SheetConfig config = new SheetConfig(sheetId, sheetPage, start, direction, step, combinedNameandType,
-                titleDelimiter, order, eventSize, dateFormat, timeFormat);
-
+        titleDelimiter, order, eventSize, dateFormat, timeFormat);
+        
         System.out.println(config.getSheetPage());
-
+        
         Server fsm = bot.makeGuild(fsmGuildId, fsmSubChannelId, fsmSubRoleId, config, LinguiniLords, abitionDesire);
+        Server nathanServer = bot.makeGuild(nathanServerGuildId, nathanServerSubChannelId, nathanTeamSubRoleId, null, nathanTeam);
         // Server fsm = bot.makeGuild(fsmGuildId, fsmSubChannelId, fsmSubRoleId, config, bolognaseBandits);
     }
 }
