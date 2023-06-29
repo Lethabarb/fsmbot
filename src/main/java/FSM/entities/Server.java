@@ -65,6 +65,7 @@ import okhttp3.internal.connection.RouteSelector.Selection;
 
 public class Server extends ListenerAdapter implements Runnable {
     private static HashMap<Long, Server> repoos = new HashMap<>();
+    private static boolean running = false;
     private HashMap<String, Team> teams = new HashMap<>();
     private net.dv8tion.jda.api.entities.Guild guild;
     private MessageChannel subChannel;
@@ -86,6 +87,14 @@ public class Server extends ListenerAdapter implements Runnable {
     // }
 
     // }
+
+    public static synchronized boolean isRunning() {
+        return running;
+    }
+
+    public static synchronized void changeRunning() {
+        running = !running;
+    }
 
     public Server(Guild guild, MessageChannel subChannel, Role subRole, SheetConfig sheetConfig, Team... teams) {
         System.out.println("Creating " + guild.getName() + " Server");
@@ -134,6 +143,14 @@ public class Server extends ListenerAdapter implements Runnable {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+        while (isRunning()) {
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        changeRunning();
         for (Team team : teams.values()) {
             bot.createEventsFromChanel(team);
             bot.updateAllEvents(team);
@@ -145,7 +162,16 @@ public class Server extends ListenerAdapter implements Runnable {
             SendManagerMessage job = new SendManagerMessage(team, dt);
             EventJobRunner.getInstance().addJob(job);
         }
+        changeRunning();
         while (true) {
+            while (isRunning()) {
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            changeRunning();
             // ArrayList<Team> teamsList = new ArrayList<>(teams.values());
             for (Team team : teams.values()) {
                 bot.updateScrims(team);
@@ -159,6 +185,7 @@ public class Server extends ListenerAdapter implements Runnable {
                 }
                 bot.sortChannel(team.getTimetable());
             }
+            changeRunning();
             try {
                 Thread.sleep(2 * 60 * 60 * 1000);
             } catch (InterruptedException e) {
@@ -173,7 +200,8 @@ public class Server extends ListenerAdapter implements Runnable {
             return;
         String command = slashCommand.getName();
         if (command.equalsIgnoreCase("makeconfigchannel")) {
-            if (botConfigChannel != null && slashCommand.getChannel().getId().equalsIgnoreCase(botConfigChannel.getId())) {
+            if (botConfigChannel != null
+                    && slashCommand.getChannel().getId().equalsIgnoreCase(botConfigChannel.getId())) {
                 slashCommand.reply("cannot use this command in the config channel :>").setEphemeral(true).queue();
             }
             InteractionHook reply = slashCommand.deferReply(true).complete();
@@ -193,8 +221,10 @@ public class Server extends ListenerAdapter implements Runnable {
                                 .complete();
                     }
                 }
-                List<Message> messageHist = MessageHistory.getHistoryFromBeginning(botConfigChannel).complete().getRetrievedHistory();
-                if (messageHist.size() > 0) botConfigChannel.purgeMessages(messageHist);
+                List<Message> messageHist = MessageHistory.getHistoryFromBeginning(botConfigChannel).complete()
+                        .getRetrievedHistory();
+                if (messageHist.size() > 0)
+                    botConfigChannel.purgeMessages(messageHist);
                 reply.editOriginal("sending message for server").queue();
                 botConfigChannel.sendMessage(createConfig()).queue();
                 for (Team team : teams.values()) {
@@ -225,7 +255,7 @@ public class Server extends ListenerAdapter implements Runnable {
                 reply.editOriginal(e.getMessage()).queue();
                 // TODO: handle exception
             } finally {
-                
+
             }
         } else if (command.equalsIgnoreCase("Role")) {
             InteractionHook reply = slashCommand.deferReply(true).complete();
@@ -373,7 +403,8 @@ public class Server extends ListenerAdapter implements Runnable {
     }
 
     public void updateConfigMessage() {
-        List<Message> messageHistory = MessageHistory.getHistoryFromBeginning(botConfigChannel).complete().getRetrievedHistory();
+        List<Message> messageHistory = MessageHistory.getHistoryFromBeginning(botConfigChannel).complete()
+                .getRetrievedHistory();
         for (Message message : messageHistory) {
             try {
                 if (message.getEmbeds().get(0).getTitle().equalsIgnoreCase(guild.getName() + " config")) {
