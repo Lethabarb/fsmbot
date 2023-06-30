@@ -456,6 +456,10 @@ public class Event extends ListenerAdapter implements Comparable<Event> {
             LocalDate ld = LocalDate.parse(date, DateTimeFormatter.ofPattern(config.getDateFormatter(), Locale.US));
 
             this.dateTime = ZonedDateTime.of(ld, lt, TimeZone.getTimeZone("Australia/Sydney").toZoneId());
+
+            repository.remove(old.gethashCode());
+            repository.put(gethashCode(), this);
+
             GoogleSheet2 sheet = new GoogleSheet2();
             try {
                 sheet.updateEvent(this, old);
