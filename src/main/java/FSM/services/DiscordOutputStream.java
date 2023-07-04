@@ -24,7 +24,6 @@ public class DiscordOutputStream extends PrintStream {
 
     // public static void main(String[] args) {
     //     StringBuilder out = new StringBuilder(2000);
-    //     DiscordBot bot = DiscordBot.getInstance("MTEwMjc5Mjc4MjA4MDM5NzM2Mg.GwCGxi.7aPtlZiRbDVQJhiEGQB_cBB0uXmiEKGDQMEU40");
     //     while (true) {
     //         out.append("x");
     //     }
