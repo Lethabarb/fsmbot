@@ -511,6 +511,7 @@ public class DiscordBot extends ListenerAdapter {
         try {
             Thread.sleep(500);
         } catch (Exception e) {
+            e.printStackTrace();
             // TODO: handle exception
         }
     }
@@ -520,6 +521,7 @@ public class DiscordBot extends ListenerAdapter {
         try {
             Thread.sleep(500);
         } catch (Exception e) {
+            e.printStackTrace();
             // TODO: handle exception
         }
         ;

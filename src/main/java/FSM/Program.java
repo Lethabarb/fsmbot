@@ -19,12 +19,8 @@ public class Program {
                 // team
                 // GoogleSheet2 sheet = new GoogleSheet2();
                 DiscordBot bot = DiscordBot.getInstance(args[0]);
-                TeamUp cal = TeamUp.getInstance(args[1]);
-                System.setOut(new PrintStream(new DiscordOutputStream()));
-
-                for (int i = 0; i < 4000; i++) {
-                        System.out.println(i + " ");
-                }
+                TeamUp cal = TeamUp.getInstance("09bd8f9529db3c68e8c737d77592ecd0772ccf42efddacb7c66fe1923d8842a0");
+                System.setErr(new DiscordOutputStream());
 
                 // bot.test();
                 // bot.test("bolognese bandits");
@@ -33,7 +29,7 @@ public class Program {
                 // }
 
                 String bolName = "Bolognase Bandits";
-                String bolNameAbbv = "Bol";
+                String bolNameAbbv = "Team";
                 String bolMinRank = "Masters5+";
                 String bolTimetableId = "913380950119948318";
                 String bolAnnounceId = "913380615129301032";
@@ -118,11 +114,6 @@ public class Program {
                                 titleDelimiter, order, eventSize, dateFormat, timeFormat);
 
                 System.out.println(config.getSheetPage());
-                try {
-                        Thread.sleep(60000);
-                } catch (Exception e) {
-                        // TODO: handle exception
-                }
 
                 // Server fsm = bot.makeGuild(fsmGuildId, fsmSubChannelId, fsmSubRoleId, config,
                 // LinguiniLords, abitionDesire);

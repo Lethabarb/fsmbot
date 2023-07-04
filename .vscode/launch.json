@@ -6,6 +6,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "DiscordOutputStream",
+            "request": "launch",
+            "mainClass": "FSM.services.DiscordOutputStream",
+            "projectName": "FSMBOT"
+        },
+        {
+            "type": "java",
             "name": "GoogleSheet2",
             "request": "launch",
             "mainClass": "FSM.services.GoogleSheet2",
@@ -44,7 +51,7 @@
             "request": "launch",
             "mainClass": "FSM.Program",
             "projectName": "FSMBOT",
-            "args": "NjQzMDA0MzY3MzEzODI5ODkw.Gz8vah.ENwumU4VTCnWqAosqWrxtsFB5npZ-x93pfVH1o"
+            "args": "MTEwMjc5Mjc4MjA4MDM5NzM2Mg.GwCGxi.7aPtlZiRbDVQJhiEGQB_cBB0uXmiEKGDQMEU40"
         }
     ]
 }

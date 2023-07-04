@@ -371,6 +371,7 @@ public class Event extends ListenerAdapter implements Comparable<Event> {
                 reply.deleteOriginal().queue();
             } catch (Exception e) {
                 reply.editOriginal(e.getMessage()).queue();
+                e.printStackTrace();
             }
         }
     }
@@ -398,6 +399,7 @@ public class Event extends ListenerAdapter implements Comparable<Event> {
                 reply.editOriginal("deleted").queue();
             } catch (Exception e) {
                 context.reply(e.getMessage()).setEphemeral(true).queue();
+                e.printStackTrace();
             }
         } else if (command.equalsIgnoreCase("edit details")) {
             SheetConfig config = team.getSheetConfig();
@@ -466,7 +468,6 @@ public class Event extends ListenerAdapter implements Comparable<Event> {
             try {
                 sheet.updateEvent(this, old);
             } catch (IOException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
             updateEventMessage(DiscordBot.getInstance(), false);
@@ -647,6 +648,7 @@ public class Event extends ListenerAdapter implements Comparable<Event> {
                 s += player.at + " - " + roles[player.getRole()] + "\n";
                 
             } catch (Exception e) {
+                e.printStackTrace();
                 // TODO: handle exception
             }
         }

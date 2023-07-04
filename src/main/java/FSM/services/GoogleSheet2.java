@@ -150,7 +150,7 @@ public class GoogleSheet2 {
                      */
 
                     for (int cell = 0; cell < vals.getFirst().size(); cell++) {
-                        System.out.println(vals.getFirst().get(cell));
+                        // System.out.println(vals.getFirst().get(cell));
                         String key = config.getOrder()[cell];
                         String value = vals.getFirst().get(cell);
                         eventMap.put(key, value);

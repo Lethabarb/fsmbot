@@ -1,25 +1,33 @@
 package FSM.services;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 
-public class DiscordOutputStream extends OutputStream {
+public class DiscordOutputStream extends PrintStream {
+
+    public DiscordOutputStream() {
+        super(new ByteArrayOutputStream());
+    }
+    public DiscordOutputStream(OutputStream out) {
+        super(out);
+    }
+
     private StringBuilder out = new StringBuilder(2000);
     private DiscordBot bot = DiscordBot.getInstance();
 
     @Override
-    public void write(int b) throws IOException {
-        int[] bytes = {b};
-        try {
-            out.append(new String(bytes, 0, bytes.length));
-            
-        } catch (Exception e) {
-            bot.sendLethabarbMessage(out.toString());
-            out = new StringBuilder(2000);
-        }
+    public void println(String x) {
+        bot.sendLethabarbMessage(x);
     }
 
+    // public static void main(String[] args) {
+    //     StringBuilder out = new StringBuilder(2000);
+    //     DiscordBot bot = DiscordBot.getInstance("MTEwMjc5Mjc4MjA4MDM5NzM2Mg.GwCGxi.7aPtlZiRbDVQJhiEGQB_cBB0uXmiEKGDQMEU40");
+    //     while (true) {
+    //         out.append("x");
+    //     }
+    // }
 
-    
 }
