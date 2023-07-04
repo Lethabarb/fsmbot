@@ -93,6 +93,7 @@ public class Player {
         if (role.equalsIgnoreCase("tank")) return Player.TANK;
         if (role.equalsIgnoreCase("support")) return Player.SUPPORT;
         if (role.equalsIgnoreCase("dps")) return Player.DPS;
+        if (role.equalsIgnoreCase("damage")) return Player.DPS;
         
         return -1;
     }

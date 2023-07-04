@@ -165,6 +165,7 @@ public class GoogleSheet2 {
                         Event.addEvent(e.gethashCode(), e);
                     }
                 } catch (DateTimeParseException e) {
+                    e.printStackTrace();
                     dateTimeParseExceptionCount++;
                 }
             }
@@ -259,6 +260,7 @@ public class GoogleSheet2 {
                 res.add(temp);
             }
         } catch (Exception e) {
+            e.printStackTrace();
             System.out.println("empty set");
             // TODO: handle exception
         }
