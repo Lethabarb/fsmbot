@@ -40,8 +40,8 @@ public class Program {
                 String bolManager = "251578157822509057";
                 // test team
 
-                TeamDTO bolognaseBandits = new TeamDTO(bolName, bolNameAbbv, bolMinRank, bolTimetableId, bolAnnounceId,
-                                bolRosterRoleId, bolTrialRoleId, bolSubRoleId, bolsubcal, bolManager);
+                // TeamDTO bolognaseBandits = new TeamDTO(bolName, bolNameAbbv, bolMinRank, bolTimetableId, bolAnnounceId,
+                //                 bolRosterRoleId, bolTrialRoleId, bolSubRoleId, bolsubcal, bolManager);
 
                 String LingName = "Linguini Lords";
                 String LingNameAbbv = "Ling";
@@ -53,9 +53,9 @@ public class Program {
                 String LingSubRoleId = "948413021871566868";
                 int LingSubCal = 11998119;
 
-                // TeamDTO LinguiniLords = new TeamDTO(LingName, LingNameAbbv, LingMinRank,
-                // LingTimetableId, LingAnnounceId,
-                // LingRosterRoleId, LingTrialRoleId, LingSubRoleId, LingSubCal, bolManager);
+                TeamDTO LinguiniLords = new TeamDTO(LingName, LingNameAbbv, LingMinRank,
+                LingTimetableId, LingAnnounceId,
+                LingRosterRoleId, LingTrialRoleId, LingSubRoleId, LingSubCal, bolManager);
 
                 String desName = "Ambition Desire";
                 String desNameAbbv = "Des";
@@ -67,18 +67,18 @@ public class Program {
                 String desSubRoleId = "1099948114510618727";
                 int desSubCal = 11997719;
 
-                // TeamDTO abitionDesire = new TeamDTO(desName, desNameAbbv, desMinRank,
-                // desTimetableId, desAnnounceId,
-                // desRosterRoleId, desTrialRoleId, desSubRoleId, desSubCal, bolManager);
+                TeamDTO abitionDesire = new TeamDTO(desName, desNameAbbv, desMinRank,
+                desTimetableId, desAnnounceId,
+                desRosterRoleId, desTrialRoleId, desSubRoleId, desSubCal, bolManager);
 
-                // String fsmGuildId = "734267704516673536";
-                // String fsmSubChannelId = "824447819690672132";
-                // String fsmSubRoleId = "948413633182974032";
+                String fsmGuildId = "734267704516673536";
+                String fsmSubChannelId = "824447819690672132";
+                String fsmSubRoleId = "948413633182974032";
 
                 // test
-                String fsmGuildId = "913366063792685058";
-                String fsmSubChannelId = "913388820173561866";
-                String fsmSubRoleId = "1102795169201393674";
+                // String fsmGuildId = "913366063792685058";
+                // String fsmSubChannelId = "913388820173561866";
+                // String fsmSubRoleId = "1102795169201393674";
 
                 String nathanServerGuildId = "1123577537436581908";
                 String nathanServerSubChannelId = "1123826238771970199";
@@ -94,10 +94,10 @@ public class Program {
                 String nathanTeamSubRoleId = "1123827344319197195";
                 String naughtswartUserId = "955260852427186186";
 
-                // TeamDTO nathanTeam = new TeamDTO(nathanTeamName, nathanTeamAbbv,
-                // nathanTeamMinRank, nathanTeamTimetableId, nathanTeamAnnounceId,
-                // nathanTeamRosterRoleId, nathanTeamTrialRoleId, nathanTeamSubRoleId,
-                // desSubCal, naughtswartUserId);
+                TeamDTO nathanTeam = new TeamDTO(nathanTeamName, nathanTeamAbbv,
+                nathanTeamMinRank, nathanTeamTimetableId, nathanTeamAnnounceId,
+                nathanTeamRosterRoleId, nathanTeamTrialRoleId, nathanTeamSubRoleId,
+                desSubCal, naughtswartUserId);
 
                 String sheetId = "1HXcsb3Yt2tad_38UqIiAhFePZQ4-g-mMqIGYfLxnYcM";
                 String sheetPage = "<NAME>_Event Input";
@@ -115,10 +115,10 @@ public class Program {
 
                 System.out.println(config.getSheetPage());
 
-                // Server fsm = bot.makeGuild(fsmGuildId, fsmSubChannelId, fsmSubRoleId, config,
-                // LinguiniLords, abitionDesire);
-                // Server nathanServer = bot.makeGuild(nathanServerGuildId,
-                // nathanServerSubChannelId, nathanTeamSubRoleId, config, nathanTeam);
-                Server fsm = bot.makeGuild(fsmGuildId, fsmSubChannelId, fsmSubRoleId, config, bolognaseBandits);
+                Server fsm = bot.makeGuild(fsmGuildId, fsmSubChannelId, fsmSubRoleId, config,
+                LinguiniLords, abitionDesire);
+                Server nathanServer = bot.makeGuild(nathanServerGuildId,
+                nathanServerSubChannelId, nathanTeamSubRoleId, config, nathanTeam);
+                // Server fsm = bot.makeGuild(fsmGuildId, fsmSubChannelId, fsmSubRoleId, config, bolognaseBandits);
         }
 }
