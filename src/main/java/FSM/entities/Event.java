@@ -241,8 +241,10 @@ public class Event extends ListenerAdapter implements Comparable<Event> {
     }
 
     public void updateEventMessage(DiscordBot bot, boolean addAsListener) {
+        int c = 0;
         while (inqueue) {
             try {
+                System.out.print("update event message queue: " + c++);
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
                 // TODO Auto-generated catch block

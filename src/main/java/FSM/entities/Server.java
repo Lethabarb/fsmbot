@@ -155,7 +155,7 @@ public class Server extends ListenerAdapter implements Runnable {
             bot.createEventsFromChanel(team);
             bot.updateAllEvents(team);
         }
-        bot.createSubReqestsFromChannel(subChannel);
+        bot.createSubReqestsFromChannel(subChannel);    
         for (Team team : teams.values()) {
             team.checkEventSubRequests();
             ZonedDateTime dt = LocalDate.now().atStartOfDay(TimeZone.getTimeZone("Australia/Sydney").toZoneId());

@@ -173,6 +173,7 @@ public class DiscordBot extends ListenerAdapter {
             LinkedList<Event> events = sheet.getEvents(t);
             for (int i = 0; i < events.size(); i++) {
                 // sendEvent(events.get(i), true);
+                System.out.println(events.get(i).getTitle());
                 events.get(i).updateEventMessage(this, true);
             }
             System.out.println("done updating scrims");
