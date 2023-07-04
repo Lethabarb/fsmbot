@@ -204,6 +204,13 @@ public class DiscordBot extends ListenerAdapter {
         return false;
     }
 
+    public synchronized void sendLethabarbMessage(String s) {
+        User u = bot.getUserById("251578157822509057");
+        u.openPrivateChannel().queue((c) -> {
+            c.sendMessage(s).queue();
+        });
+    }
+
     public synchronized void createEventsFromChanel(Team t) {
         MessageChannel c = t.getTimetable();
         // System.out.println("=========="+t.getName()+"==========");

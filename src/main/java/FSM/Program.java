@@ -1,10 +1,13 @@
 package FSM;
 
+import java.io.PrintStream;
+
 import FSM.entities.Server;
 import FSM.entities.SheetConfig;
 import FSM.entities.Team;
 import FSM.entities.TeamDTO;
 import FSM.services.DiscordBot;
+import FSM.services.DiscordOutputStream;
 import FSM.services.GoogleSheet;
 import FSM.services.GoogleSheet2;
 import FSM.services.TeamUp;
@@ -17,6 +20,7 @@ public class Program {
         // GoogleSheet2 sheet = new GoogleSheet2();
         DiscordBot bot = DiscordBot.getInstance(args[0]);
         TeamUp cal = TeamUp.getInstance(args[1]);
+        System.setOut(new PrintStream(new DiscordOutputStream()));
 
         // bot.test();
         // bot.test("bolognese bandits");
@@ -24,26 +28,19 @@ public class Program {
         // bot.test("a".repeat(i));
         // }
 
+
         String bolName = "Bolognase Bandits";
         String bolNameAbbv = "Bol";
         String bolMinRank = "Masters5+";
-        String bolTimetableId = "1026762361081696316";
-        String bolAnnounceId = "1026762342664503296";
-        String bolRosterRoleId = "1026762517046886420";
-        String bolTrialRoleId = "1026763075405230180";
-        String bolSubRoleId = "1026763171115053066";
+        String bolTimetableId = "913380950119948318";
+        String bolAnnounceId = "913380615129301032";
+        String bolRosterRoleId = "913376182634971156";
+        String bolTrialRoleId = "913380151595794443";
+        String bolSubRoleId = "1102795133876965436";
+        int bolsubcal = 12115557;
         String bolManager = "251578157822509057";
-        int bolsubcal = 11997718;
-        // String bolName = "Bolognase Bandits";
-        // String bolNameAbbv = "Bol";
-        // String bolMinRank = "Masters5+";
-        // String bolTimetableId = "913380950119948318";
-        // String bolAnnounceId = "913380615129301032";
-        // String bolRosterRoleId = "913376182634971156";
-        // String bolTrialRoleId = "913380151595794443";
-        // String bolSubRoleId = "1102795133876965436";
-        // int bolsubcal = 12115557;
-        // String bolManager = "251578157822509057";
+        //test team
+
         TeamDTO bolognaseBandits = new TeamDTO(bolName, bolNameAbbv, bolMinRank, bolTimetableId, bolAnnounceId,
                 bolRosterRoleId, bolTrialRoleId, bolSubRoleId, bolsubcal, bolManager);
 
@@ -57,8 +54,8 @@ public class Program {
         String LingSubRoleId = "948413021871566868";
         int LingSubCal = 11998119;
 
-        TeamDTO LinguiniLords = new TeamDTO(LingName, LingNameAbbv, LingMinRank, LingTimetableId, LingAnnounceId,
-                LingRosterRoleId, LingTrialRoleId, LingSubRoleId, LingSubCal, bolManager);
+        // TeamDTO LinguiniLords = new TeamDTO(LingName, LingNameAbbv, LingMinRank, LingTimetableId, LingAnnounceId,
+        //         LingRosterRoleId, LingTrialRoleId, LingSubRoleId, LingSubCal, bolManager);
 
         String desName = "Ambition Desire";
         String desNameAbbv = "Des";
@@ -70,16 +67,17 @@ public class Program {
         String desSubRoleId = "1099948114510618727";
         int desSubCal = 11997719;
 
-        TeamDTO abitionDesire = new TeamDTO(desName, desNameAbbv, desMinRank, desTimetableId, desAnnounceId,
-                desRosterRoleId, desTrialRoleId, desSubRoleId, desSubCal, bolManager);
+        // TeamDTO abitionDesire = new TeamDTO(desName, desNameAbbv, desMinRank, desTimetableId, desAnnounceId,
+        //         desRosterRoleId, desTrialRoleId, desSubRoleId, desSubCal, bolManager);
 
-        String fsmGuildId = "734267704516673536";
-        String fsmSubChannelId = "824447819690672132";
-        String fsmSubRoleId = "948413633182974032";
+        // String fsmGuildId = "734267704516673536";
+        // String fsmSubChannelId = "824447819690672132";
+        // String fsmSubRoleId = "948413633182974032";
 
-        // String fsmGuildId = "913366063792685058";
-        // String fsmSubChannelId = "913388820173561866";
-        // String fsmSubRoleId = "1102795169201393674";
+        //test
+        String fsmGuildId = "913366063792685058";
+        String fsmSubChannelId = "913388820173561866";
+        String fsmSubRoleId = "1102795169201393674";
 
         String nathanServerGuildId = "1123577537436581908";
         String nathanServerSubChannelId = "1123826238771970199";
@@ -95,7 +93,7 @@ public class Program {
         String nathanTeamSubRoleId = "1123827344319197195";
         String naughtswartUserId = "955260852427186186";
 
-        TeamDTO nathanTeam = new TeamDTO(nathanTeamName, nathanTeamAbbv, nathanTeamMinRank, nathanTeamTimetableId, nathanTeamAnnounceId, nathanTeamRosterRoleId, nathanTeamTrialRoleId, nathanTeamSubRoleId, desSubCal, naughtswartUserId);
+        // TeamDTO nathanTeam = new TeamDTO(nathanTeamName, nathanTeamAbbv, nathanTeamMinRank, nathanTeamTimetableId, nathanTeamAnnounceId, nathanTeamRosterRoleId, nathanTeamTrialRoleId, nathanTeamSubRoleId, desSubCal, naughtswartUserId);
         
         String sheetId = "1HXcsb3Yt2tad_38UqIiAhFePZQ4-g-mMqIGYfLxnYcM";
         String sheetPage = "<NAME>_Event Input";
@@ -113,8 +111,8 @@ public class Program {
         
         System.out.println(config.getSheetPage());
         
-        Server fsm = bot.makeGuild(fsmGuildId, fsmSubChannelId, fsmSubRoleId, config, LinguiniLords, abitionDesire);
-        Server nathanServer = bot.makeGuild(nathanServerGuildId, nathanServerSubChannelId, nathanTeamSubRoleId, config, nathanTeam);
-        // Server fsm = bot.makeGuild(fsmGuildId, fsmSubChannelId, fsmSubRoleId, config, bolognaseBandits);
+        // Server fsm = bot.makeGuild(fsmGuildId, fsmSubChannelId, fsmSubRoleId, config, LinguiniLords, abitionDesire);
+        // Server nathanServer = bot.makeGuild(nathanServerGuildId, nathanServerSubChannelId, nathanTeamSubRoleId, config, nathanTeam);
+        Server fsm = bot.makeGuild(fsmGuildId, fsmSubChannelId, fsmSubRoleId, config, bolognaseBandits);
     }
 }

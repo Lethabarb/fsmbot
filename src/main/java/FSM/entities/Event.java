@@ -643,7 +643,12 @@ public class Event extends ListenerAdapter implements Comparable<Event> {
         String s = "";
         String[] roles = { "tank", "dps", "support" };
         for (Player player : confimed) {
-            s += player.at + " - " + roles[player.getRole()] + "\n";
+            try {
+                s += player.at + " - " + roles[player.getRole()] + "\n";
+                
+            } catch (Exception e) {
+                // TODO: handle exception
+            }
         }
         return s;
     }
