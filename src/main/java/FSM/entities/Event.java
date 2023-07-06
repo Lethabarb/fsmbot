@@ -138,8 +138,12 @@ public class Event extends ListenerAdapter implements Comparable<Event> {
     public boolean isSub(Player p) {
         // LinkedList<SubRequest> requests = SubRequest.getRequestForEvent(this);
         for (SubRequest subRequest : subRequests) {
-            if (subRequest.getPlayer().getUserId().equalsIgnoreCase(p.getUserId()))
-                return true;
+            try {
+                if (subRequest.getPlayer().getUserId().equalsIgnoreCase(p.getUserId()))
+                    return true;
+            } catch (Exception e) {
+                System.out.println("sub req has no player");
+            }
         }
         return false;
     }
