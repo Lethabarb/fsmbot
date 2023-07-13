@@ -95,8 +95,15 @@ public class Server extends ListenerAdapter implements Runnable {
         return running;
     }
 
-    public static synchronized void changeRunning() {
-        running = !running;
+    // public static synchronized void changeRunning() {
+    // running = !running;
+    // }
+    public static synchronized void stopRunning() {
+        running = false;
+    }
+
+    public static synchronized void startRunning() {
+        running = true;
     }
 
     public Server(Guild guild, MessageChannel subChannel, Role subRole, SheetConfig sheetConfig) {
@@ -168,16 +175,18 @@ public class Server extends ListenerAdapter implements Runnable {
                 e.printStackTrace();
             }
         }
-        changeRunning();
+        startRunning();
         System.out.println(String.format("[%s] running init", guild.getName()));
         // find config and load
 
+        System.out.println(String.format("[%s]finding config channel", guild.getName()));
         for (TextChannel channel : guild.getTextChannels()) {
             if (channel.getName().equalsIgnoreCase("fsm-config")) {
                 botConfigChannel = channel;
             }
         }
         if (botConfigChannel != null) {
+            System.out.println(String.format("[%s]collecting data", guild.getName()));
             List<Message> messageHist = MessageHistory.getHistoryFromBeginning(botConfigChannel).complete()
                     .getRetrievedHistory();
 
@@ -185,7 +194,7 @@ public class Server extends ListenerAdapter implements Runnable {
                 if (!message.getEmbeds().get(0).getTitle().contains(guild.getName())) {
                     MessageEmbed embed = message.getEmbeds().get(0);
                     String fullTitle = embed.getTitle();
-                    String[] titleData = {"",""};
+                    String[] titleData = { "", "" };
                     try {
                         titleData = fullTitle.split("[\\(\\)]");
                     } catch (Exception e) {
@@ -206,12 +215,14 @@ public class Server extends ListenerAdapter implements Runnable {
                     String trialId = fields.get(8).getValue().replaceAll("[<@&#>]", "");
                     String subId = fields.get(9).getValue().replaceAll("[<@&#>]", "");
 
-                    Team t = bot.makeTeam(name, abbv, minRank, timetableId, announceId, rosterId, trialId, subId, this, 0, subId, managerId);
+                    Team t = bot.makeTeam(name, abbv, minRank, timetableId, announceId, rosterId, trialId, subId, this,
+                            0, subId, managerId);
                     if (t == null) {
                         System.out.println("team already exists");
                     }
                 }
             }
+            System.out.println(String.format("[%s] updating config channel", guild.getName()));
 
             if (messageHist.size() > 0)
                 botConfigChannel.purgeMessages(messageHist);
@@ -232,7 +243,7 @@ public class Server extends ListenerAdapter implements Runnable {
             SendManagerMessage job = new SendManagerMessage(team, dt);
             EventJobRunner.getInstance().addJob(job);
         }
-        changeRunning();
+        stopRunning();
         while (true) {
             while (isRunning()) {
                 try {
@@ -241,7 +252,7 @@ public class Server extends ListenerAdapter implements Runnable {
                     e.printStackTrace();
                 }
             }
-            changeRunning();
+            startRunning();
             // ArrayList<Team> teamsList = new ArrayList<>(teams.values());
             for (Team team : teams.values()) {
                 bot.updateScrims(team);
@@ -255,7 +266,7 @@ public class Server extends ListenerAdapter implements Runnable {
                 }
                 bot.sortChannel(team.getTimetable());
             }
-            changeRunning();
+            stopRunning();
             try {
                 Thread.sleep(2 * 60 * 60 * 1000);
             } catch (InterruptedException e) {
@@ -263,7 +274,6 @@ public class Server extends ListenerAdapter implements Runnable {
             }
         }
     }
-
 
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent slashCommand) {
@@ -730,8 +740,9 @@ public class Server extends ListenerAdapter implements Runnable {
                 "edit config channel");
         Button toggleDifferentSheets = Button.success(String.format("%s_%s", guild.getName(), "toggleDifferentSheets"),
                 "toggle different sheets");
-        // Button editConfigJson = Button.primary(String.format("%s_%s", guild.getName(), "editConfigJSON"),
-        //         "edit the sheet config");
+        // Button editConfigJson = Button.primary(String.format("%s_%s",
+        // guild.getName(), "editConfigJSON"),
+        // "edit the sheet config");
 
         message.addActionRow(editSubChannel, editSubRole);
         message.addActionRow(toggleDifferentSheets);

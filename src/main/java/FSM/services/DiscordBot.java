@@ -295,7 +295,7 @@ public class DiscordBot extends ListenerAdapter {
     public synchronized void createEventsFromChanel(Team t) {
         MessageChannel c = t.getTimetable();
         // System.out.println("=========="+t.getName()+"==========");
-        System.out.println("[" + t.getName() + "]: Finding existing scrims for ");
+        System.out.println("[" + t.getGuild().getGuild().getName() + "-" + t.getName() + "]: Finding existing scrims for ");
         List<Message> messages = MessageHistory.getHistoryFromBeginning(c).complete().getRetrievedHistory();
         Event event = null;
         for (Message message : messages) {
