@@ -156,7 +156,11 @@ public class DiscordBot extends ListenerAdapter {
                                     .addOption(OptionType.ROLE, "subrole", "General substitute role for the server")
                                     .setDefaultPermissions(
                                             DefaultMemberPermissions.enabledFor(Permission.ADMINISTRATOR)))
-                            .queue();
+                            .queue((res) -> {
+                             System.out.println("created init command");   
+                            }, (res) -> {
+                                System.out.println("did not make command");
+                            });
                 }
             }
         }
