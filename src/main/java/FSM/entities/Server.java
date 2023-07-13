@@ -1,10 +1,8 @@
 package FSM.entities;
 
 import java.io.File;
-import java.lang.StackWalker.Option;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -21,32 +19,28 @@ import FSM.services.DiscordBot;
 import FSM.services.EventJobRunner;
 import FSM.services.GoogleSheet;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.MessageHistory;
 import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.MessageEmbed.Field;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
-import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
+import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.SelectMenuInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.InteractionHook;
-import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.SlashCommandInteraction;
 import net.dv8tion.jda.api.interactions.commands.Command.Type;
-import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
-import net.dv8tion.jda.api.interactions.components.Component;
 import net.dv8tion.jda.api.interactions.components.Modal;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.selections.SelectMenu;
@@ -54,19 +48,17 @@ import net.dv8tion.jda.api.interactions.components.selections.SelectOption;
 import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.ModalMapping;
-import net.dv8tion.jda.api.requests.restaction.interactions.ReplyCallbackAction;
 import net.dv8tion.jda.api.utils.FileUpload;
-import net.dv8tion.jda.api.utils.data.DataObject;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import net.dv8tion.jda.api.utils.messages.MessageEditData;
-import net.dv8tion.jda.internal.interactions.CommandDataImpl;
-import okhttp3.internal.connection.RouteSelector.Selection;
+import net.dv8tion.jda.internal.interactions.component.ModalImpl;
 
 public class Server extends ListenerAdapter implements Runnable {
     private static HashMap<Long, Server> repoos = new HashMap<>();
     private static boolean running = false;
     private HashMap<String, Team> teams = new HashMap<>();
+    private Team soloTeam = null;
     private net.dv8tion.jda.api.entities.Guild guild;
     private MessageChannel subChannel;
     private Role subRole = null;
@@ -75,8 +67,9 @@ public class Server extends ListenerAdapter implements Runnable {
     private GoogleSheet sheet;
     private SheetConfig sheetConfig;
     private Thread t;
-    private Message configEditMessage = null;
-    private MessageCreateBuilder configEditBuilder = null;
+    private InteractionHook configEditMessage = null;
+    private HashMap<String, ActionRow> editFields = new HashMap<>();
+    // private MessageCreateBuilder configEditBuilder = null;
 
     // public Server(Guild guild) {
     // List<GuildChannel> channels = guild.getChannels();
@@ -88,6 +81,16 @@ public class Server extends ListenerAdapter implements Runnable {
 
     // }
 
+    // public static void main(String[] args) {
+    // HashMap<Integer, String> hash = new HashMap<>();
+    // hash.put(1, "1");
+    // hash.put(2, "2");
+    // hash.put(3, "3");
+    // hash.put(4, "4");
+    // hash.put(5, "5");
+    // System.out.println(hash.size());
+    // }
+
     public static synchronized boolean isRunning() {
         return running;
     }
@@ -96,7 +99,7 @@ public class Server extends ListenerAdapter implements Runnable {
         running = !running;
     }
 
-    public Server(Guild guild, MessageChannel subChannel, Role subRole, SheetConfig sheetConfig, Team... teams) {
+    public Server(Guild guild, MessageChannel subChannel, Role subRole, SheetConfig sheetConfig) {
         System.out.println("Creating " + guild.getName() + " Server");
         this.guild = guild;
         this.subChannel = subChannel;
@@ -105,12 +108,45 @@ public class Server extends ListenerAdapter implements Runnable {
         System.out.println("adding commands...");
 
         System.out.println("adding config command");
+        // if (teams.length > 1) {
+        // guild.updateCommands().addCommands(
+        // Commands.slash("makeconfigchannel",
+        // "sets the current channel for the guild to the bot config channel"),
+        // Commands.slash("update", "re-freshes an event details")
+        // .addSubcommands(new SubcommandData("events", "updates all events in all
+        // servers")
+        // .addOption(OptionType.ROLE, "teamrole", "role of the team to update events
+        // for")),
+        // Commands.slash("role", "edit role of a player")
+        // .addOption(OptionType.MENTIONABLE, "playerdiscord", "Discord")
+        // .addOption(OptionType.ROLE, "newplayerrole", "role to make the player"),
+        // Commands.slash("sort", "sort the events of a channel"),
+        // Commands.slash("removesubs", "removes the subs of a given team"),
+        // Commands.slash("help", "request the bot's manual"),
+        // Commands.context(Type.MESSAGE, "edit responses"),
+        // Commands.context(Type.MESSAGE, "edit details"),
+        // Commands.context(Type.MESSAGE, "delete event"),
+        // Commands.slash("newteam", "create a new team")
+        // .addOption(OptionType.STRING, "name", "name of the team", true, false)
+        // .addOption(OptionType.STRING, "abbv", "abbreviation of the name, for sheet
+        // config",
+        // true, false)
+        // .addOption(OptionType.STRING, "minrank", "min rank for subs", true, false)
+        // .addOption(OptionType.CHANNEL, "timetable", "timetable / schedule channel",
+        // true, false)
+        // .addOption(OptionType.CHANNEL, "announcement", "announcement channel", true,
+        // false)
+        // .addOption(OptionType.ROLE, "roster", "roster role", true, false)
+        // .addOption(OptionType.ROLE, "trial", "trial role", true, false)
+        // .addOption(OptionType.ROLE, "sub", "sub role", true, false)
+        // .addOption(OptionType.USER, "manager", "team manager", true, false))
+        // .queue();
+        // } else if (teams.length <= 1) {
         guild.updateCommands().addCommands(
                 Commands.slash("makeconfigchannel",
                         "sets the current channel for the guild to the bot config channel"),
                 Commands.slash("update", "re-freshes an event details")
-                        .addSubcommands(new SubcommandData("events", "updates all events in all servers")
-                                .addOption(OptionType.ROLE, "teamrole", "role of the team to update events for")),
+                        .addSubcommands(new SubcommandData("events", "updates all events")),
                 Commands.slash("role", "edit role of a player")
                         .addOption(OptionType.MENTIONABLE, "playerdiscord", "Discord")
                         .addOption(OptionType.ROLE, "newplayerrole", "role to make the player"),
@@ -119,17 +155,33 @@ public class Server extends ListenerAdapter implements Runnable {
                 Commands.slash("help", "request the bot's manual"),
                 Commands.context(Type.MESSAGE, "edit responses"),
                 Commands.context(Type.MESSAGE, "edit details"),
-                Commands.context(Type.MESSAGE, "delete event"))
+                Commands.context(Type.MESSAGE, "delete event"),
+                Commands.slash("newteam", "create a new team")
+                        .addOption(OptionType.STRING, "name", "name of the team", true, false)
+                        .addOption(OptionType.STRING, "abbv", "abbreviation of the name, for sheet config",
+                                true, false)
+                        .addOption(OptionType.STRING, "minrank", "min rank for subs", true, false)
+                        .addOption(OptionType.CHANNEL, "timetable", "timetable / schedule channel",
+                                true, false)
+                        .addOption(OptionType.CHANNEL, "announcement", "announcement channel", true,
+                                false)
+                        .addOption(OptionType.ROLE, "roster", "roster role", true, false)
+                        .addOption(OptionType.ROLE, "trial", "trial role", true, false)
+                        .addOption(OptionType.ROLE, "sub", "sub role", true, false)
+                        .addOption(OptionType.USER, "manager", "team manager", true, false))
                 .queue();
+        // soloTeam = teams[0];
+
+        // }
 
         System.out.println("added commands");
         // List<GuildChannel> channels = guild.getChannels();
         // for (GuildChannel guildChannel : channels) {
         // if (guildChannel.getName().equalsIgnoreCase("fsm-config"));
         // }
-        for (Team t : teams) {
-            this.teams.put(t.getName(), t);
-        }
+        // for (Team t : teams) {
+        // this.teams.put(t.getName(), t);
+        // }
         repoos.put(guild.getIdLong(), this);
         this.t = new Thread(this, guild.getName());
         this.t.start();
@@ -151,11 +203,62 @@ public class Server extends ListenerAdapter implements Runnable {
             }
         }
         changeRunning();
+        // find config and load
+
+        for (TextChannel channel : guild.getTextChannels()) {
+            if (channel.getName().equalsIgnoreCase("fsm-config")) {
+                botConfigChannel = channel;
+            }
+        }
+        if (botConfigChannel != null) {
+            List<Message> messageHist = MessageHistory.getHistoryFromBeginning(botConfigChannel).complete()
+                    .getRetrievedHistory();
+
+            for (Message message : messageHist) {
+                if (!message.getEmbeds().get(0).getTitle().contains(guild.getName())) {
+                    MessageEmbed embed = message.getEmbeds().get(0);
+                    String fullTitle = embed.getTitle();
+                    String[] titleData = {"",""};
+                    try {
+                        titleData = fullTitle.split("[\\(\\)]");
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        // TODO: handle exception
+                    }
+                    List<Field> fields = embed.getFields();
+
+                    // String name = "titleData[0]";
+                    // String abbv = "titleData[1].replaceAll(\"()\", \"\")";
+                    String name = titleData[0].trim();
+                    String abbv = titleData[1].replaceAll("[\\(\\)]", "");
+                    String minRank = fields.get(0).getValue();
+                    String managerId = fields.get(2).getValue().replaceAll("[<@&#>]", "");
+                    String timetableId = fields.get(4).getValue().replaceAll("[<@&#>]", "");
+                    String announceId = fields.get(5).getValue().replaceAll("[<@&#>]", "");
+                    String rosterId = fields.get(7).getValue().replaceAll("[<@&#>]", "");
+                    String trialId = fields.get(8).getValue().replaceAll("[<@&#>]", "");
+                    String subId = fields.get(9).getValue().replaceAll("[<@&#>]", "");
+
+                    Team t = bot.makeTeam(name, abbv, minRank, timetableId, announceId, rosterId, trialId, subId, this, 0, subId, managerId);
+                    if (t == null) {
+                        System.out.println("team already exists");
+                    }
+                }
+            }
+
+            if (messageHist.size() > 0)
+                botConfigChannel.purgeMessages(messageHist);
+            botConfigChannel.sendMessage(createConfig()).queue();
+            for (Team team : teams.values()) {
+                botConfigChannel.sendMessage(team.createConfig()).queue();
+            }
+        }
+
         for (Team team : teams.values()) {
             bot.createEventsFromChanel(team);
             bot.updateAllEvents(team);
         }
-        bot.createSubReqestsFromChannel(subChannel);    
+        bot.createSubReqestsFromChannel(subChannel);
         for (Team team : teams.values()) {
             team.checkEventSubRequests();
             ZonedDateTime dt = LocalDate.now().atStartOfDay(TimeZone.getTimeZone("Australia/Sydney").toZoneId());
@@ -177,7 +280,7 @@ public class Server extends ListenerAdapter implements Runnable {
                 bot.updateScrims(team);
                 while (bot.getQueue() > 0) {
                     try {
-                        Thread.sleep(2000);
+                        Thread.sleep(500);
                     } catch (InterruptedException e) {
                         // TODO Auto-generated catch block
                         e.printStackTrace();
@@ -193,6 +296,7 @@ public class Server extends ListenerAdapter implements Runnable {
             }
         }
     }
+
 
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent slashCommand) {
@@ -241,14 +345,22 @@ public class Server extends ListenerAdapter implements Runnable {
             InteractionHook reply = slashCommand.deferReply(true).complete();
             try {
                 reply.editOriginal("finding team").queue();
-                Role rosterRole = slashCommand.getOption("teamrole").getAsRole();
-                for (Team t : teams.values()) {
-                    if (t.getRosterRole().getId().equalsIgnoreCase(rosterRole.getId())) {
-                        reply.editOriginal("found, updating").queue();
-                        DiscordBot.getInstance().updateAllEvents(t);
-                        reply.editOriginal("finished").queue();
-                        reply.deleteOriginal().queue();
+                if (teams.size() > 1) {
+                    Role rosterRole = slashCommand.getOption("teamrole").getAsRole();
+                    for (Team t : teams.values()) {
+                        if (t.getRosterRole().getId().equalsIgnoreCase(rosterRole.getId())) {
+                            reply.editOriginal("found, updating").queue();
+                            DiscordBot.getInstance().updateAllEvents(t);
+                            reply.editOriginal("finished").queue();
+                            reply.deleteOriginal().queue();
+                        }
                     }
+                } else {
+                    reply.editOriginal("found, updating").queue();
+                    DiscordBot.getInstance().updateAllEvents(soloTeam);
+                    reply.editOriginal("finished").queue();
+                    reply.deleteOriginal().queue();
+
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -319,29 +431,63 @@ public class Server extends ListenerAdapter implements Runnable {
             }, (res) -> {
                 reply.editOriginal("error opening private channel").queue();
             });
+        } else if (command.equalsIgnoreCase("newteam")) {
+            InteractionHook reply = slashCommand.deferReply(true).complete();
+            reply.editOriginal("creating...").queue();
+
+            String name = slashCommand.getOption("name").getAsString();
+            String abbv = slashCommand.getOption("abbv").getAsString();
+            String minRank = slashCommand.getOption("minrank").getAsString();
+            MessageChannel timetable = slashCommand.getOption("timetable").getAsChannel().asTextChannel();
+            MessageChannel announcement = slashCommand.getOption("announcement").getAsChannel().asTextChannel();
+            Role roster = slashCommand.getOption("roster").getAsRole();
+            Role trial = slashCommand.getOption("trial").getAsRole();
+            Role sub = slashCommand.getOption("sub").getAsRole();
+            User manager = slashCommand.getOption("manager").getAsUser();
+            Team t = new Team(name, abbv, minRank, timetable, announcement, roster, trial, sub, manager);
+            teams.put(name, t);
+            DiscordBot.getInstance().addListener(t);
+            t.setGuild(this);
+
+            reply.editOriginal("updating config...").queue();
+            if (botConfigChannel != null) {
+                List<Message> messageHist = MessageHistory.getHistoryFromBeginning(botConfigChannel).complete()
+                        .getRetrievedHistory();
+                if (messageHist.size() > 0)
+                    botConfigChannel.purgeMessages(messageHist);
+                botConfigChannel.sendMessage(createConfig()).queue();
+                for (Team team : teams.values()) {
+                    botConfigChannel.sendMessage(team.createConfig()).queue();
+                }
+
+            }
+            reply.editOriginal("complete").queue();
+            reply.deleteOriginal().queue();
+
         }
     }
 
-    public synchronized void createEditingMessage() {
-        Button submitEditButton = Button.primary(String.format("%s_submitConfigEdit", guild.getName()), "submit");
-        if (configEditMessage == null && configEditBuilder == null) {
-            configEditBuilder = new MessageCreateBuilder().setContent("waiting for interactions.");
-            configEditBuilder.addActionRow(submitEditButton);
-            DiscordBot.addQueue();
+    public synchronized void createEditingMessage(ButtonInteractionEvent event) {
+        if (configEditMessage != null)
+            configEditMessage.deleteOriginal().queue();
+        configEditMessage = event.deferReply(true).complete();
+        configEditMessage.editOriginalComponents(editFields.values()).queue();
+    }
 
-            botConfigChannel.sendMessage(configEditBuilder.build()).queue((res) -> {
-                configEditMessage = res;
-                DiscordBot.subtractQueue();
-            });
+    public synchronized void createEditingMessage() {
+        if (editFields.size() == 0) {
+            configEditMessage.deleteOriginal().queue();
         } else {
-            configEditBuilder.setContent("");
+            configEditMessage.editOriginalComponents(editFields.values()).queue();
         }
-        while (DiscordBot.getQueue() > 0) {
-            try {
-                Thread.sleep(500);
-            } catch (Exception e) {
-                // TODO: handle exception
-            }
+    }
+
+    public synchronized void addEditingComponent(ActionRow row, ButtonInteractionEvent event) {
+        if (editFields.size() < 5) {
+            editFields.put(row.getActionComponents().get(0).getId(), row);
+            createEditingMessage(event);
+        } else {
+            event.reply("cannot have more than 5 menus").setEphemeral(true).queue();
         }
     }
 
@@ -357,49 +503,73 @@ public class Server extends ListenerAdapter implements Runnable {
                 }
             }
         }
+        if (botConfigChannel == null) {
+            buttonEvent.reply("no config (strange)").setEphemeral(true).queue();
+            return;
+        }
         String buttonUse = data[1];
         if (buttonUse.equalsIgnoreCase("editSubChannel")) {
             // SelectMenu channels = SelectMenu.create("channelsselectmenu")
             // guild.getTextChannels()
-            createEditingMessage();
-
+            // configEditBuilder.addActionRow(channelSelectMenu);
+            // configEditMessage.editMessage(MessageEditData.fromCreateData(configEditBuilder.build())).queue();
+            // createEditingMessage(buttonEvent);
             SelectMenu channelSelectMenu = getChannelSelectMenu(
                     (TextChannel c) -> !c.getName().toLowerCase().contains("sub"), "subChannelEdit");
-            EmbedBuilder embed = new EmbedBuilder();
-            configEditBuilder.addActionRow(channelSelectMenu);
-            configEditMessage.editMessage(MessageEditData.fromCreateData(configEditBuilder.build())).queue();
-            buttonEvent.reply("added field").setEphemeral(true).queue();
+            addEditingComponent(ActionRow.of(channelSelectMenu), buttonEvent);
+            createEditingMessage(buttonEvent);
+
         } else if (buttonUse.equalsIgnoreCase("editSubRole")) {
-            createEditingMessage();
+            // createEditingMessage();
+            // configEditBuilder.addActionRow(channelSelectMenu);
+            // configEditMessage.editMessage(MessageEditData.fromCreateData(configEditBuilder.build())).queue();
             SelectMenu channelSelectMenu = getRoleSelectMenu((Role r) -> !r.getName().toLowerCase().contains("sub"),
                     "subRoleEdit");
+            addEditingComponent(ActionRow.of(channelSelectMenu), buttonEvent);
+            createEditingMessage(buttonEvent);
 
-            configEditBuilder.addActionRow(channelSelectMenu);
-            configEditMessage.editMessage(MessageEditData.fromCreateData(configEditBuilder.build())).queue();
-            buttonEvent.reply("added field").setEphemeral(true).queue();
         } else if (buttonUse.equalsIgnoreCase("editCoinfigChannel")) {
-            createEditingMessage();
+            // createEditingMessage();
+            // configEditBuilder.addActionRow(channelSelectMenu);
+            // configEditMessage.editMessage(MessageEditData.fromCreateData(configEditBuilder.build())).queue();
+            // createEditingMessage();
             SelectMenu channelSelectMenu = getChannelSelectMenu(
                     (TextChannel c) -> !c.getName().toLowerCase().contains("config"), "configChannelEdit");
+            addEditingComponent(ActionRow.of(channelSelectMenu), buttonEvent);
+            createEditingMessage(buttonEvent);
 
-            configEditBuilder.addActionRow(channelSelectMenu);
-            configEditMessage.editMessage(MessageEditData.fromCreateData(configEditBuilder.build())).queue();
-            buttonEvent.reply("added field").setEphemeral(true).queue();
         } else if (buttonUse.equalsIgnoreCase("toggleDifferentSheets")) {
             differentTeamSheetSetups = !differentTeamSheetSetups;
+            for (Team t : teams.values()) {
+                if (differentTeamSheetSetups) {
+                    try {
+                        t.setSheetConfig((SheetConfig) sheetConfig.clone());
+                        t.updateConfigMessage();
+                    } catch (CloneNotSupportedException e) {
+                        System.out.println("cannot clone");
+                        e.printStackTrace();
+                    }
+                } else {
+                    t.setSheetConfig(null);
+                    t.updateConfigMessage();
+                }
+            }
+            updateConfigMessage();
+            buttonEvent.deferReply(true).complete().deleteOriginal().queue();
         } else if (buttonUse.equalsIgnoreCase("editConfigJSON")) {
-            createEditingMessage();
             TextInput textfield = TextInput.create("configJsonTextInput", "config JSON", TextInputStyle.PARAGRAPH)
-                    .build();
+                    .setValue(sheetConfig.toJSON()).build();
             buttonEvent
                     .replyModal(
-                            Modal.create("editConfigJSON", "edit sheet config JSON").addActionRow(textfield).build())
+                            Modal.create(guild.getName() + "_editConfigJSON", "edit sheet config JSON")
+                                    .addActionRow(textfield).build())
                     .queue();
-        } else if (buttonUse.equalsIgnoreCase("submitConfigEdit")) {
-            configEditBuilder = null;
-            configEditMessage.delete().queue();
-            configEditMessage = null;
         }
+        // else if (buttonUse.equalsIgnoreCase("submitConfigEdit")) {
+        // configEditBuilder = null;
+        // configEditMessage.delete().queue();
+        // configEditMessage = null;
+        // }
     }
 
     public void updateConfigMessage() {
@@ -418,17 +588,17 @@ public class Server extends ListenerAdapter implements Runnable {
 
     @Override
     public void onSelectMenuInteraction(@Nonnull SelectMenuInteractionEvent event) {
+        String[] eventData = event.getSelectMenu().getId().split("_");
+        if (!eventData[0].equalsIgnoreCase(guild.getName()))
+            return;
+
         InteractionHook reply = event.deferReply(true).complete();
         reply.editOriginal("editing").queue();
-        int len = event.getSelectMenu().getId().split("_").length;
-        String use = event.getSelectMenu().getId();
-        String teamName = "";
-        if (len > 1) {
-            use = event.getSelectMenu().getId().split("_")[0];
-            teamName = event.getSelectMenu().getId().split("_")[1];
-        }
-        Team team = teams.get(teamName);
+        // int len = event.getSelectMenu().getId().split("_").length;
+        String use = eventData[1];
         String value = event.getValues().get(0);
+        // String teamName = "";
+        // Team team = teams.get(teamName);
         if (use.equalsIgnoreCase("subChannelEdit")) {
             subChannel = guild.getTextChannelById(value);
             updateConfigMessage();
@@ -438,30 +608,53 @@ public class Server extends ListenerAdapter implements Runnable {
         } else if (use.equalsIgnoreCase("configChannelEdit")) {
             botConfigChannel = guild.getTextChannelById(value);
             updateConfigMessage();
-        } else if (use.equalsIgnoreCase("managerSelect")) {
-            team.setManager(guild.getMemberById(value).getUser());
-            team.updateConfigMessage();
-        } else if (use.equalsIgnoreCase("timetableEdit")) {
-            team.setTimetable(guild.getTextChannelById(value));
-            team.updateConfigMessage();
-        } else if (use.equalsIgnoreCase("announceEdit")) {
-            team.setAnnouncement(guild.getTextChannelById(value));
-            team.updateConfigMessage();
-        } else if (use.equalsIgnoreCase("rosterEdit")) {
-            team.setRosterRole(guild.getRoleById(value));
-            team.updateConfigMessage();
-        } else if (use.equalsIgnoreCase("trialEdit")) {
-            team.setTrialRole(guild.getRoleById(value));
-            team.updateConfigMessage();
-        } else if (use.equalsIgnoreCase("subEdit")) {
-            team.setSubRole(guild.getRoleById(value));
-            team.updateConfigMessage();
         }
+        // else if (use.equalsIgnoreCase("managerSelect")) {
+        // team.setManager(guild.getMemberById(value).getUser());
+        // team.updateConfigMessage();
+        // } else if (use.equalsIgnoreCase("timetableEdit")) {
+        // team.setTimetable(guild.getTextChannelById(value));
+        // team.updateConfigMessage();
+        // } else if (use.equalsIgnoreCase("announceEdit")) {
+        // team.setAnnouncement(guild.getTextChannelById(value));
+        // team.updateConfigMessage();
+        // } else if (use.equalsIgnoreCase("rosterEdit")) {
+        // team.setRosterRole(guild.getRoleById(value));
+        // team.updateConfigMessage();
+        // } else if (use.equalsIgnoreCase("trialEdit")) {
+        // team.setTrialRole(guild.getRoleById(value));
+        // team.updateConfigMessage();
+        // } else if (use.equalsIgnoreCase("subEdit")) {
+        // team.setSubRole(guild.getRoleById(value));
+        // team.updateConfigMessage();
+        // }
+
+        // for (ActionRow row : editFields) {
+        // if
+        // (row.getActionComponents().get(0).getId().equalsIgnoreCase(event.getSelectMenu().getId()))
+        // {
+
+        // }
+        // }
         reply.deleteOriginal().queue();
+        removeActionRow(event.getSelectMenu().getId());
+        createEditingMessage();
+    }
+
+    public synchronized void removeActionRow(String selectMenuId) {
+        for (int i = 0; i < editFields.size(); i++) {
+            editFields.remove(selectMenuId);
+        }
+        createEditingMessage();
+
     }
 
     @Override
     public void onModalInteraction(ModalInteractionEvent modalEvent) {
+        String[] data = modalEvent.getModalId().split("_");
+        if (!data[0].equalsIgnoreCase(guild.getName()))
+            return;
+
         ModalMapping channelId = modalEvent.getValue("channelselectmenu");
         ModalMapping roleId = modalEvent.getValue("roleselectmenu");
         ModalMapping JSONinput = modalEvent.getValue("configJsonTextInput");
@@ -478,6 +671,7 @@ public class Server extends ListenerAdapter implements Runnable {
             e.printStackTrace();
             modalEvent.reply(e.getMessage()).setEphemeral(true).queue();
         }
+        updateConfigMessage();
         modalEvent.reply("updated").setEphemeral(true).queue();
     }
 
@@ -498,11 +692,13 @@ public class Server extends ListenerAdapter implements Runnable {
             channelOptions.add(opt);
         }
 
-        SelectMenu channelSelectMenu = SelectMenu.create(id).addOptions(channelOptions).setPlaceholder(id).build();
+        SelectMenu channelSelectMenu = SelectMenu.create(guild.getName() + "_" + id).addOptions(channelOptions)
+                .setPlaceholder(id.split("_")[0] + id.split("_")[1]).build();
         return channelSelectMenu;
     }
 
     public SelectMenu getRoleSelectMenu(Predicate<Role> pred, String id) {
+        System.out.println(id);
         LinkedList<Role> roles = new LinkedList<>(guild.getRoles());
         roles.removeIf(pred);
         LinkedList<SelectOption> roleOptions = new LinkedList<>();
@@ -512,7 +708,8 @@ public class Server extends ListenerAdapter implements Runnable {
             roleOptions.add(opt);
         }
 
-        SelectMenu roleSelectMenu = SelectMenu.create(id).addOptions(roleOptions).setPlaceholder(id).build();
+        SelectMenu roleSelectMenu = SelectMenu.create(guild.getName() + "_" + id).addOptions(roleOptions)
+                .setPlaceholder(id.split("_")[0] + " " + id.split("_")[1]).build();
         return roleSelectMenu;
     }
 
@@ -526,8 +723,8 @@ public class Server extends ListenerAdapter implements Runnable {
             SelectOption opt = SelectOption.of(member.getUser().getName(), member.getUser().getId());
             memberOptions.add(opt);
         }
-        SelectMenu memberSelectMenu = SelectMenu.create("managerSelect_" + t.getName()).addOptions(memberOptions)
-                .setPlaceholder("managerSelect").build();
+        SelectMenu memberSelectMenu = SelectMenu.create(t.getName() + "_managerSelect").addOptions(memberOptions)
+                .setPlaceholder(t.getName() + "manager Select").build();
         return memberSelectMenu;
     }
 
@@ -576,8 +773,76 @@ public class Server extends ListenerAdapter implements Runnable {
         return message.build();
     }
 
+    public boolean hasTeam(String name) {
+        return teams.containsKey(name);
+    }
+
     public void addTeam(Team t) {
         teams.put(t.getName(), t);
+
+        if (teams.size() > 1) {
+            guild.updateCommands().addCommands(
+                    Commands.slash("makeconfigchannel",
+                            "sets the current channel for the guild to the bot config channel"),
+                    Commands.slash("update", "re-freshes an event details")
+                            .addSubcommands(new SubcommandData("events", "updates all events in all servers")
+                                    .addOption(OptionType.ROLE, "teamrole", "role of the team to update events for")),
+                    Commands.slash("role", "edit role of a player")
+                            .addOption(OptionType.MENTIONABLE, "playerdiscord", "Discord")
+                            .addOption(OptionType.ROLE, "newplayerrole", "role to make the player"),
+                    Commands.slash("sort", "sort the events of a channel"),
+                    Commands.slash("removesubs", "removes the subs of a given team"),
+                    Commands.slash("help", "request the bot's manual"),
+                    Commands.context(Type.MESSAGE, "edit responses"),
+                    Commands.context(Type.MESSAGE, "edit details"),
+                    Commands.context(Type.MESSAGE, "delete event"),
+                    Commands.slash("newteam", "create a new team")
+                            .addOption(OptionType.STRING, "name", "name of the team", true, false)
+                            .addOption(OptionType.STRING, "abbv", "abbreviation of the name, for sheet config",
+                                    true, false)
+                            .addOption(OptionType.STRING, "minrank", "min rank for subs", true, false)
+                            .addOption(OptionType.CHANNEL, "timetable", "timetable / schedule channel",
+                                    true, false)
+                            .addOption(OptionType.CHANNEL, "announcement", "announcement channel", true,
+                                    false)
+                            .addOption(OptionType.ROLE, "roster", "roster role", true, false)
+                            .addOption(OptionType.ROLE, "trial", "trial role", true, false)
+                            .addOption(OptionType.ROLE, "sub", "sub role", true, false)
+                            .addOption(OptionType.USER, "manager", "team manager", true, false))
+                    .queue();
+        } else if (teams.size() <= 1) {
+            guild.updateCommands().addCommands(
+                    Commands.slash("makeconfigchannel",
+                            "sets the current channel for the guild to the bot config channel"),
+                    Commands.slash("update", "re-freshes an event details")
+                            .addSubcommands(new SubcommandData("events", "updates all events")),
+                    Commands.slash("role", "edit role of a player")
+                            .addOption(OptionType.MENTIONABLE, "playerdiscord", "Discord")
+                            .addOption(OptionType.ROLE, "newplayerrole", "role to make the player"),
+                    Commands.slash("sort", "sort the events of a channel"),
+                    Commands.slash("removesubs", "removes the subs of a given team"),
+                    Commands.slash("help", "request the bot's manual"),
+                    Commands.context(Type.MESSAGE, "edit responses"),
+                    Commands.context(Type.MESSAGE, "edit details"),
+                    Commands.context(Type.MESSAGE, "delete event"),
+                    Commands.slash("newteam", "create a new team")
+                            .addOption(OptionType.STRING, "name", "name of the team", true, false)
+                            .addOption(OptionType.STRING, "abbv", "abbreviation of the name, for sheet config",
+                                    true, false)
+                            .addOption(OptionType.STRING, "minrank", "min rank for subs", true, false)
+                            .addOption(OptionType.CHANNEL, "timetable", "timetable / schedule channel",
+                                    true, false)
+                            .addOption(OptionType.CHANNEL, "announcement", "announcement channel", true,
+                                    false)
+                            .addOption(OptionType.ROLE, "roster", "roster role", true, false)
+                            .addOption(OptionType.ROLE, "trial", "trial role", true, false)
+                            .addOption(OptionType.ROLE, "sub", "sub role", true, false)
+                            .addOption(OptionType.USER, "manager", "team manager", true, false))
+                    .queue();
+            soloTeam = t;
+
+        }
+
     }
 
     public static Server getGuild(Long id) {
@@ -667,44 +932,4 @@ public class Server extends ListenerAdapter implements Runnable {
     public void setT(Thread t) {
         this.t = t;
     }
-
-    public Message getConfigEditMessage() {
-        return configEditMessage;
-    }
-
-    public void setConfigEditMessage(Message configEditMessage) {
-        this.configEditMessage = configEditMessage;
-    }
-
-    public MessageCreateBuilder getConfigEditBuilder() {
-        return configEditBuilder;
-    }
-
-    public void setConfigEditBuilder(MessageCreateBuilder configEditBuilder) {
-        this.configEditBuilder = configEditBuilder;
-    }
-
-    // public Role getDpsRole() {
-    // return dpsRole;
-    // }
-
-    // public void setDpsRole(Role dpsRole) {
-    // this.dpsRole = dpsRole;
-    // }
-
-    // public Role getTankRole() {
-    // return tankRole;
-    // }
-
-    // public void setTankRole(Role tankRole) {
-    // this.tankRole = tankRole;
-    // }
-
-    // public Role getSuppRole() {
-    // return suppRole;
-    // }
-
-    // public void setSuppRole(Role suppRole) {
-    // this.suppRole = suppRole;
-    // }
 }

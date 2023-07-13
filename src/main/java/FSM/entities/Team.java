@@ -6,6 +6,8 @@ import java.util.List;
 
 import javax.annotation.Nonnull;
 
+import com.google.gson.Gson;
+
 import FSM.services.DiscordBot;
 import FSM.services.GoogleSheet;
 import FSM.services.GoogleSheet2;
@@ -21,8 +23,10 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.SelectMenuInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.InteractionHook;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.Modal;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.selections.SelectMenu;
@@ -95,6 +99,24 @@ public class Team extends ListenerAdapter {
         this.subRole = subRole;
         this.members = members;
         this.teamupSubCalendar = teamupSubCalendar;
+        this.sheet = new GoogleSheet2();
+        this.manager = manager;
+        // Thread t = new Thread(this, name);
+        teams.add(this);
+        // t.start();
+    }
+
+    public Team(String name, String nameAbbv, String minRank, MessageChannel timetable, MessageChannel announcement,
+            Role rosterRole, Role trialRole,
+            Role subRole, User manager) {
+        this.name = name;
+        this.nameAbbv = nameAbbv;
+        this.minRank = minRank;
+        this.timetable = timetable;
+        this.announcement = announcement;
+        this.rosterRole = rosterRole;
+        this.trialRole = trialRole;
+        this.subRole = subRole;
         this.sheet = new GoogleSheet2();
         this.manager = manager;
         // Thread t = new Thread(this, name);
@@ -422,8 +444,15 @@ public class Team extends ListenerAdapter {
         embed.addField(trialRoleField);
         embed.addField(subRoleField);
 
+        if (guild.isDifferentTeamSheetSetups()) {
+            Field sheetConfigField = new Field("Sheet Config", sheetConfig.toJSON(), false);
+            embed.addField(sheetConfigField);
+        }
+
         message.addEmbeds(embed.build());
 
+        Button editName = Button.success(String.format("%s_%s", hashCode(), "editName"), "edit name");
+        Button editAbbv = Button.success(String.format("%s_%s", hashCode(), "editAbbv"), "edit name abbreviation");
         Button editMinRank = Button.danger(String.format("%s_%s", hashCode(), "editMinRank"), "edit min rank");
         Button editTeamUp = Button.danger(String.format("%s_%s", hashCode(), "editTeamUp"), "edit team up ID");
         Button editManager = Button.danger(String.format("%s_%s", hashCode(), "editManager"), "change manager");
@@ -436,9 +465,15 @@ public class Team extends ListenerAdapter {
         Button editTrial = Button.secondary(String.format("%s_%s", hashCode(), "editTrialRole"), "change trial role");
         Button editSub = Button.secondary(String.format("%s_%s", hashCode(), "editSubRole"), "change sub role");
 
+        message.addActionRow(editName, editAbbv);
         message.addActionRow(editMinRank, editTeamUp, editManager);
         message.addActionRow(editTimetable, editAnnounce);
         message.addActionRow(editRoster, editTrial, editSub);
+
+        if (guild.isDifferentTeamSheetSetups()) {
+            Button editSheetConfig = Button.success(hashCode() + "_editConfig", "edit sheet config");
+            message.addActionRow(editSheetConfig);
+        }
 
         return message.build();
     }
@@ -448,90 +483,77 @@ public class Team extends ListenerAdapter {
         String[] data = buttonEvent.getButton().getId().split("_");
         if (!data[0].equalsIgnoreCase(String.valueOf(hashCode())))
             return;
-        Button submitEditButton = Button.primary(String.format("%s_submitConfigEdit", guild.getGuild().getName()),
-                "submit");
 
         String buttonUse = data[1];
         if (buttonUse.equalsIgnoreCase("editMinRank")) {
 
-            TextInput textfield = TextInput.create("textInput", "rank", TextInputStyle.SHORT).build();
-            buttonEvent.replyModal(Modal.create("editMinRank", "edit team's min rank").addActionRow(textfield).build())
+            TextInput textfield = TextInput.create("textInput", "rank", TextInputStyle.SHORT).setValue(minRank).build();
+            buttonEvent
+                    .replyModal(
+                            Modal.create(name + "_editMinRank", "edit team's min rank").addActionRow(textfield).build())
                     .queue();
 
+        } else if (buttonUse.equalsIgnoreCase("editName")) {
+
+            TextInput textfield = TextInput.create("textInput", "Name", TextInputStyle.SHORT).setValue(name).build();
+            buttonEvent
+                    .replyModal(Modal.create(name + "_editName", "edit team's name")
+                            .addActionRow(textfield).build())
+                    .queue();
+        } else if (buttonUse.equalsIgnoreCase("editAbbv")) {
+
+            TextInput textfield = TextInput.create("textInput", "Name Abbv", TextInputStyle.SHORT).setValue(nameAbbv)
+                    .build();
+            buttonEvent
+                    .replyModal(Modal.create(name + "_editAbbv", "Edit Team Name Abbreviation")
+                            .addActionRow(textfield).build())
+                    .queue();
         } else if (buttonUse.equalsIgnoreCase("editTeamUp")) {
 
             TextInput textfield = TextInput.create("textInput", "team up sub-id", TextInputStyle.SHORT).build();
             buttonEvent
-                    .replyModal(Modal.create("editTeamUp", "edit team's team up sub calendar ID")
+                    .replyModal(Modal.create(name + "_editTeamUp", "edit team's team up sub calendar ID")
                             .addActionRow(textfield).build())
                     .queue();
 
         } else if (buttonUse.equalsIgnoreCase("editManager")) {
-            guild.createEditingMessage();
             SelectMenu selectMenu = guild.getManagerSelectMenu(this);
-            // guild.getConfigEditBuilder().addActionRow(selectMenu);
-            // guild.getConfigEditMessage()
-            //         .editMessage(MessageEditData.fromCreateData(guild.getConfigEditBuilder().build())).queue();
+            guild.addEditingComponent(ActionRow.of(selectMenu), buttonEvent);
 
-            MessageCreateBuilder messageData = guild.getConfigEditBuilder();
-            messageData.addActionRow(selectMenu);
-            guild.setConfigEditBuilder(messageData);
-
-            Message message = guild.getConfigEditMessage();
-            message.editMessage(MessageEditData.fromCreateData(messageData.build())).queue((res) -> {
-                guild.setConfigEditMessage(res);
-            });
         } else if (buttonUse.equalsIgnoreCase("editTimeTable")) {
-            guild.createEditingMessage();
             SelectMenu selectMenu = guild
                     .getChannelSelectMenu((TextChannel c) -> !c.getName().toLowerCase().contains("schedule")
-                            && !c.getName().toLowerCase().contains("timetable"), "timetableEdit_" + name);
-            guild.getConfigEditBuilder().addActionRow(selectMenu);
-            guild.getConfigEditMessage()
-                    .editMessage(MessageEditData.fromCreateData(guild.getConfigEditBuilder().build())).queue();;
-                        InteractionHook reply = buttonEvent.deferReply(true).complete();
-            reply.editOriginal("added field").queue();
-            reply.deleteOriginal().queue();
+                            && !c.getName().toLowerCase().contains("timetable"), name + "_timetableEdit");
+            guild.addEditingComponent(ActionRow.of(selectMenu), buttonEvent);
+
         } else if (buttonUse.equalsIgnoreCase("editAnnouncement")) {
-            guild.createEditingMessage();
             SelectMenu selectMenu = guild.getChannelSelectMenu(
-                    (TextChannel c) -> !c.getName().toLowerCase().contains("announce"), "announceEdit_" + name);
-            guild.getConfigEditBuilder().addActionRow(selectMenu);
-            guild.getConfigEditMessage()
-                    .editMessage(MessageEditData.fromCreateData(guild.getConfigEditBuilder().build())).queue();;
-                        InteractionHook reply = buttonEvent.deferReply(true).complete();
-            reply.editOriginal("added field").queue();
-            reply.deleteOriginal().queue();
+                    (TextChannel c) -> !c.getName().toLowerCase().contains("announce"), name + "_announceEdit");
+            guild.addEditingComponent(ActionRow.of(selectMenu), buttonEvent);
+
         } else if (buttonUse.equalsIgnoreCase("editRosterRole")) {
-            guild.createEditingMessage();
-            SelectMenu selectMenu = guild.getRoleSelectMenu((Role r) -> !r.getName().toLowerCase().contains("roster")
-                    && !r.getName().toLowerCase().contains("main"), "rosterEdit_" + name);
-            guild.getConfigEditBuilder().addActionRow(selectMenu);
-            guild.getConfigEditMessage()
-                    .editMessage(MessageEditData.fromCreateData(guild.getConfigEditBuilder().build())).queue();;
-            InteractionHook reply = buttonEvent.deferReply(true).complete();
-            reply.editOriginal("added field").queue();
-            reply.deleteOriginal().queue();
+            SelectMenu selectMenu = guild.getRoleSelectMenu((Role r) -> !r.getName().toLowerCase().contains("")
+                    && !r.getName().toLowerCase().contains("main"), name + "_rosterEdit");
+            guild.addEditingComponent(ActionRow.of(selectMenu), buttonEvent);
+
         } else if (buttonUse.equalsIgnoreCase("editTrialRole")) {
-            guild.createEditingMessage();
             SelectMenu selectMenu = guild.getRoleSelectMenu((Role r) -> !r.getName().toLowerCase().contains("trial"),
-                    "trialEdit_" + name);
-            guild.getConfigEditBuilder().addActionRow(selectMenu);
-            guild.getConfigEditMessage()
-                    .editMessage(MessageEditData.fromCreateData(guild.getConfigEditBuilder().build())).queue();;
-                        InteractionHook reply = buttonEvent.deferReply(true).complete();
-            reply.editOriginal("added field").queue();
-            reply.deleteOriginal().queue();
+                    name + "_trialEdit");
+            guild.addEditingComponent(ActionRow.of(selectMenu), buttonEvent);
+
         } else if (buttonUse.equalsIgnoreCase("editSubRole")) {
-            guild.createEditingMessage();
             SelectMenu selectMenu = guild.getRoleSelectMenu((Role r) -> !r.getName().toLowerCase().contains("sub"),
-                    "subEdit_" + name);
-            guild.getConfigEditBuilder().addActionRow(selectMenu);
-            guild.getConfigEditMessage()
-                    .editMessage(MessageEditData.fromCreateData(guild.getConfigEditBuilder().build())).queue();;
-                        InteractionHook reply = buttonEvent.deferReply(true).complete();
-            reply.editOriginal("added field").queue();
-            reply.deleteOriginal().queue();
+                    name + "_subEdit");
+            guild.addEditingComponent(ActionRow.of(selectMenu), buttonEvent);
+
+        } else if (buttonUse.equalsIgnoreCase("editConfig")) {
+            TextInput textfield = TextInput.create("textInput", "config JSON", TextInputStyle.PARAGRAPH)
+                    .setValue(sheetConfig.toJSON()).build();
+            buttonEvent
+                    .replyModal(
+                            Modal.create(name + "_editConfigJSON", "edit sheet config JSON").addActionRow(textfield)
+                                    .build())
+                    .queue();
         }
     }
 
@@ -550,36 +572,117 @@ public class Team extends ListenerAdapter {
         }
     }
 
+    public void updateConfigMessage(String oldNmae) {
+        List<Message> messageHistory = MessageHistory.getHistoryFromBeginning(guild.getBotConfigChannel()).complete()
+                .getRetrievedHistory();
+        for (Message message : messageHistory) {
+            try {
+                if (message.getEmbeds().get(0).getTitle()
+                        .equalsIgnoreCase(String.format("%s (%s) Config", oldNmae, nameAbbv))) {
+                    message.editMessage(MessageEditData.fromCreateData(createConfig())).queue();
+                }
+            } catch (Exception e) {
+                // TODO: handle exception
+            }
+        }
+    }
+
+    public void updateConfigMessage(String oldAbbv, boolean abbv) {
+        List<Message> messageHistory = MessageHistory.getHistoryFromBeginning(guild.getBotConfigChannel()).complete()
+                .getRetrievedHistory();
+        for (Message message : messageHistory) {
+            try {
+                if (message.getEmbeds().get(0).getTitle()
+                        .equalsIgnoreCase(String.format("%s (%s) Config", name, oldAbbv))) {
+                    message.editMessage(MessageEditData.fromCreateData(createConfig())).queue();
+                }
+            } catch (Exception e) {
+                // TODO: handle exception
+            }
+        }
+    }
+
     @Override
     public void onModalInteraction(@Nonnull ModalInteractionEvent event) {
-        if (!event.getModalId().split("_")[0].equalsIgnoreCase(name)) return;
+        System.out.println(event.getModalId().split("_")[0] + " == " + name);
+        if (!event.getModalId().split("_")[0].equalsIgnoreCase(name))
+            return;
+        String reason = event.getModalId().split("_")[1];
         ModalMapping textInput = event.getValue("textInput");
         ModalMapping memberId = event.getValue("memberSelectMenu");
         ModalMapping roleId = event.getValue("roleSelectMenu");
         ModalMapping channelId = event.getValue("trialSelectMenu");
+        String oldName = name;
+        String oldAbbv = nameAbbv;
         try {
-            if (textInput != null && event.getModalId().equalsIgnoreCase("editMinRank"))
+            if (textInput != null && reason.equalsIgnoreCase("editMinRank"))
                 minRank = textInput.getAsString();
-            if (textInput != null && event.getModalId().equalsIgnoreCase("editTeamUp"))
+            else if (textInput != null && reason.equalsIgnoreCase("editTeamUp"))
                 teamupSubCalendar = Integer.parseInt(textInput.getAsString());
-            if (memberId != null)
+            else if (memberId != null)
                 manager = guild.getGuild().getMemberById(memberId.getAsString()).getUser();
-            if (channelId != null && event.getModalId().equalsIgnoreCase("editTimeTable"))
+            else if (channelId != null && event.getModalId().equalsIgnoreCase("editTimeTable"))
                 timetable = guild.getGuild().getTextChannelById(channelId.getAsString());
-            if (channelId != null && event.getModalId().equalsIgnoreCase("editAnnouncement"))
+            else if (channelId != null && event.getModalId().equalsIgnoreCase("editAnnouncement"))
                 announcement = guild.getGuild().getTextChannelById(channelId.getAsString());
-            if (roleId != null && event.getModalId().equalsIgnoreCase("editRosterRole"))
+            else if (roleId != null && event.getModalId().equalsIgnoreCase("editRosterRole"))
                 rosterRole = guild.getGuild().getRoleById(roleId.getAsString());
-            if (roleId != null && event.getModalId().equalsIgnoreCase("editTrialRole"))
+            else if (roleId != null && event.getModalId().equalsIgnoreCase("editTrialRole"))
                 trialRole = guild.getGuild().getRoleById(roleId.getAsString());
-            if (roleId != null && event.getModalId().equalsIgnoreCase("editSubRole"))
+            else if (roleId != null && event.getModalId().equalsIgnoreCase("editSubRole"))
                 subRole = guild.getGuild().getRoleById(roleId.getAsString());
+            else if (textInput != null && reason.equalsIgnoreCase("editName"))
+                name = textInput.getAsString();
+            else if (textInput != null && reason.equalsIgnoreCase("editAbbv"))
+                nameAbbv = textInput.getAsString();
+            else if (textInput != null && reason.equalsIgnoreCase("editConfigJSON"))
+                sheetConfig = new Gson().fromJson(textInput.getAsString(), sheetConfig.getClass());
         } catch (Exception e) {
             event.reply(e.getMessage()).setEphemeral(true).queue();
         }
-        updateConfigMessage();
+        if (reason.equalsIgnoreCase("editName")) {
+            updateConfigMessage(oldName);
+        } else if (reason.equalsIgnoreCase("editAbbv")) {
+            updateConfigMessage(oldAbbv, false);
+        } else {
+            updateConfigMessage();
+        }
         // guild.createConfig();
         event.reply("updated").setEphemeral(true).queue();
+    }
+
+    @Override
+    public void onSelectMenuInteraction(SelectMenuInteractionEvent event) {
+        String[] eventData = event.getSelectMenu().getId().split("_");
+        if (!eventData[0].equalsIgnoreCase(name))
+            return;
+
+        InteractionHook reply = event.deferReply(true).complete();
+        reply.editOriginal("editing").queue();
+        String use = eventData[1];
+            String value = event.getValues().get(0);
+        if (use.equalsIgnoreCase("managerSelect")) {
+            setManager(guild.getGuild().getMemberById(value).getUser());
+            updateConfigMessage();
+        } else if (use.equalsIgnoreCase("timetableEdit")) {
+            setTimetable(guild.getGuild().getTextChannelById(value));
+            updateConfigMessage();
+        } else if (use.equalsIgnoreCase("announceEdit")) {
+            setAnnouncement(guild.getGuild().getTextChannelById(value));
+            updateConfigMessage();
+        } else if (use.equalsIgnoreCase("rosterEdit")) {
+            setRosterRole(guild.getGuild().getRoleById(value));
+            updateConfigMessage();
+        } else if (use.equalsIgnoreCase("trialEdit")) {
+            setTrialRole(guild.getGuild().getRoleById(value));
+            updateConfigMessage();
+        } else if (use.equalsIgnoreCase("subEdit")) {
+            setSubRole(guild.getGuild().getRoleById(value));
+            updateConfigMessage();
+        }
+        reply.deleteOriginal().queue();
+        guild.removeActionRow(event.getSelectMenu().getId());
+        guild.createEditingMessage();
     }
 
     public LinkedList<Event> getEvents() {
@@ -589,6 +692,7 @@ public class Team extends ListenerAdapter {
     public void setEvents(LinkedList<Event> events) {
         this.events = events;
     }
+
     public void addEvent(Event e) {
         events.add(e);
     }

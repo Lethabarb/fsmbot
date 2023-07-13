@@ -64,9 +64,8 @@ public class GoogleSheet2 {
             NetHttpTransport httpTransport = null;
             try {
                 httpTransport = GoogleNetHttpTransport.newTrustedTransport();
-            } catch (GeneralSecurityException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
+            }catch (Exception e) {
+                System.out.println(e.getMessage());
                 e.printStackTrace();
             }
             try {

@@ -2,6 +2,7 @@ package FSM.services;
 
 import java.awt.Color;
 import java.io.File;
+import java.lang.StackWalker.Option;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -17,6 +18,8 @@ import java.util.TimeZone;
 import java.util.function.Predicate;
 
 import javax.annotation.Nonnull;
+
+import com.google.gson.Gson;
 
 import FSM.entities.Event;
 import FSM.entities.Player;
@@ -40,6 +43,7 @@ import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
+import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.MessageContextInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -47,6 +51,9 @@ import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.InteractionHook;
+import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.components.ActionComponent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.ItemComponent;
@@ -88,10 +95,6 @@ public class DiscordBot extends ListenerAdapter {
                             GatewayIntent.MESSAGE_CONTENT);
             jda.addEventListeners(this);
 
-            // TODO: make event / sub request event listeners. This can make the code WAY
-            // cleaner.
-
-            // jda.lis/
             bot = jda.build();
             try {
                 bot.awaitReady();
@@ -99,6 +102,46 @@ public class DiscordBot extends ListenerAdapter {
                 e.printStackTrace();
             }
             System.out.println(String.format("%s is ready", bot.getSelfUser().getName()));
+            System.out.println("finding servers...");
+            for (Guild guild : bot.getGuilds()) {
+                System.out.print(guild.getName());
+                // find fsm-config
+                MessageChannel fsmConfig = null;
+                List<TextChannel> channels = guild.getTextChannels();
+                for (int i = 0; i < channels.size(); i++) {
+                    TextChannel c = channels.get(i);
+                    if (c.getName().equalsIgnoreCase("fsm-config")) {
+                        fsmConfig = c;
+                        i = channels.size();
+                    }
+                }
+                // bot is active in server
+                if (fsmConfig != null) {
+                    try {
+                        List<Message> messageHist = MessageHistory.getHistoryFromBeginning(fsmConfig).complete()
+                                .getRetrievedHistory();
+                        for (Message message : messageHist) {
+                            MessageEmbed embed = message.getEmbeds().get(0);
+                            if (embed.getTitle().contains(guild.getName())) {
+                                List<Field> fields = embed.getFields();
+                                String subChannelId = fields.get(0).getValue().replaceAll("[<@&#>]", "");
+                                String subRoleId = fields.get(1).getValue().replaceAll("[<@&#>]", "");
+                                String JSONinput = fields.get(6).getValue();
+                                SheetConfig sheetConfig = new SheetConfig();
+                                sheetConfig = new Gson().fromJson(JSONinput, sheetConfig.getClass());
+                                Server s = makeGuild(guild.getId(), subChannelId, subRoleId, sheetConfig);
+
+                            }
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        guild.getOwner().getUser().openPrivateChannel().queue((res) -> {
+                            res.sendMessage("i cannot access config channel :<").queue();
+                        });;
+                        // TODO: handle exception
+                    }
+                }
+            }
         }
         // logout();
     }
@@ -126,6 +169,13 @@ public class DiscordBot extends ListenerAdapter {
         return serv;
     }
 
+    public synchronized Server makeGuild(Guild guild, MessageChannel subChannel, Role subRole) {
+        SheetConfig config = new SheetConfig();
+        Server s = new Server(guild, subChannel, subRole, config);
+        addListener(s);
+        return s;
+    }
+
     // public Team makeTeam(String name, String nameAbbv, String minRank, String
     // timetableId,
     // String rosterRoleId,
@@ -145,6 +195,9 @@ public class DiscordBot extends ListenerAdapter {
     public Team makeTeam(String name, String nameAbbv, String minRank, String timetableId, String announceId,
             String rosterRoleId,
             String trialRoleId, String subRoleId, Server s, int subCalenderId, String sheetId, String managerId) {
+        if (s.hasTeam(name))
+            return null;
+
         MessageChannel timetable = bot.getTextChannelById(timetableId);
         MessageChannel announce = bot.getTextChannelById(announceId);
         Role rosterRole = bot.getRoleById(rosterRoleId);
@@ -214,7 +267,7 @@ public class DiscordBot extends ListenerAdapter {
     public synchronized void createEventsFromChanel(Team t) {
         MessageChannel c = t.getTimetable();
         // System.out.println("=========="+t.getName()+"==========");
-        System.out.println("["+ t.getName() + "]: Finding existing scrims for ");
+        System.out.println("[" + t.getName() + "]: Finding existing scrims for ");
         List<Message> messages = MessageHistory.getHistoryFromBeginning(c).complete().getRetrievedHistory();
         Event event = null;
         for (Message message : messages) {
@@ -307,12 +360,12 @@ public class DiscordBot extends ListenerAdapter {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            //  finally {
-            //     if (event != null)
-            //         event.updateEventMessage(this, true);
+            // finally {
+            // if (event != null)
+            // event.updateEventMessage(this, true);
             // }
         }
-        System.out.println("["+ t.getName() + "]:finished finding scrims");
+        System.out.println("[" + t.getName() + "]:finished finding scrims");
     }
     // public static void main(String[] args) {
     // DiscordBot bot = getInstance("");
@@ -343,7 +396,7 @@ public class DiscordBot extends ListenerAdapter {
 
     public void createSubReqestsFromChannel(MessageChannel c) {
         // MessageChannel c = bot.getTextChannelById(id);
-        System.out.println("["+ c.getName() + "]: finding existing sub requests");
+        System.out.println("[" + c.getName() + "]: finding existing sub requests");
         System.out.println("Finding sub requests....");
         System.out.println("finding last message...");
         int size = 50;
@@ -389,9 +442,9 @@ public class DiscordBot extends ListenerAdapter {
                             // e.addSubRequest(req);
                             e.replaceSubRequest(req);
 
-                            //TODO: replace the existing req for same role in the event.
-                            //      flag: null message
-                            //      when checking, check to see if any reqs still have null messages
+                            // TODO: replace the existing req for same role in the event.
+                            // flag: null message
+                            // when checking, check to see if any reqs still have null messages
                             addListener(req);
                         } else {
                             message.delete().complete();
@@ -406,7 +459,7 @@ public class DiscordBot extends ListenerAdapter {
                 }
             }
         }
-        System.out.println("["+ c.getName() + "]:finished");
+        System.out.println("[" + c.getName() + "]:finished");
 
     }
 
@@ -454,42 +507,6 @@ public class DiscordBot extends ListenerAdapter {
         }
         System.out.println("finished.");
 
-        // while (events.size() != 0) {
-        // Event l = events.get(0);
-        // ZonedDateTime lowest = events.get(0).getDateTime();
-        // int lowIndex = 0;
-        // for (int i = 1; i < events.size(); i++) {
-        // Event e = events.get(i);
-        // if (e.getDateTime().isBefore(lowest)) {
-        // lowest = e.getDateTime();
-        // l = e;
-        // lowIndex = i;
-        // }
-        // }
-        // if (lowIndex != events.size() - 1) {
-        // // delete + add to sort if its not already sorted
-        // c.deleteMessageById(l.getMessage().getId()).queue();
-
-        // sorted.add(l);
-        // }
-        // events.remove(l);
-
-        // try {
-        // Thread.sleep(2000);
-        // } catch (InterruptedException e) {
-        // // TODO Auto-generated catch block
-        // e.printStackTrace();
-        // }
-        // }
-        // try {
-        // Thread.sleep(2000);
-        // } catch (InterruptedException e) {
-        // // TODO Auto-generated catch block
-        // e.printStackTrace();
-        // }
-        // for (Event event : sorted) {
-        // sendEvent(event, false);
-        // }
         System.out.println("done sorting");
     }
 
@@ -528,158 +545,22 @@ public class DiscordBot extends ListenerAdapter {
     }
 
     @Override
-    public void onButtonInteraction(ButtonInteractionEvent buttonEvent) {
-        Guild guild = buttonEvent.getGuild();
-        Button b = buttonEvent.getButton();
-
-        String[] buttonData = b.getId().split("_");
-        String buttonUse = buttonData[0];
-        String Data = buttonData[1];
-        // System.out.println("key: " + eventKey);
-        Player trigger = Player.getPlayer(buttonEvent.getMember());
-
-        if (buttonUse.equals("ScrimButtYes")) {
-            // Event event = Event.getEvent(Long.parseLong(Data));
-            // if (hasRosterOrTrialRole(event.getTeam(), buttonEvent.getMember())) {
-            // buttonEvent.reply("You have accepted the scrim on <t:" + event.getUnix() +
-            // ":F>").setEphemeral(true)
-            // .queue();
-            // System.out.println(event.getTeam().getName() + ": " +
-            // buttonEvent.getMember().getUser().getName()
-            // + "accepted scrim on " + event.getDateTime().toString());
-            // boolean wasSub = event.addConfirmed(trigger);
-            // if (wasSub) {
-            // System.out.println("found sub for this role");
-            // try {
-            // if (trigger.getRole() == -1) {
-            // buttonEvent.reply(
-            // "you dont have a valid overwatch role for this event, please contact your
-            // manager");
-            // return;
-            // }
-            // // int sub = event.getExistingSub(trigger.getRole(), false);
-            // try {
-            // deleteSubRequest(event, trigger.getRole(), false);
-            // // event.removeSub(sub);
-            // } catch (Exception e) {
-            // System.out.println("no sub message found");
-            // }
-            // } catch (Exception e) {
-
-            // }
-            // }
-
-            // event.updateEventMessage(this);
-            // } else {
-            // buttonEvent.reply("you are not on the roster!").setEphemeral(true).queue();
-            // try {
-            // Thread.sleep(2000);
-            // } catch (Exception e) {
-            // // TODO: handle exception
-            // }
-            // }
-        } else if (buttonUse.equals("ScrimButtNo")) {
-            // Event event = Event.getEvent(Long.parseLong(Data));
-            // System.out.println(event.getTeam().getName() + ": " +
-            // buttonEvent.getMember().getUser().getName()
-            // + "declined scrim on " + event.getDateTime().toString());
-
-            // if (hasRosterOrTrialRole(event.getTeam(), buttonEvent.getMember())) {
-            // event.addDeclined(trigger);
-            // event.updateEventMessage(this);
-            // if (event.needsSub(trigger.getRole())) {
-            // System.out.println("sending sub req");
-            // sendSubRequest(event, trigger.getRole());
-            // } else {
-            // System.out.println("role filled, no sub needed");
-            // }
-            // buttonEvent.reply("You have declined the scrim on <t:" + event.getUnix() +
-            // ":F>").setEphemeral(true)
-            // .queue();
-            // } else if (event.isSub(trigger)) {
-            // SubRequest req = SubRequest.getRequestByPlayer(event, trigger);
-            // Member m = req.getPlayer().getMember();
-            // if (req.deleteRequest()) {
-            // buttonEvent.reply("you are no longer subbing");
-            // removeMemberRole(guild, m, event.getTeam().getSubRole());
-            // }
-            // } else {
-            // buttonEvent.reply("you are not on the roster!").setEphemeral(true).queue();
-            // // try {
-            // // Thread.sleep(2000);
-            // // } catch (Exception e) {
-            // // // TODO: handle exception
-            // // }
-            // }
-        } else if (buttonUse.equals("Sub")) {
-            // System.out.println(String.format("sub for subId: %s", Data));
-            // SubRequest req = SubRequest.getRequest(Data);
-            // Event event = req.getEvent();
-            // // Event event = Event.getEvent(Long.parseLong(Data));
-            // // int subIndex = Integer.parseInt(buttonData[2]);
-            // // int role = Integer.parseInt(buttonData[3]);
-            // if (trigger == null) {
-            // trigger = new Player(buttonEvent.getMember(), req.getSubRole());
-            // }
-            // if (!hasRosterOrTrialRole(event.getTeam(), buttonEvent.getMember())) {
-            // // event.setSubPlayer(subIndex, trigger);
-            // // SubRequest req = SubRequest.getRequest(Data);
-            // req.setPlayer(trigger);
-            // deleteSubRequest(event, req.getSubRole(), true);
-            // giveMemberRole(event.getTeam().getServer().getGuild(),
-            // buttonEvent.getMember(),
-            // event.getTeam().getSubRole());
-            // // event.updateScrim();
-            // updateAllEvents(event.getTeam());
-            // User u = trigger.getMember().getUser();
-
-            // MessageCreateBuilder messageBuilder = new MessageCreateBuilder();
-            // EmbedBuilder embed = new EmbedBuilder();
-            // Field team = new Field("Team", event.getTeam().getName(), true);
-            // Field time = new Field("Time", "<t:" + event.getUnix() + ":F>", true);
-            // Field channel = new Field("Where",
-            // event.getTeam().getTimetable().getAsMention(), true);
-            // embed.addField(team);
-            // embed.addField(time);
-            // embed.addField(channel);
-            // messageBuilder.addEmbeds(embed.build());
-            // messageBuilder.addActionRow(Button.primary(
-            // String.format("%s_%s", "Sub", req.getUuid()),
-            // "cancel"));
-
-            // u.openPrivateChannel().complete().sendMessage(messageBuilder.build()).queue();
-            // buttonEvent.reply("you are now subbing").setEphemeral(true).queue();
-            // try {
-            // Thread.sleep(2000);
-            // } catch (Exception e) {
-            // // TODO: handle exception
-            // }
-            // event.updateEventMessage(this);
-            // } else {
-            // buttonEvent.reply("you are on the roster! how can u be a
-            // sub??").setEphemeral(true).queue();
-            // try {
-            // Thread.sleep(2000);
-            // } catch (Exception e) {
-            // // TODO: handle exception
-            // }
-            // }
-        } else if (buttonUse.equalsIgnoreCase("editserverconfig")) {
-            buttonEvent.getChannel().sendMessage("edit Server Config").queue();
-
-        } else if (buttonUse.equalsIgnoreCase("serverduelsheets")) {
-            buttonEvent.getChannel().sendMessage("etoggle duel sheets").queue();
-
-        } else if (buttonUse.equalsIgnoreCase("uniqueteamsheets")) {
-            buttonEvent.getChannel().sendMessage("toggle unique sheets").queue();
-
-        } else if (buttonUse.equalsIgnoreCase("editTeamConfig")) {
-            String teamRosterRoleId = Data;
-            Role r = guild.getRoleById(teamRosterRoleId);
-            Team t = Team.getTeamByRosterRole(r);
-            buttonEvent.getChannel().sendMessage("editing " + t.getName()).queue();
-
-        }
+    public void onGuildJoin(GuildJoinEvent event) {
+        System.out.println(event.getGuild().getName());
+        Guild g = event.getGuild();
+        g.getOwner().getUser().openPrivateChannel().queue((res) -> {
+            res.sendMessage(
+                    "hello! thank you for inviting FSM to your server! First of all you will want to do /initialize in your server to get things going!")
+                    .queue();
+            res.sendMessage("Additionally, here is the manual on how I work :)").queue();
+            res.sendFiles(FileUpload.fromData(new File("FSM Bot user Manual.pdf"))).queue();
+        });
+        g.upsertCommand(
+                Commands.slash("initialize", "first command to run!")
+                        .addOption(OptionType.CHANNEL, "subchannel", "Substitute Request Channel")
+                        .addOption(OptionType.ROLE, "subrole", "General substitute role for the server")
+                        .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.ADMINISTRATOR)))
+                .queue();
     }
 
     public synchronized void updateAllEvents(Team t) {
@@ -693,399 +574,17 @@ public class DiscordBot extends ListenerAdapter {
         System.out.println(String.format("[%s]: finished", t.getName()));
     }
 
-    // @Override
-    // public void onSlashCommandInteraction(@Nonnull SlashCommandInteractionEvent
-    // commandEvent) {
-    // String command = commandEvent.getName();
-    // System.out.println(commandEvent.getMember().getUser().getName());
-    // if (command.equals("update")) {
-    // String subCommand = commandEvent.getSubcommandName();
-    // Role role = commandEvent.getOption("teamrole").getAsRole();
-    // if (subCommand.equals("events")) {
-    // System.out.println(commandEvent.getMember().getUser().getName() + " called
-    // /update events");
-    // Team t = Team.getTeamByRosterRole(role);
-    // updateAllEvents(t);
-    // commandEvent.reply("events have been updated").setEphemeral(true).queue();
-    // try {
-    // Thread.sleep(2000);
-    // } catch (Exception e) {
-    // // TODO: handle exception
-    // }
-    // }
-    // } else if (command.equals("role")) {
-    // Server s = Server.getGuild(commandEvent.getGuild().getIdLong());
-    // String roleName =
-    // commandEvent.getOption("newplayerrole").getAsRole().getName();
-    // Member member = commandEvent.getOption("playerdiscord").getAsMember();
-    // Role role = commandEvent.getOption("newplayerrole").getAsRole();
-    // changeRoles(member, s.getGuild());
-    // s.getGuild().addRoleToMember(member, role);
-    // Player p = Player.getPlayer(member);
-    // p.setRole(Player.roleHash(roleName));
-    // // updateAllEvents();
-    // } else if (command.equals("sort")) {
-    // MessageChannel c = commandEvent.getMessageChannel();
-    // sortChannel(c);
-    // } else if (command.equals("makeconfigchannel")) {
-    // InteractionHook reply = commandEvent.deferReply(true).complete();
-    // Server s = Server.getGuild(commandEvent.getGuild().getIdLong());
-    // List<GuildChannel> channels = s.getGuild().getChannels(false);
-    // LinkedList<GuildChannel> channelsll = new LinkedList<>();
-    // for (GuildChannel guildChannel : channels) {
-    // channelsll.add(guildChannel);
-    // }
-    // // GuildChannel chan = channels.get(0).getName()
-    // Predicate<GuildChannel> pred = (GuildChannel gc) ->
-    // (gc.getType().compareTo(ChannelType.TEXT) != 0
-    // || !gc.getName().equalsIgnoreCase("fsm-config"));
-    // Boolean found = channelsll.removeIf(pred);
-    // if (channelsll.size() > 0) {
-
-    // reply.editOriginal(channelsll.get(0).getAsMention() + "already exists.
-    // editing channel").queue();
-    // if (s.getBotConfigChannel() == null) {
-    // MessageChannel c =
-    // s.getGuild().getTextChannelById(channelsll.get(0).getIdLong());
-    // s.setBotConfigChannel(c);
-    // // commandEvent.reply("found existing channel").setEphemeral(true).queue();
-    // List<Message> messages =
-    // MessageHistory.getHistoryFromBeginning(c).complete().getRetrievedHistory();
-    // for (Message message : messages) {
-    // c.deleteMessageById(message.getId()).complete();
-    // }
-    // }
-    // } else {
-    // MessageChannel c = s.getGuild().createTextChannel("fsm-config").complete();
-    // s.setBotConfigChannel(c);
-    // }
-    // // String sheetId = commandEvent.getOption("sheetid").getAsString();
-    // MessageChannel c = s.getBotConfigChannel();
-    // MessageCreateBuilder messageBuilder = new MessageCreateBuilder();
-    // String grayDivider = "1043359291542872104";
-    // String[] colouredDivieders = { "1043359280587350076", "1043359279014482011",
-    // "1043359277441618030", "1043359275403194450", "1043359283863113768",
-    // "1043359282227331193",
-    // "1043359287541510234", "1043359289173102632", "1043359285469528135" };
-    // int colourCount = 0;
-    // messageBuilder.addContent(
-    // getEmoji(grayDivider).repeat(7) + "Server Configuration" +
-    // getEmoji(grayDivider).repeat(7));
-    // EmbedBuilder embed = new EmbedBuilder();
-    // embed.setAuthor("FSM BOT");
-    // embed.setTitle(s.getGuild().getName());
-    // Field subRole = new Field("Sub Role", s.getSubRole().getAsMention(), true);
-    // Field subRoleId = new Field("Sub Role Id", s.getSubRole().getId(), true);
-    // Field subChannel = new Field("Sub Channel", s.getSubChannel().getAsMention(),
-    // true);
-    // Field subChannelId = new Field("Sub Channel Id", s.getSubChannel().getId(),
-    // true);
-    // // Field duelScheduleSheet = new Field("Duel Schedule Sheet", "false", true);
-    // Field DifferentTeamSheetSetups = new Field("different team sheet setups",
-    // "false", true);
-    // Field sheetID = new Field("", "", false);
-    // Field sheetPage = new Field("", "", false);
-    // Field startCell = new Field("", "", false);
-    // Field direction = new Field("", "", false);
-    // Field step = new Field("", "", false);
-    // Field combinedNameAndType = new Field("", "", false);
-    // Field order = new Field("", "", false);
-    // Field eventSize = new Field("", "", false);
-    // String sheetJSON =
-    // "{\"SheetID\":\"1HXcsb3Yt2tad_38UqIiAhFePZQ4-g-mMqIGYfLxnYcM\",\"SheetPage\":\"Event
-    // Input\",\"Start\":\"2B\",\"Direction\":\"right\",\"Step\":-1,\"CombinedNameAndType\":true,\"Order\":[\"Title\",\"Time\",\"Date\",\"Disc\",\"bnet\"],\"EventSize\":3}";
-    // // Field sheetConfig = new Field("google sheet ID", sheetJSON, false);
-    // embed.addField(subRole);
-    // embed.addField(subRoleId);
-    // embed.addBlankField(false);
-    // embed.addField(subChannel);
-    // embed.addField(subChannelId);
-    // embed.addBlankField(false);
-    // // embed.addField(duelScheduleSheet);
-    // embed.addField(DifferentTeamSheetSetups);
-    // embed.addField(sheetID);
-    // embed.addField(sheetPage);
-    // embed.addField(sheetID);
-    // embed.addField(sheetID);
-    // embed.addField(sheetID);
-    // embed.addField(sheetID);
-    // embed.addField(sheetID);
-    // embed.addField(sheetID);
-    // embed.addField(sheetID);
-    // embed.addField(sheetID);
-    // messageBuilder.addEmbeds(embed.build());
-    // messageBuilder.addActionRow(Button.primary("editServerConfig_.", "edit"));
-    // messageBuilder.addActionRow(Button.danger("serverDuelSheets_.", "toggle duel
-    // sheet setup"),
-    // Button.success("uniqueTeamSheets_.", "toggle unique team sheets"));
-
-    // c.sendMessage(messageBuilder.build()).queue();
-
-    // List<Team> teams = s.getTeamsAsList();
-    // for (Team t : teams) {
-    // messageBuilder = new MessageCreateBuilder();
-    // messageBuilder.addContent(getEmoji(colouredDivieders[colourCount]).repeat(7)
-    // + t.getName()
-    // + getEmoji(colouredDivieders[colourCount]).repeat(7));
-    // embed = new EmbedBuilder();
-    // embed.setAuthor("FSM BOT");
-    // embed.setTitle("Team Info");
-    // // t.get
-    // // roster role, trial role, min rank, name abbv, sub role, timetable channel,
-    // // teamup sub calendar
-    // Field rosterRole = new Field("Roster Role", t.getRosterRole().getAsMention(),
-    // true);
-    // Field rosterRoleId = new Field("Roster Role Id", t.getRosterRole().getId(),
-    // true);
-    // Field TrialRole = new Field("Trial Role", t.getTrialRole().getAsMention(),
-    // true);
-    // Field TrialRoleId = new Field("Trial Role Id", t.getTrialRole().getId(),
-    // true);
-    // Field minRank = new Field("Min Rank", t.getMinRank(), true);
-    // Field nameAbbv = new Field("Short Name", t.getNameAbbv(), true);
-    // Field teamSubRole = new Field("Roster Role", t.getSubRole().getAsMention(),
-    // true);
-    // Field teamSubRoleId = new Field("Roster Role", t.getSubRole().getId(), true);
-    // Field timetableChannel = new Field("Timetable Channel",
-    // t.getTimetable().getAsMention(), true);
-    // Field timetableChannelId = new Field("Timetable Channel Id",
-    // t.getTimetable().getId(), true);
-    // Field teamUp = new Field("teamup subcal ID",
-    // String.valueOf(t.getTeamupSubCalendar()), true);
-
-    // embed.addField(nameAbbv);
-    // embed.addField(minRank);
-    // embed.addField(teamUp);
-    // embed.addBlankField(false);
-    // embed.addField(rosterRole);
-    // embed.addField(rosterRoleId);
-    // embed.addBlankField(false);
-    // embed.addField(TrialRole);
-    // embed.addField(TrialRoleId);
-    // embed.addBlankField(false);
-    // embed.addField(teamSubRole);
-    // embed.addField(teamSubRoleId);
-    // embed.addBlankField(false);
-    // embed.addField(timetableChannel);
-    // embed.addField(timetableChannelId);
-
-    // messageBuilder.addEmbeds(embed.build());
-
-    // messageBuilder.addActionRow(Button.primary("editTeamConfig_" +
-    // t.getRosterRole().getId(), "edit"));
-
-    // c.sendMessage(messageBuilder.build()).queue();
-
-    // messageBuilder = new MessageCreateBuilder();
-    // messageBuilder.addActionRow(Button.primary("newTeam", "add team"));
-    // reply.editOriginal("Created Channel").queue();
-
-    // }
-    // } else if (command.equalsIgnoreCase("removesubs")) {
-    // try {
-    // Team t =
-    // Team.getTeamByRosterRole(commandEvent.getOption("teamrole").getAsRole());
-    // Guild g = commandEvent.getGuild();
-    // removeSubs(g, t);
-    // commandEvent.reply("removed subs for team " +
-    // t.getRosterRole().getAsMention()).setEphemeral(true)
-    // .queue();
-    // } catch (Exception e) {
-    // commandEvent.reply("team does not exist within the fsm bot");
-    // // TODO: handle exception
-    // }
-    // }
-    // }
-
-    // @Override
-    // public void onMessageContextInteraction(@Nonnull MessageContextInteractionEvent context) {
-    //     Message message = context.getTarget();
-    //     String command = context.getName();
-    //     System.out.println("Context: " + command);
-    //     System.out.println(context.getMember().getUser().getName());
-    //     if (message.getAuthor().getName().equals(bot.getSelfUser().getName())) {
-    //         MessageEmbed embed = message.getEmbeds().get(0);
-    //         Event event = Event.getEvent(Long.parseLong(embed.getFooter().getText()));
-    //         TextInput dateTime = TextInput.create("datetime", "event date + time", TextInputStyle.SHORT)
-    //                 .setValue(event.getDateTime().format(DateTimeFormatter.ofPattern("E dd/MM/yyyy h:mm a", Locale.US)))
-    //                 .build();
-    //         TextInput eventhash = TextInput.create("hash", "hash (DONT EDIT)", TextInputStyle.SHORT)
-    //                 .setValue(String.valueOf(event.gethashCode()))
-    //                 .build();
-    //         TextInput bnetPoc = TextInput.create("bnet", "bnet", TextInputStyle.SHORT)
-    //                 .setValue(event.getBnet()).build();
-    //         TextInput discPoc = TextInput.create("disc", "disc", TextInputStyle.SHORT)
-    //                 .setValue(event.getDisc()).build();
-    //         TextInput teamName = TextInput.create("name", "team against", TextInputStyle.SHORT)
-    //                 .setValue(event.getTitle()).build();
-
-    //         TextInput confirmed;
-    //         try {
-    //             confirmed = TextInput.create("confirmed", "confirmed", TextInputStyle.PARAGRAPH)
-    //                     .setValue(event.confirmedString())
-    //                     .build();
-    //         } catch (Exception e) {
-    //             confirmed = TextInput.create("confirmed", "confirmed", TextInputStyle.PARAGRAPH)
-    //                     .setPlaceholder("confirmed players")
-    //                     .build();
-    //         }
-    //         TextInput NR;
-    //         try {
-    //             NR = TextInput.create("notresponded", "not responded", TextInputStyle.PARAGRAPH)
-    //                     .setValue(event.notRespondedString())
-    //                     .build();
-    //         } catch (Exception e) {
-    //             NR = TextInput.create("notresponded", "not responded", TextInputStyle.PARAGRAPH)
-    //                     .setPlaceholder("not responded players")
-    //                     .build();
-    //         }
-    //         TextInput declined;
-    //         try {
-    //             declined = TextInput.create("declined", "declined", TextInputStyle.PARAGRAPH)
-    //                     .setValue(event.declinedString())
-    //                     .build();
-    //         } catch (Exception e) {
-    //             declined = TextInput.create("declined", "declined", TextInputStyle.PARAGRAPH)
-    //                     .setPlaceholder("declined players")
-    //                     .build();
-    //         }
-
-    //         Modal modal = null;
-    //         if (command.equalsIgnoreCase("edit responses")) {
-    //             modal = Modal.create("eventeditresponses", "Event Edit: " + event.gethashCode())
-    //                     .addActionRows(ActionRow.of(eventhash),
-    //                             ActionRow.of(confirmed),
-    //                             ActionRow.of(NR),
-    //                             ActionRow.of(declined))
-    //                     .build();
-
-    //         } else if (command.equalsIgnoreCase("edit details")) {
-    //             modal = Modal.create("eventeditdetails", "Event Edit: " + event.gethashCode())
-    //                     .addActionRows(ActionRow.of(eventhash),
-    //                             ActionRow.of(bnetPoc),
-    //                             ActionRow.of(discPoc),
-    //                             ActionRow.of(teamName),
-    //                             ActionRow.of(dateTime))
-    //                     .build();
-    //         }
-    //         if (modal != null) {
-    //             context.replyModal(modal).queue();
-    //         }
-
-    //     } else {
-    //         context.reply("this isnt an event message").setEphemeral(true).queue();
-
-    //     }
-    // }
-
-    // @Override
-    // public void onModalInteraction(@Nonnull ModalInteractionEvent event) {
-    // System.out.println(event.getMember().getUser().getName());
-
-    // if (event.getModalId().equals("eventeditresponses")) {
-    // String confirmedString = event.getValue("confirmed").getAsString();
-    // String notRespondedString = event.getValue("notresponded").getAsString();
-    // String declinedString = event.getValue("declined").getAsString();
-    // String eventHash = event.getValue("hash").getAsString();
-
-    // Event scrim = Event.getEvent(Long.valueOf(eventHash));
-    // // Event.removeFromRepository(scrim);
-    // // ZonedDateTime datetime = LocalDateTime.parse(dateTimeString,
-    // // DateTimeFormatter.ofPattern("E dd/MM/yyyy h:mm a", Locale.US))
-    // // .atZone(TimeZone.getTimeZone("Australia/Sydney").toZoneId());
-    // // scrim.setDateTime(datetime);
-
-    // // confirmedString.replaceAll(" ", "");
-    // // notRespondedString.replaceAll(" ", "");
-    // // declinedString.replaceAll(" ", "");
-    // for (String s : notRespondedString.split(" ")) {
-    // Member member = null;
-    // for (Member m : scrim.getTeam().getMembers()) {
-    // System.out.println(String.format("'%s' == '%s'", s, m.getUser().getName()));
-    // if (m.getUser().getName().equals(s.trim())) {
-    // System.out.print("set member");
-    // member = m;
-    // }
-    // }
-    // if (member != null) {
-    // Player p = Player.getPlayer(member);
-    // if (p != null) {
-    // scrim.addNR(p);
-    // } else {
-    // System.out.println("p is null 614");
-    // }
-    // } else {
-    // System.out.println("m is null 617");
-    // }
-    // }
-
-    // for (String s : confirmedString.split(" ")) {
-    // Member member = null;
-    // for (Member m : scrim.getTeam().getMembers()) {
-    // if (m.getUser().getName().equals(s.trim())) {
-    // member = m;
-    // }
-    // }
-    // if (member != null) {
-    // Player p = Player.getPlayer(member);
-    // if (p != null) {
-    // scrim.addConfirmed(p);
-    // } else {
-    // System.out.println("p is null 569");
-    // }
-    // } else {
-    // System.out.println("m is null 599");
-    // }
-    // }
-    // for (String s : declinedString.split(" ")) {
-    // Member member = null;
-    // for (Member m : scrim.getTeam().getMembers()) {
-    // if (m.getUser().getName().equals(s.trim())) {
-    // member = m;
-    // }
-    // }
-    // if (member != null) {
-    // Player p = Player.getPlayer(member);
-    // if (p != null) {
-    // scrim.addDeclined(p);
-    // } else {
-    // System.out.println("p is null 632");
-    // }
-    // } else {
-    // System.out.println("m is null 635");
-    // }
-    // }
-    // System.out.print(scrim.notRespondedString());
-
-    // Event.addEvent(scrim.gethashCode(), scrim);
-    // scrim.updateEventMessage(this);
-    // GoogleSheet2 sheet = scrim.getTeam().getSheet();
-    // sheet.updateEvent(scrim.getTeam().getNameAbbv(), scrim);
-    // event.reply("Thanks for your request!").setEphemeral(true).queue();
-
-    // } else if (event.getModalId().equals("eventeditdetails")) {
-    // String eventHash = event.getValue("hash").getAsString();
-    // String dateTimeString = event.getValue("datetime").getAsString();
-    // String bnet = event.getValue("bnet").getAsString();
-    // String disc = event.getValue("disc").getAsString();
-    // String teamName = event.getValue("name").getAsString();
-    // Event scrim = Event.getEvent(Long.valueOf(eventHash));
-    // scrim.setDisc(disc);
-    // scrim.setBnet(bnet);
-    // scrim.setTitle(teamName);
-
-    // Event.removeFromRepository(scrim);
-    // ZonedDateTime datetime = LocalDateTime.parse(dateTimeString,
-    // DateTimeFormatter.ofPattern("E dd/MM/yyyy h:mm a", Locale.US))
-    // .atZone(TimeZone.getTimeZone("Australia/Sydney").toZoneId());
-    // scrim.setDateTime(datetime);
-    // Event.addEvent(scrim.gethashCode(), scrim);
-    // scrim.updateEventMessage(this);
-    // GoogleSheet sheet = scrim.getTeam().getSheet();
-    // sheet.updateEvent(scrim.getTeam().getNameAbbv(), scrim);
-    // event.reply("Thanks for your request!").setEphemeral(true).queue();
-    // }
-    // }
+    @Override
+    public void onSlashCommandInteraction(@Nonnull SlashCommandInteractionEvent slashEvent) {
+        if (slashEvent.getName().equalsIgnoreCase("initialize")) {
+            MessageChannel subChannel = slashEvent.getOption("subchannel").getAsChannel().asTextChannel();
+            Role subRole = slashEvent.getOption("subrole").getAsRole();
+            makeGuild(slashEvent.getGuild(), subChannel, subRole);
+            slashEvent.reply(
+                    "initialized server, now do /makeconfig channel to see the details of your server and /newteam to start creating teams!")
+                    .setEphemeral(true).queue();
+        }
+    }
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
