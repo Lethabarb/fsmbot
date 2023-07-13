@@ -137,9 +137,25 @@ public class DiscordBot extends ListenerAdapter {
                         e.printStackTrace();
                         guild.getOwner().getUser().openPrivateChannel().queue((res) -> {
                             res.sendMessage("i cannot access config channel :<").queue();
-                        });;
+                        });
+                        ;
                         // TODO: handle exception
                     }
+                } else {
+                    guild.getOwner().getUser().openPrivateChannel().queue((res) -> {
+                        res.sendMessage(
+                                "hello! thank you for inviting FSM to your server! First of all you will want to do /initialize in your server to get things going!")
+                                .queue();
+                        res.sendMessage("Additionally, here is the manual on how I work :)").queue();
+                        res.sendFiles(FileUpload.fromData(new File("FSM Bot user Manual.pdf"))).queue();
+                    });
+                    guild.upsertCommand(
+                            Commands.slash("initialize", "first command to run!")
+                                    .addOption(OptionType.CHANNEL, "subchannel", "Substitute Request Channel")
+                                    .addOption(OptionType.ROLE, "subrole", "General substitute role for the server")
+                                    .setDefaultPermissions(
+                                            DefaultMemberPermissions.enabledFor(Permission.ADMINISTRATOR)))
+                            .queue();
                 }
             }
         }
