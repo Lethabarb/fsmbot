@@ -18,7 +18,7 @@ public class Program {
                 // TODO: update sub working, update sheet working with new sys, add trials to
                 // team
                 // GoogleSheet2 sheet = new GoogleSheet2();
-                DiscordBot bot = DiscordBot.getInstance("MTEwMjc5Mjc4MjA4MDM5NzM2Mg.GKG4j8._eULz69VGBTAt3jGk6g24hXwLodahPxTsWp1_4");
+                DiscordBot bot = DiscordBot.getInstance(args[0]);
                 // DiscordBot bot = DiscordBot.getInstance(args[0]);
                 TeamUp cal = TeamUp.getInstance("09bd8f9529db3c68e8c737d77592ecd0772ccf42efddacb7c66fe1923d8842a0");
                 // GoogleSheet2 sheet = new GoogleSheet2();
