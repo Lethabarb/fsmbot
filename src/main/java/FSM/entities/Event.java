@@ -300,7 +300,9 @@ public class Event extends ListenerAdapter implements Comparable<Event> {
                 DiscordBot.subtractQueue();
                 if (addAsListener) {
                     bot.addListener(this);
+                    System.out.print("     -added as listener");
                     createJobs();
+                    System.out.print("     -created jobs");
                 }
                 inqueue = false;
             });
