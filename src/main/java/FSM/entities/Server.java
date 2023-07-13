@@ -159,7 +159,7 @@ public class Server extends ListenerAdapter implements Runnable {
 
     @Override
     public void run() {
-        System.out.println("running " + guild.getName());
+        System.out.println(String.format("[%s] Starting thread", guild.getName()));
         DiscordBot bot = DiscordBot.getInstance();
         while (isRunning()) {
             try {
@@ -169,6 +169,7 @@ public class Server extends ListenerAdapter implements Runnable {
             }
         }
         changeRunning();
+        System.out.println(String.format("[%s] running init", guild.getName()));
         // find config and load
 
         for (TextChannel channel : guild.getTextChannels()) {
