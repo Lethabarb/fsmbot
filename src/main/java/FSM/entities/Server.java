@@ -147,22 +147,23 @@ public class Server extends ListenerAdapter implements Runnable {
         // for (Team t : teams) {
         // this.teams.put(t.getName(), t);
         // }
-        repoos.put(guild.getIdLong(), this);
-        this.t = new Thread(this, guild.getName());
-        this.t.start();
+        try {
+            repoos.put(guild.getIdLong(), this);
+            this.t = new Thread(this, guild.getName());
+            this.t.start();
+        } catch (Exception e) {
+            e.printStackTrace();
+            // TODO: handle exception
+        }
     }
 
     @Override
     public void run() {
+        System.out.println("running " + guild.getName());
         DiscordBot bot = DiscordBot.getInstance();
-        try {
-            Thread.sleep(5000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
         while (isRunning()) {
             try {
-                Thread.sleep(5000);
+                Thread.sleep(2000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

@@ -130,7 +130,6 @@ public class DiscordBot extends ListenerAdapter {
                                 SheetConfig sheetConfig = new SheetConfig();
                                 sheetConfig = new Gson().fromJson(JSONinput, sheetConfig.getClass());
                                 Server s = makeGuild(guild.getId(), subChannelId, subRoleId, sheetConfig);
-
                             }
                         }
                     } catch (Exception e) {
@@ -138,7 +137,7 @@ public class DiscordBot extends ListenerAdapter {
                         guild.getOwner().getUser().openPrivateChannel().queue((res) -> {
                             res.sendMessage("i cannot access config channel :<").queue();
                         });
-                        ;
+                        
                         // TODO: handle exception
                     }
                 } else {
