@@ -592,6 +592,16 @@ public class DiscordBot extends ListenerAdapter {
                 event.updateEventMessage(this, false);
             }
         }
+        updateScrims(t);
+        while (getQueue() > 0) {
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+        sortChannel(t.getTimetable());
         System.out.println(String.format("[%s]: finished", t.getName()));
     }
 
