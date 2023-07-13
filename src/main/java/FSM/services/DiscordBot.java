@@ -104,7 +104,7 @@ public class DiscordBot extends ListenerAdapter {
             System.out.println(String.format("%s is ready", bot.getSelfUser().getName()));
             System.out.println("finding servers...");
             for (Guild guild : bot.getGuilds()) {
-                System.out.print(guild.getName());
+                System.out.println(guild.getName());
                 // find fsm-config
                 MessageChannel fsmConfig = null;
                 List<TextChannel> channels = guild.getTextChannels();
@@ -142,6 +142,7 @@ public class DiscordBot extends ListenerAdapter {
                         // TODO: handle exception
                     }
                 } else {
+                    System.out.println("no config for guild");
                     guild.getOwner().getUser().openPrivateChannel().queue((res) -> {
                         res.sendMessage(
                                 "hello! thank you for inviting FSM to your server! First of all you will want to do /initialize in your server to get things going!")
