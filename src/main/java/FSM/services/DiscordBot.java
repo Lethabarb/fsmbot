@@ -150,7 +150,7 @@ public class DiscordBot extends ListenerAdapter {
                         // res.sendMessage("Additionally, here is the manual on how I work :)").queue();
                         // res.sendFiles(FileUpload.fromData(new File("FSM Bot user Manual.pdf"))).queue();
                     });
-                    guild.upsertCommand(
+                    guild.updateCommands().addCommands(
                             Commands.slash("initialize", "first command to run!")
                                     .addOption(OptionType.CHANNEL, "subchannel", "Substitute Request Channel")
                                     .addOption(OptionType.ROLE, "subrole", "General substitute role for the server")
@@ -576,7 +576,7 @@ public class DiscordBot extends ListenerAdapter {
             res.sendMessage("Additionally, here is the manual on how I work :)").queue();
             res.sendFiles(FileUpload.fromData(new File("FSM Bot user Manual.pdf"))).queue();
         });
-        g.upsertCommand(
+        g.updateCommands().addCommands(
                 Commands.slash("initialize", "first command to run!")
                         .addOption(OptionType.CHANNEL, "subchannel", "Substitute Request Channel")
                         .addOption(OptionType.ROLE, "subrole", "General substitute role for the server")
