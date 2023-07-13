@@ -107,41 +107,6 @@ public class Server extends ListenerAdapter implements Runnable {
         this.sheetConfig = sheetConfig;
         System.out.println("adding commands...");
 
-        System.out.println("adding config command");
-        // if (teams.length > 1) {
-        // guild.updateCommands().addCommands(
-        // Commands.slash("makeconfigchannel",
-        // "sets the current channel for the guild to the bot config channel"),
-        // Commands.slash("update", "re-freshes an event details")
-        // .addSubcommands(new SubcommandData("events", "updates all events in all
-        // servers")
-        // .addOption(OptionType.ROLE, "teamrole", "role of the team to update events
-        // for")),
-        // Commands.slash("role", "edit role of a player")
-        // .addOption(OptionType.MENTIONABLE, "playerdiscord", "Discord")
-        // .addOption(OptionType.ROLE, "newplayerrole", "role to make the player"),
-        // Commands.slash("sort", "sort the events of a channel"),
-        // Commands.slash("removesubs", "removes the subs of a given team"),
-        // Commands.slash("help", "request the bot's manual"),
-        // Commands.context(Type.MESSAGE, "edit responses"),
-        // Commands.context(Type.MESSAGE, "edit details"),
-        // Commands.context(Type.MESSAGE, "delete event"),
-        // Commands.slash("newteam", "create a new team")
-        // .addOption(OptionType.STRING, "name", "name of the team", true, false)
-        // .addOption(OptionType.STRING, "abbv", "abbreviation of the name, for sheet
-        // config",
-        // true, false)
-        // .addOption(OptionType.STRING, "minrank", "min rank for subs", true, false)
-        // .addOption(OptionType.CHANNEL, "timetable", "timetable / schedule channel",
-        // true, false)
-        // .addOption(OptionType.CHANNEL, "announcement", "announcement channel", true,
-        // false)
-        // .addOption(OptionType.ROLE, "roster", "roster role", true, false)
-        // .addOption(OptionType.ROLE, "trial", "trial role", true, false)
-        // .addOption(OptionType.ROLE, "sub", "sub role", true, false)
-        // .addOption(OptionType.USER, "manager", "team manager", true, false))
-        // .queue();
-        // } else if (teams.length <= 1) {
         guild.updateCommands().addCommands(
                 Commands.slash("makeconfigchannel",
                         "sets the current channel for the guild to the bot config channel"),
@@ -763,12 +728,12 @@ public class Server extends ListenerAdapter implements Runnable {
                 "edit config channel");
         Button toggleDifferentSheets = Button.success(String.format("%s_%s", guild.getName(), "toggleDifferentSheets"),
                 "toggle different sheets");
-        Button editConfigJson = Button.primary(String.format("%s_%s", guild.getName(), "editConfigJSON"),
-                "edit the sheet config");
+        // Button editConfigJson = Button.primary(String.format("%s_%s", guild.getName(), "editConfigJSON"),
+        //         "edit the sheet config");
 
         message.addActionRow(editSubChannel, editSubRole);
         message.addActionRow(toggleDifferentSheets);
-        message.addActionRow(editConfigChannel, editConfigJson);
+        message.addActionRow(editConfigChannel);
 
         return message.build();
     }

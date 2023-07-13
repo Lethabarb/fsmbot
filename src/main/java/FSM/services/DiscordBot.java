@@ -162,6 +162,11 @@ public class DiscordBot extends ListenerAdapter {
                                 System.out.println("did not make command");
                             });
                 }
+                try {
+                    Thread.sleep(5000);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
         // logout();
