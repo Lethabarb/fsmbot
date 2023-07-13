@@ -142,6 +142,7 @@ public class Event extends ListenerAdapter implements Comparable<Event> {
                 if (subRequest.getPlayer().getUserId().equalsIgnoreCase(p.getUserId()))
                     return true;
             } catch (Exception e) {
+                e.printStackTrace();
                 System.out.println("sub req has no player");
             }
         }
@@ -154,7 +155,7 @@ public class Event extends ListenerAdapter implements Comparable<Event> {
             roleAts += " " + team.getTrialRole().getAsMention();
         String content = roleAts + " Scrim in <t:" + getUnix() + ":R>.";
         team.getAnnouncement().sendMessage(content).queue((res) -> {
-            System.out.println("sent announcement for " + team.getName());
+            // System.out.println("sent announcement for " + team.getName());
         });
     }
 
@@ -171,7 +172,7 @@ public class Event extends ListenerAdapter implements Comparable<Event> {
     }
 
     public void deleteEvent(String reason) throws IOException {
-        System.out.println("called delete event");
+        // System.out.println("called delete event");
         message.delete().queue(
                 (res) -> {
                     message = null;
@@ -192,16 +193,16 @@ public class Event extends ListenerAdapter implements Comparable<Event> {
 
     public void updateRoster() {
         // Guild g = team.getServer().getGuild();
-        System.out.println(String.format("[%s]: current roster roles - %s + %s", team.getName(), team.getRosterRole(),
-                team.getTrialRole()));
+        // System.out.println(String.format("[%s]: current roster roles - %s + %s", team.getName(), team.getRosterRole(),
+        //         team.getTrialRole()));
         List<Member> members = DiscordBot.getInstance().getMemberOfRole(team.getServer().getGuild(),
                 team.getTrialRole(), team.getRosterRole());
         LinkedList<Player> players = new LinkedList<>();
         for (Member m : members) {
-            System.out.println(String.format("[]: instance", m.getUser().getName()));
+            // System.out.println(String.format("[]: instance", m.getUser().getName()));
             Player p = Player.getPlayer(m);
             if (p == null) {
-                System.out.println(String.format("[]: is new", m.getUser().getName()));
+                // System.out.println(String.format("[]: is new", m.getUser().getName()));
                 int OWrole = -1;
                 for (Role role : m.getRoles()) {
                     if (OWrole == -1) {
@@ -214,28 +215,28 @@ public class Event extends ListenerAdapter implements Comparable<Event> {
             if (!inRoster(p)) {
                 notResponded.add(p);
 
-                System.out.println(String.format("[]: not in roster, adding", p.getMember().getUser().getName()));
+                // System.out.println(String.format("[]: not in roster, adding", p.getMember().getUser().getName()));
             }
         }
 
         for (Player player : confimed) {
             if (!players.contains(player)) {
                 confimed.remove(player);
-                System.out.println(
-                        String.format("[]: no longer in roster, removing", player.getMember().getUser().getName()));
+                // System.out.println(
+                        // String.format("[]: no longer in roster, removing", player.getMember().getUser().getName()));
             }
         }
         for (Player player : notResponded) {
             if (!players.contains(player)) {
                 notResponded.remove(player);
-                System.out.println(
-                        String.format("[]: no longer in roster, removing", player.getMember().getUser().getName()));
+                // System.out.println(
+                //         String.format("[]: no longer in roster, removing", player.getMember().getUser().getName()));
             }
         }
         for (Player player : declined) {
             if (!players.contains(player)) {
-                System.out.println(
-                        String.format("[]: no longer in roster, removing", player.getMember().getUser().getName()));
+                // System.out.println(
+                //         String.format("[]: no longer in roster, removing", player.getMember().getUser().getName()));
                 declined.remove(player);
                 SubRequest req = getReqByPlayer(player);
                 subRequests.remove(req);
@@ -259,7 +260,7 @@ public class Event extends ListenerAdapter implements Comparable<Event> {
         }
         inqueue = true;
         updateRoster();
-        System.out.println(message == null ? "null msg" : "has msg");
+        // System.out.println(message == null ? "null msg" : "has msg");
         String[] types = { "Scrim", "AAOL", "Coaching", "Open Div" };
         MessageCreateBuilder messageBuilder = new MessageCreateBuilder();
         // if (sort) {
@@ -324,19 +325,19 @@ public class Event extends ListenerAdapter implements Comparable<Event> {
     }
 
     public String subs() {
-        System.out.println("called getSubString for event " + title);
+        // System.out.println("called getSubString for event " + title);
         String res = " ";
         for (SubRequest req : subRequests) {
             res += req.toString();
         }
-        System.out.println(res);
+        // System.out.println(res);
         return res;
     }
 
     @Override
     public void onButtonInteraction(@Nonnull ButtonInteractionEvent buttonEvent) {
         String[] data = buttonEvent.getButton().getId().split("_");
-        System.out.println(data[1] + " == " + String.valueOf(gethashCode()));
+        // System.out.println(data[1] + " == " + String.valueOf(gethashCode()));
         if (data[1].equalsIgnoreCase(String.valueOf(gethashCode()))) {
             if (!team.hasRosterOrTrialRole(buttonEvent.getMember())
                     && !isSub(Player.getPlayer(buttonEvent.getMember()))) {
@@ -382,7 +383,7 @@ public class Event extends ListenerAdapter implements Comparable<Event> {
 
     @Override
     public void onMessageContextInteraction(@Nonnull MessageContextInteractionEvent context) {
-        System.out.println(toString());
+        // System.out.println(toString());
         long key = 0;
         try {
             MessageEmbed embed = context.getTarget().getEmbeds().get(0);
@@ -573,14 +574,14 @@ public class Event extends ListenerAdapter implements Comparable<Event> {
     }
 
     public void checkSubRequests() {
-        System.out.println(String.format("[%s]: checking sub requests", title));
+        // System.out.println(String.format("[%s]: checking sub requests", title));
         for (SubRequest req : subRequests) {
             if (req.getMessage() == null && req.getPlayer() == null) {
-                System.out.println(String.format("[%s]: sending req", title));
+                // System.out.println(String.format("[%s]: sending req", title));
                 req.sendRequest();
             }
         }
-        System.out.println(String.format("[%s]: finished checking sub requests", title));
+        // System.out.println(String.format("[%s]: finished checking sub requests", title));
     }
 
     public ZonedDateTime getDateTime() {
