@@ -148,7 +148,8 @@ public class DiscordBot extends ListenerAdapter {
                                 "hello! thank you for inviting FSM to your server! First of all you will want to do /initialize in your server to get things going!")
                                 .queue();
                         // res.sendMessage("Additionally, here is the manual on how I work :)").queue();
-                        // res.sendFiles(FileUpload.fromData(new File("FSM Bot user Manual.pdf"))).queue();
+                        // res.sendFiles(FileUpload.fromData(new File("FSM Bot user
+                        // Manual.pdf"))).queue();
                     });
                     guild.updateCommands().addCommands(
                             Commands.slash("initialize", "first command to run!")
@@ -157,15 +158,17 @@ public class DiscordBot extends ListenerAdapter {
                                     .setDefaultPermissions(
                                             DefaultMemberPermissions.enabledFor(Permission.ADMINISTRATOR)))
                             .queue((res) -> {
-                             System.out.println("created init command");   
+                                System.out.println("created init command");
                             }, (res) -> {
                                 System.out.println("did not make command");
                             });
                 }
-                try {
-                    Thread.sleep(5000);
-                } catch (Exception e) {
-                    e.printStackTrace();
+                while (Server.isRunning()) {
+                    try {
+                        Thread.sleep(500);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         }
@@ -179,7 +182,7 @@ public class DiscordBot extends ListenerAdapter {
         return instance;
     }
 
-    public synchronized Server makeGuild(String guildId, String subChannelId, String subRoleId, SheetConfig sheetConfig,
+    public Server makeGuild(String guildId, String subChannelId, String subRoleId, SheetConfig sheetConfig,
             TeamDTO... teams) {
         Guild guild = bot.getGuildById(guildId);
         MessageChannel subChannel = guild.getTextChannelById(subChannelId);
@@ -195,7 +198,7 @@ public class DiscordBot extends ListenerAdapter {
         return serv;
     }
 
-    public synchronized Server makeGuild(Guild guild, MessageChannel subChannel, Role subRole) {
+    public Server makeGuild(Guild guild, MessageChannel subChannel, Role subRole) {
         SheetConfig config = new SheetConfig();
         Server s = new Server(guild, subChannel, subRole, config);
         addListener(s);
