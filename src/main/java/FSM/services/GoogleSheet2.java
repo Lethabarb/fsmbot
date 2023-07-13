@@ -273,6 +273,9 @@ public class GoogleSheet2 {
         if (config.isCombinedNameandType()) {
             title = eventMap.getOrDefault("Title", "scrim" + config.getTitleDelimiter() + "team")
                     .split(config.getTitleDelimiter())[1];
+
+            System.out.println(eventMap.getOrDefault("Title", "scrim" + config.getTitleDelimiter() + "team")
+                            .split(config.getTitleDelimiter())[0]);
             type = Event.typeHash(
                     eventMap.getOrDefault("Title", "scrim" + config.getTitleDelimiter() + "team")
                             .split(config.getTitleDelimiter())[0]);
