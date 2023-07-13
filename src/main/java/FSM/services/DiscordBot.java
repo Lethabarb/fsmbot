@@ -147,8 +147,8 @@ public class DiscordBot extends ListenerAdapter {
                         res.sendMessage(
                                 "hello! thank you for inviting FSM to your server! First of all you will want to do /initialize in your server to get things going!")
                                 .queue();
-                        res.sendMessage("Additionally, here is the manual on how I work :)").queue();
-                        res.sendFiles(FileUpload.fromData(new File("FSM Bot user Manual.pdf"))).queue();
+                        // res.sendMessage("Additionally, here is the manual on how I work :)").queue();
+                        // res.sendFiles(FileUpload.fromData(new File("FSM Bot user Manual.pdf"))).queue();
                     });
                     guild.upsertCommand(
                             Commands.slash("initialize", "first command to run!")
