@@ -19,6 +19,7 @@ import FSM.services.DiscordBot;
 import FSM.services.EventJobRunner;
 import FSM.services.GoogleSheet;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
@@ -36,6 +37,7 @@ import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.SelectMenuInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.InteractionHook;
+import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.Command.Type;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
@@ -116,18 +118,27 @@ public class Server extends ListenerAdapter implements Runnable {
 
         guild.updateCommands().addCommands(
                 Commands.slash("makeconfigchannel",
-                        "sets the current channel for the guild to the bot config channel"),
+                        "sets the current channel for the guild to the bot config channel")
+                        .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.ADMINISTRATOR)),
                 Commands.slash("update", "re-freshes an event details")
-                        .addSubcommands(new SubcommandData("events", "updates all events")),
+                        .addSubcommands(new SubcommandData("events", "updates all events"))
+                        .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.ADMINISTRATOR)),
                 Commands.slash("role", "edit role of a player")
                         .addOption(OptionType.MENTIONABLE, "playerdiscord", "Discord")
-                        .addOption(OptionType.ROLE, "newplayerrole", "role to make the player"),
-                Commands.slash("sort", "sort the events of a channel"),
-                Commands.slash("removesubs", "removes the subs of a given team"),
-                Commands.slash("help", "request the bot's manual"),
-                Commands.context(Type.MESSAGE, "edit responses"),
-                Commands.context(Type.MESSAGE, "edit details"),
-                Commands.context(Type.MESSAGE, "delete event"),
+                        .addOption(OptionType.ROLE, "newplayerrole", "role to make the player")
+                        .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.ADMINISTRATOR)),
+                Commands.slash("sort", "sort the events of a channel")
+                        .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.ADMINISTRATOR)),
+                Commands.slash("removesubs", "removes the subs of a given team")
+                        .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.ADMINISTRATOR)),
+                Commands.slash("help", "request the bot's manual")
+                        .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.ADMINISTRATOR)),
+                Commands.context(Type.MESSAGE, "edit responses")
+                        .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.ADMINISTRATOR)),
+                Commands.context(Type.MESSAGE, "edit details")
+                        .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.ADMINISTRATOR)),
+                Commands.context(Type.MESSAGE, "delete event")
+                        .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.ADMINISTRATOR)),
                 Commands.slash("newteam", "create a new team")
                         .addOption(OptionType.STRING, "name", "name of the team", true, false)
                         .addOption(OptionType.STRING, "abbv", "abbreviation of the name, for sheet config",
@@ -140,7 +151,12 @@ public class Server extends ListenerAdapter implements Runnable {
                         .addOption(OptionType.ROLE, "roster", "roster role", true, false)
                         .addOption(OptionType.ROLE, "trial", "trial role", true, false)
                         .addOption(OptionType.ROLE, "sub", "sub role", true, false)
-                        .addOption(OptionType.USER, "manager", "team manager", true, false))
+                        .addOption(OptionType.USER, "manager", "team manager", true, false)
+                        .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.ADMINISTRATOR)),
+                Commands.slash("rosters",
+                        "create a set of messages containing the list of teams and players in your server")
+                        .addOption(OptionType.CHANNEL, "rosterchannel", "channel to send team list to", true)
+                        .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.ADMINISTRATOR)))
                 .queue();
         // soloTeam = teams[0];
 
@@ -441,6 +457,10 @@ public class Server extends ListenerAdapter implements Runnable {
             reply.editOriginal("complete").queue();
             reply.deleteOriginal().queue();
 
+        } else if (command.equalsIgnoreCase("rosters")) {
+            MessageChannel c = slashCommand.getOption("rosterchannel").getAsChannel().asTextChannel();
+            for (Team t : teams.values()) t.sendRosterMessage(c);
+            slashCommand.reply("complete").setEphemeral(true).queue();
         }
     }
 
@@ -761,19 +781,27 @@ public class Server extends ListenerAdapter implements Runnable {
         if (teams.size() > 1) {
             guild.updateCommands().addCommands(
                     Commands.slash("makeconfigchannel",
-                            "sets the current channel for the guild to the bot config channel"),
+                            "sets the current channel for the guild to the bot config channel")
+                            .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.ADMINISTRATOR)),
                     Commands.slash("update", "re-freshes an event details")
-                            .addSubcommands(new SubcommandData("events", "updates all events in all servers")
-                                    .addOption(OptionType.ROLE, "teamrole", "role of the team to update events for")),
+                            .addSubcommands(new SubcommandData("events", "updates all events"))
+                            .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.ADMINISTRATOR)),
                     Commands.slash("role", "edit role of a player")
                             .addOption(OptionType.MENTIONABLE, "playerdiscord", "Discord")
-                            .addOption(OptionType.ROLE, "newplayerrole", "role to make the player"),
-                    Commands.slash("sort", "sort the events of a channel"),
-                    Commands.slash("removesubs", "removes the subs of a given team"),
-                    Commands.slash("help", "request the bot's manual"),
-                    Commands.context(Type.MESSAGE, "edit responses"),
-                    Commands.context(Type.MESSAGE, "edit details"),
-                    Commands.context(Type.MESSAGE, "delete event"),
+                            .addOption(OptionType.ROLE, "newplayerrole", "role to make the player")
+                            .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.ADMINISTRATOR)),
+                    Commands.slash("sort", "sort the events of a channel")
+                            .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.ADMINISTRATOR)),
+                    Commands.slash("removesubs", "removes the subs of a given team")
+                            .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.ADMINISTRATOR)),
+                    Commands.slash("help", "request the bot's manual")
+                            .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.ADMINISTRATOR)),
+                    Commands.context(Type.MESSAGE, "edit responses")
+                            .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.ADMINISTRATOR)),
+                    Commands.context(Type.MESSAGE, "edit details")
+                            .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.ADMINISTRATOR)),
+                    Commands.context(Type.MESSAGE, "delete event")
+                            .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.ADMINISTRATOR)),
                     Commands.slash("newteam", "create a new team")
                             .addOption(OptionType.STRING, "name", "name of the team", true, false)
                             .addOption(OptionType.STRING, "abbv", "abbreviation of the name, for sheet config",
@@ -786,23 +814,38 @@ public class Server extends ListenerAdapter implements Runnable {
                             .addOption(OptionType.ROLE, "roster", "roster role", true, false)
                             .addOption(OptionType.ROLE, "trial", "trial role", true, false)
                             .addOption(OptionType.ROLE, "sub", "sub role", true, false)
-                            .addOption(OptionType.USER, "manager", "team manager", true, false))
+                            .addOption(OptionType.USER, "manager", "team manager", true, false)
+                            .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.ADMINISTRATOR)),
+                    Commands.slash("rosters",
+                            "create a set of messages containing the list of teams and players in your server")
+                            .addOption(OptionType.CHANNEL, "rosterchannel", "channel to send team list to", true)
+                            .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.ADMINISTRATOR)))
+
                     .queue();
         } else if (teams.size() <= 1) {
             guild.updateCommands().addCommands(
                     Commands.slash("makeconfigchannel",
-                            "sets the current channel for the guild to the bot config channel"),
+                            "sets the current channel for the guild to the bot config channel")
+                            .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.ADMINISTRATOR)),
                     Commands.slash("update", "re-freshes an event details")
-                            .addSubcommands(new SubcommandData("events", "updates all events")),
+                            .addSubcommands(new SubcommandData("events", "updates all events"))
+                            .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.ADMINISTRATOR)),
                     Commands.slash("role", "edit role of a player")
                             .addOption(OptionType.MENTIONABLE, "playerdiscord", "Discord")
-                            .addOption(OptionType.ROLE, "newplayerrole", "role to make the player"),
-                    Commands.slash("sort", "sort the events of a channel"),
-                    Commands.slash("removesubs", "removes the subs of a given team"),
-                    Commands.slash("help", "request the bot's manual"),
-                    Commands.context(Type.MESSAGE, "edit responses"),
-                    Commands.context(Type.MESSAGE, "edit details"),
-                    Commands.context(Type.MESSAGE, "delete event"),
+                            .addOption(OptionType.ROLE, "newplayerrole", "role to make the player")
+                            .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.ADMINISTRATOR)),
+                    Commands.slash("sort", "sort the events of a channel")
+                            .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.ADMINISTRATOR)),
+                    Commands.slash("removesubs", "removes the subs of a given team")
+                            .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.ADMINISTRATOR)),
+                    Commands.slash("help", "request the bot's manual")
+                            .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.ADMINISTRATOR)),
+                    Commands.context(Type.MESSAGE, "edit responses")
+                            .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.ADMINISTRATOR)),
+                    Commands.context(Type.MESSAGE, "edit details")
+                            .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.ADMINISTRATOR)),
+                    Commands.context(Type.MESSAGE, "delete event")
+                            .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.ADMINISTRATOR)),
                     Commands.slash("newteam", "create a new team")
                             .addOption(OptionType.STRING, "name", "name of the team", true, false)
                             .addOption(OptionType.STRING, "abbv", "abbreviation of the name, for sheet config",
@@ -815,7 +858,12 @@ public class Server extends ListenerAdapter implements Runnable {
                             .addOption(OptionType.ROLE, "roster", "roster role", true, false)
                             .addOption(OptionType.ROLE, "trial", "trial role", true, false)
                             .addOption(OptionType.ROLE, "sub", "sub role", true, false)
-                            .addOption(OptionType.USER, "manager", "team manager", true, false))
+                            .addOption(OptionType.USER, "manager", "team manager", true, false)
+                            .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.ADMINISTRATOR)),
+                    Commands.slash("rosters",
+                            "create a set of messages containing the list of teams and players in your server")
+                            .addOption(OptionType.CHANNEL, "rosterchannel", "channel to send team list to", true)
+                            .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.ADMINISTRATOR)))
                     .queue();
             soloTeam = t;
 

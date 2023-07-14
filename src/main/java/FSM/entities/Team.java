@@ -1,8 +1,11 @@
 package FSM.entities;
 
 import java.io.IOException;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.TimeZone;
 
 import javax.annotation.Nonnull;
 
@@ -602,6 +605,39 @@ public class Team extends ListenerAdapter {
         }
     }
 
+    public void sendRosterMessage(MessageChannel c) {
+        MessageCreateBuilder message = new MessageCreateBuilder();
+        EmbedBuilder embed = new EmbedBuilder();
+
+        embed.setTitle(name);
+        embed.setDescription(rosterRole.getAsMention());
+        embed.setColor(rosterRole.getColor());
+
+        String tanksString = "";
+        String dpsString = "";
+        String supportString = "";
+
+        for (Member m : members) {
+            Player p = Player.getPlayer(m);
+            if (p.getRole() == Player.DPS) dpsString += m.getAsMention() + "\n";
+            if (p.getRole() == Player.TANK) tanksString += m.getAsMention() + "\n";
+            if (p.getRole() == Player.SUPPORT) supportString += m.getAsMention() + "\n";
+        }
+
+        Field tankField = new Field("Tanks", tanksString, true);
+        Field dpsField = new Field("DPS", dpsString, true);
+        Field supportField = new Field("Support", supportString, true);
+
+        embed.addField(tankField);
+        embed.addField(dpsField);
+        embed.addField(supportField);
+
+        message.addEmbeds(embed.build());
+
+        c.sendMessage(message.build()).queue();
+
+    }
+
     @Override
     public void onModalInteraction(@Nonnull ModalInteractionEvent event) {
         System.out.println(event.getModalId().split("_")[0] + " == " + name);
@@ -687,6 +723,17 @@ public class Team extends ListenerAdapter {
 
     public LinkedList<Event> getEvents() {
         return events;
+    }
+
+    public LinkedList<Event> getTodaysEvents() {
+        ZonedDateTime today = ZonedDateTime.now(TimeZone.getTimeZone("Australia/Sydney").toZoneId());
+        LinkedList<Event> res = new LinkedList<>();
+        for (Event e : events) {
+            if (e.getDateTime().getDayOfMonth() == today.getDayOfMonth() && e.getDateTime().getMonthValue() == today.getMonthValue() && e.getDateTime().getYear() == today.getYear()) {
+                res.add(e);
+            }
+        }
+        return res;
     }
 
     public void setEvents(LinkedList<Event> events) {

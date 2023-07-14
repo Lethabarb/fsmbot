@@ -585,8 +585,8 @@ public class DiscordBot extends ListenerAdapter {
         });
         g.updateCommands().addCommands(
                 Commands.slash("initialize", "first command to run!")
-                        .addOption(OptionType.CHANNEL, "subchannel", "Substitute Request Channel")
-                        .addOption(OptionType.ROLE, "subrole", "General substitute role for the server")
+                        .addOption(OptionType.CHANNEL, "subchannel", "Substitute Request Channel",true)
+                        .addOption(OptionType.ROLE, "subrole", "General substitute role for the server",true)
                         .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.ADMINISTRATOR)))
                 .queue();
     }

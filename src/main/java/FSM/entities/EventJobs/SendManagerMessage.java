@@ -25,31 +25,24 @@ public class SendManagerMessage extends EventJob {
 
     @Override
     public void action() {
-        LinkedList<Event> events = t.getEvents();
+        LinkedList<Event> events = t.getTodaysEvents();
 
-        Predicate<Event> pred = (Event e) -> e.getDateTime().isBefore(timeToAction)
-                || e.getDateTime().isAfter(timeToAction.plusDays(1));
+        MessageCreateBuilder message = new MessageCreateBuilder();
+        EmbedBuilder embed = new EmbedBuilder();
+        embed.setTitle(t.getName());
 
-        if (events.removeIf(pred)) {
-            MessageCreateBuilder message = new MessageCreateBuilder();
-            EmbedBuilder embed = new EmbedBuilder();
-            embed.setTitle(t.getName());
-
-            for (Event e : events) {
-                Field f = new Field(e.getTitle() + String.format(" <t:%s:t>", e.getUnix()),
-                        e.getDisc() + " - " + e.getBnet(), false);
-                embed.addField(f);
-            }
-            message.addEmbeds(embed.build());
-            t.getManager().openPrivateChannel().queue((res) -> {
-                res.sendMessage(message.build()).queue();
-            });
-            SendManagerMessage next = new SendManagerMessage(t, timeToAction.plusDays(1));
-            System.out.println(timeToAction.plusDays(1).toString());
-            EventJobRunner.getInstance().addJob(next);
-        } else {
-            System.out.println("no events were removed");
+        for (Event e : events) {
+            Field f = new Field(e.getTitle() + String.format(" <t:%s:t>", e.getUnix()),
+                    e.getDisc() + " - " + e.getBnet(), false);
+            embed.addField(f);
         }
+        message.addEmbeds(embed.build());
+        t.getManager().openPrivateChannel().queue((res) -> {
+            res.sendMessage(message.build()).queue();
+        });
+        SendManagerMessage next = new SendManagerMessage(t, timeToAction.plusDays(1));
+        System.out.println(timeToAction.plusDays(1).toString());
+        EventJobRunner.getInstance().addJob(next);
 
     }
 

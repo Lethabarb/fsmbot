@@ -1,7 +1,5 @@
 FSM\services\GoogleSheet.class
 FSM\entities\jobs\HeadPair.class
-FSM\services\DiscordOutputStream.class
-FSM\entities\EventJobs\SendEventAnnouncement.class
 FSM\entities\EventJobs\SendManagerMessage.class
 FSM\entities\jobs\VIC.class
 FSM\services\jobs\APSservice.class
@@ -10,14 +8,11 @@ FSM\entities\SubRequest.class
 FSM\entities\jobs\NSW.class
 FSM\entities\jobs\NT.class
 FSM\entities\EventJobs\EventJob.class
-FSM\Program.class
 FSM\services\TeamUp.class
 FSM\entities\TeamDTO.class
 FSM\services\jobs\JobsService.class
 FSM\entities\jobs\APS.class
 FSM\entities\Player.class
-FSM\entities\Server.class
-FSM\entities\EventJobs\SendEventResponseReminder.class
 FSM\entities\Event.class
 FSM\entities\Team.class
 FSM\entities\Comparators\EventJobComparator.class
@@ -26,4 +21,3 @@ FSM\services\jobs\ToDataService.class
 FSM\entities\Comparators\EventComparator.class
 FSM\services\DiscordBot.class
 FSM\entities\SheetConfig.class
-FSM\services\GoogleSheet2.class
