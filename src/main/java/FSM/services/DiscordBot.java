@@ -255,7 +255,9 @@ public class DiscordBot extends ListenerAdapter {
             for (int i = 0; i < events.size(); i++) {
                 // sendEvent(events.get(i), true);
                 System.out.println(events.get(i).getTitle());
-                events.get(i).updateEventMessage(this, true);
+                events.get(i).updateEventMessage(this, false);
+                events.get(i).createJobs();
+                addListener(events.get(i));
             }
             System.out.println("done updating scrims");
         } catch (Exception e) {

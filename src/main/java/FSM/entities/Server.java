@@ -263,7 +263,7 @@ public class Server extends ListenerAdapter implements Runnable {
         while (true) {
             while (isRunning()) {
                 try {
-                    Thread.sleep(5000);
+                    Thread.sleep(500);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }

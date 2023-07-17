@@ -298,12 +298,12 @@ public class Event extends ListenerAdapter implements Comparable<Event> {
                 message = res;
                 System.out.println("sent scrim message");
                 DiscordBot.subtractQueue();
-                if (addAsListener) {
-                    bot.addListener(this);
-                    System.out.print("     -added as listener");
-                    createJobs();
-                    System.out.print("     -created jobs");
-                }
+                // if (addAsListener) {
+                //     bot.addListener(this);
+                //     System.out.print("     -added as listener");
+                //     createJobs();
+                //     System.out.print("     -created jobs");
+                // }
                 inqueue = false;
             });
         } else {
