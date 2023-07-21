@@ -128,8 +128,7 @@ public class Server extends ListenerAdapter implements Runnable {
                 Commands.slash("makeconfigchannel",
                         "sets the current channel for the guild to the bot config channel")
                         .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.ADMINISTRATOR)),
-                Commands.slash("update", "re-freshes an event details")
-                        .addSubcommands(new SubcommandData("events", "updates all events"))
+                Commands.slash("updateevents", "re-freshes an event details")
                         .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.ADMINISTRATOR)),
                 Commands.slash("role", "edit role of a player")
                         .addOption(OptionType.MENTIONABLE, "playerdiscord", "Discord")
@@ -342,7 +341,7 @@ public class Server extends ListenerAdapter implements Runnable {
             reply.editOriginal("finished").queue();
             reply.deleteOriginal().queue();
 
-        } else if (command.equalsIgnoreCase("update")) {
+        } else if (command.equalsIgnoreCase("updateevent")) {
             InteractionHook reply = slashCommand.deferReply(true).complete();
             try {
                 reply.editOriginal("finding team").queue();
@@ -793,8 +792,7 @@ public class Server extends ListenerAdapter implements Runnable {
                     Commands.slash("makeconfigchannel",
                             "sets the current channel for the guild to the bot config channel")
                             .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.ADMINISTRATOR)),
-                    Commands.slash("update", "re-freshes an event details")
-                            .addSubcommands(new SubcommandData("events", "updates all events"))
+                    Commands.slash("updateevents", "re-freshes an event details")
                             .addOption(OptionType.ROLE, "team", "Main roster role for the team")
                             .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.ADMINISTRATOR)),
                     Commands.slash("role", "edit role of a player")
@@ -840,8 +838,7 @@ public class Server extends ListenerAdapter implements Runnable {
                     Commands.slash("makeconfigchannel",
                             "sets the current channel for the guild to the bot config channel")
                             .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.ADMINISTRATOR)),
-                    Commands.slash("update", "re-freshes an event details")
-                            .addSubcommands(new SubcommandData("events", "updates all events"))
+                    Commands.slash("updateevents", "re-freshes an event details")
                             .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.ADMINISTRATOR)),
                     Commands.slash("role", "edit role of a player")
                             .addOption(OptionType.MENTIONABLE, "playerdiscord", "Discord")
