@@ -795,7 +795,7 @@ public class Server extends ListenerAdapter implements Runnable {
                             .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.ADMINISTRATOR)),
                     Commands.slash("update", "re-freshes an event details")
                             .addSubcommands(new SubcommandData("events", "updates all events"))
-                            .addOption(OptionType.ROLE, "Team Role", "Main roster role for the team")
+                            .addOption(OptionType.ROLE, "team", "Main roster role for the team")
                             .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.ADMINISTRATOR)),
                     Commands.slash("role", "edit role of a player")
                             .addOption(OptionType.MENTIONABLE, "playerdiscord", "Discord")
