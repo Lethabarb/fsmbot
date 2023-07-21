@@ -447,6 +447,7 @@ public class Event extends ListenerAdapter implements Comparable<Event> {
 
     @Override
     public void onModalInteraction(@Nonnull ModalInteractionEvent modal) {
+        System.out.println(modal.getModalId().split("_")[0] + "==" + hashCode());
         if (!modal.getModalId().split("_")[0].equalsIgnoreCase(String.valueOf(gethashCode())))
             return;
         if (modal.getModalId().split("_")[1].equalsIgnoreCase("editDetails")) {

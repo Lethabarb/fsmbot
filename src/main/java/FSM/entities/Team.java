@@ -490,11 +490,29 @@ public class Team extends ListenerAdapter {
         String buttonUse = data[1];
         if (buttonUse.equalsIgnoreCase("editMinRank")) {
 
-            TextInput textfield = TextInput.create("textInput", "rank", TextInputStyle.SHORT).setValue(minRank).build();
-            buttonEvent
-                    .replyModal(
-                            Modal.create(name + "_editMinRank", "edit team's min rank").addActionRow(textfield).build())
-                    .queue();
+            // TextInput textfield = TextInput.create("textInput", "rank", TextInputStyle.SHORT).setValue(minRank).build();
+            // buttonEvent
+            //         .replyModal(
+            //                 Modal.create(name + "_editMinRank", "edit team's min rank").addActionRow(textfield).build())
+            //         .queue();
+
+            LinkedList<SelectOption> options = new LinkedList<>();
+            String[] ranks = {"Bronze", "Silver","Gold","Platnium","Diamond","Master","Grand-Master"};
+            String[] values = {"5", "3", "1"};
+            for (String string : ranks) {
+                    String value1 = string + values[0];
+                    String value2 = string + values[1];
+                    String value3 = string + values[2];
+                    SelectOption opt1 = SelectOption.of(value1, value1);
+                    SelectOption opt2 = SelectOption.of(value2, value2);
+                    SelectOption opt3 = SelectOption.of(value3, value3);
+                    options.add(opt1);
+                    options.add(opt2);
+                    options.add(opt3);
+            }
+            options.add(SelectOption.of("T500", "T500"));
+            SelectMenu selectMenu =  SelectMenu.create(name + "_editMinRank").addOptions(options).build();
+            guild.addEditingComponent(ActionRow.of(selectMenu), buttonEvent);
 
         } else if (buttonUse.equalsIgnoreCase("editName")) {
 
@@ -692,7 +710,6 @@ public class Team extends ListenerAdapter {
         String[] eventData = event.getSelectMenu().getId().split("_");
         if (!eventData[0].equalsIgnoreCase(name))
             return;
-
         InteractionHook reply = event.deferReply(true).complete();
         reply.editOriginal("editing").queue();
         String use = eventData[1];
@@ -715,6 +732,8 @@ public class Team extends ListenerAdapter {
         } else if (use.equalsIgnoreCase("subEdit")) {
             setSubRole(guild.getGuild().getRoleById(value));
             updateConfigMessage();
+        } else if (use.equalsIgnoreCase("editMinRank")) {
+            setMinRank(value);
         }
         reply.deleteOriginal().queue();
         guild.removeActionRow(event.getSelectMenu().getId());

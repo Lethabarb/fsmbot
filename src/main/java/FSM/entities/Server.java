@@ -59,6 +59,14 @@ import net.dv8tion.jda.internal.interactions.component.ModalImpl;
 public class Server extends ListenerAdapter implements Runnable {
     private static HashMap<Long, Server> repoos = new HashMap<>();
     private static boolean running = false;
+    private static final String BRONZE_ICON = "https://media.discordapp.net/attachments/1102804706578944001/1131460758862057563/bronze-t.png";
+    private static final String SILVER_ICON = "https://media.discordapp.net/attachments/1102804706578944001/1131460768894816348/silver-t.png";
+    private static final String GOLD_ICON = "https://media.discordapp.net/attachments/1102804706578944001/1131460777019191307/gold-t.png";
+    private static final String PLAT_ICON = "https://media.discordapp.net/attachments/1102804706578944001/1131460784715743292/plat-t.png";
+    private static final String DIAMOND_ICON = "https://media.discordapp.net/attachments/1102804706578944001/1131460792139644978/dia-t.png";
+    private static final String MASTER_ICON = "https://media.discordapp.net/attachments/1102804706578944001/1131461925360893992/master-t.png";
+    private static final String GM_ICON = "https://media.discordapp.net/attachments/1102804706578944001/1131460800939294750/gm-t.png";
+    private static final String T500_ICON = "https://media.discordapp.net/attachments/1102804706578944001/1131460809147551785/t500-t.png";
     private HashMap<String, Team> teams = new HashMap<>();
     private Team soloTeam = null;
     private net.dv8tion.jda.api.entities.Guild guild;
@@ -339,7 +347,7 @@ public class Server extends ListenerAdapter implements Runnable {
             try {
                 reply.editOriginal("finding team").queue();
                 if (teams.size() > 1) {
-                    Role rosterRole = slashCommand.getOption("teamrole").getAsRole();
+                    Role rosterRole = slashCommand.getOption("team").getAsRole();
                     for (Team t : teams.values()) {
                         if (t.getRosterRole().getId().equalsIgnoreCase(rosterRole.getId())) {
                             reply.editOriginal("found, updating").queue();
@@ -583,6 +591,8 @@ public class Server extends ListenerAdapter implements Runnable {
         }
     }
 
+    //TODO: fix add team command updates, /update to update rosters properly
+
     @Override
     public void onSelectMenuInteraction(@Nonnull SelectMenuInteractionEvent event) {
         String[] eventData = event.getSelectMenu().getId().split("_");
@@ -785,6 +795,7 @@ public class Server extends ListenerAdapter implements Runnable {
                             .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.ADMINISTRATOR)),
                     Commands.slash("update", "re-freshes an event details")
                             .addSubcommands(new SubcommandData("events", "updates all events"))
+                            .addOption(OptionType.ROLE, "Team Role", "Main roster role for the team")
                             .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.ADMINISTRATOR)),
                     Commands.slash("role", "edit role of a player")
                             .addOption(OptionType.MENTIONABLE, "playerdiscord", "Discord")
@@ -821,8 +832,10 @@ public class Server extends ListenerAdapter implements Runnable {
                             .addOption(OptionType.CHANNEL, "rosterchannel", "channel to send team list to", true)
                             .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.ADMINISTRATOR)))
 
-                    .queue();
-        } else if (teams.size() <= 1) {
+                    .queue((res) -> {
+                        System.out.println("updated commands");
+                    });
+        } else if (teams.size() == 1) {
             guild.updateCommands().addCommands(
                     Commands.slash("makeconfigchannel",
                             "sets the current channel for the guild to the bot config channel")
@@ -865,7 +878,7 @@ public class Server extends ListenerAdapter implements Runnable {
                             .addOption(OptionType.CHANNEL, "rosterchannel", "channel to send team list to", true)
                             .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.ADMINISTRATOR)))
                     .queue();
-            soloTeam = t;
+            this.soloTeam = t;
 
         }
 
