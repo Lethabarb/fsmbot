@@ -267,7 +267,7 @@ public class GoogleSheet2 {
         }
         try {
             System.out.println("sleeping sheets api");
-            Thread.sleep(350);
+            Thread.sleep(500);
             System.out.println("waking");
         } catch (Exception e) {
             // TODO: handle exception
