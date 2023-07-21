@@ -64,7 +64,7 @@ public class GoogleSheet2 {
             NetHttpTransport httpTransport = null;
             try {
                 httpTransport = GoogleNetHttpTransport.newTrustedTransport();
-            }catch (Exception e) {
+            } catch (Exception e) {
                 System.out.println(e.getMessage());
                 e.printStackTrace();
             }
@@ -85,7 +85,7 @@ public class GoogleSheet2 {
             throw new FileNotFoundException("creds");
 
         GoogleClientSecrets secrets = GoogleClientSecrets.load(gson, new InputStreamReader(in));
-        GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(httpTransport, gson, secrets, scopes)    
+        GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(httpTransport, gson, secrets, scopes)
                 .setDataStoreFactory(new FileDataStoreFactory(new File(tokens)))
                 .setAccessType("offline")
                 .build();
@@ -120,7 +120,8 @@ public class GoogleSheet2 {
                 alpha++;
             }
             System.out.println("alpha: " + alpha);
-            String range = "'" + config.getSheetPage().replace("<NAME>", t.getNameAbbv()) + "'!" + config.getStart() + ":"
+            String range = "'" + config.getSheetPage().replace("<NAME>", t.getNameAbbv()) + "'!" + config.getStart()
+                    + ":"
                     + startColumn
                     + (startRow + 100);
             System.out.println(range);
@@ -135,7 +136,8 @@ public class GoogleSheet2 {
                 } else {
                     int row = startRow + i;
                     String lastCol = alphabet[alpha + config.getOrder().length - 1];
-                    range = "'" + config.getSheetPage().replace("<NAME>", t.getNameAbbv()) + "'!" + startColumn + row + ":"
+                    range = "'" + config.getSheetPage().replace("<NAME>", t.getNameAbbv()) + "'!" + startColumn + row
+                            + ":"
                             + lastCol
                             + row;
                     vals = getValues(range, config.getSheetId());
@@ -263,6 +265,11 @@ public class GoogleSheet2 {
             System.out.println("empty set");
             // TODO: handle exception
         }
+        try {
+            Thread.sleep(250);
+        } catch (Exception e) {
+            // TODO: handle exception
+        }
         return res;
     }
 
@@ -275,7 +282,7 @@ public class GoogleSheet2 {
                     .split(config.getTitleDelimiter())[1];
 
             System.out.println(eventMap.getOrDefault("Title", "scrim" + config.getTitleDelimiter() + "team")
-                            .split(config.getTitleDelimiter())[0]);
+                    .split(config.getTitleDelimiter())[0]);
             type = Event.typeHash(
                     eventMap.getOrDefault("Title", "scrim" + config.getTitleDelimiter() + "team")
                             .split(config.getTitleDelimiter())[0]);
@@ -442,7 +449,8 @@ public class GoogleSheet2 {
             }
 
             // find number of scrims
-            String range = "'" + config.getSheetPage().replace("<NAME>", e.getTeam().getNameAbbv()) + "'!" + config.getStart() + ":"
+            String range = "'" + config.getSheetPage().replace("<NAME>", e.getTeam().getNameAbbv()) + "'!"
+                    + config.getStart() + ":"
                     + startColumn
                     + (startRow + 100);
             System.out.println(range);
@@ -456,7 +464,8 @@ public class GoogleSheet2 {
                 } else {
                     int row = startRow + i;
                     String lastCol = alphabet[alpha + config.getOrder().length - 1];
-                    range = "'" + config.getSheetPage().replace("<NAME>", e.getTeam().getNameAbbv()) + "'!" + startColumn + row + ":"
+                    range = "'" + config.getSheetPage().replace("<NAME>", e.getTeam().getNameAbbv()) + "'!"
+                            + startColumn + row + ":"
                             + lastCol
                             + row;
                     vals = getValues(range, config.getSheetId());
@@ -492,7 +501,7 @@ public class GoogleSheet2 {
                                             .setRange(new DimensionRange()
                                                     .setSheetId(page.getProperties().getSheetId())
                                                     .setDimension("ROWS")
-                                                    .setStartIndex(row-1)
+                                                    .setStartIndex(row - 1)
                                                     .setEndIndex(row)));
                             ListBuilder<Request> reqs = new ListBuilder<>();
                             reqs.add(request);
@@ -605,7 +614,8 @@ public class GoogleSheet2 {
                 alpha++;
             }
             System.out.println("alpha: " + alpha);
-            String range = "'" + config.getSheetPage().replace("<NAME>", oldEvent.getTeam().getNameAbbv()) + "'!" + config.getStart() + ":"
+            String range = "'" + config.getSheetPage().replace("<NAME>", oldEvent.getTeam().getNameAbbv()) + "'!"
+                    + config.getStart() + ":"
                     + startColumn
                     + (startRow + 100);
             System.out.println(range);
@@ -619,7 +629,8 @@ public class GoogleSheet2 {
                 } else {
                     int row = startRow + i;
                     String lastCol = alphabet[alpha + config.getOrder().length - 1];
-                    range = "'" + config.getSheetPage().replace("<NAME>", oldEvent.getTeam().getNameAbbv()) + "'!" + startColumn + row + ":"
+                    range = "'" + config.getSheetPage().replace("<NAME>", oldEvent.getTeam().getNameAbbv()) + "'!"
+                            + startColumn + row + ":"
                             + lastCol
                             + row;
                     vals = getValues(range, config.getSheetId());
@@ -729,11 +740,8 @@ public class GoogleSheet2 {
                 .execute();
     }
 
-
-
-
     // public static void main(String[] args) {
-    //     GoogleSheet2 sheet = new GoogleSheet2();
-    //     sheet.getCreds(null)
+    // GoogleSheet2 sheet = new GoogleSheet2();
+    // sheet.getCreds(null)
     // }
 }
