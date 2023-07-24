@@ -765,17 +765,15 @@ public class Server extends ListenerAdapter implements Runnable {
         Button editSubChannel = Button.danger(String.format("%s_%s", guild.getName(), "editSubChannel"),
                 "change sub channel");
         Button editSubRole = Button.danger(String.format("%s_%s", guild.getName(), "editSubRole"), "change sub role");
-        Button editConfigChannel = Button.primary(String.format("%s_%s", guild.getName(), "editCoinfigChannel"),
-                "edit config channel");
+        // Button editConfigChannel = Button.primary(String.format("%s_%s", guild.getName(), "editCoinfigChannel"),
+        //         "edit config channel");
         Button toggleDifferentSheets = Button.success(String.format("%s_%s", guild.getName(), "toggleDifferentSheets"),
                 "toggle different sheets");
-        // Button editConfigJson = Button.primary(String.format("%s_%s",
-        // guild.getName(), "editConfigJSON"),
-        // "edit the sheet config");
+        Button editConfigJson = Button.primary(String.format("%s_%s",guild.getName(), "editConfigJSON"),"edit the sheet config");
 
         message.addActionRow(editSubChannel, editSubRole);
         message.addActionRow(toggleDifferentSheets);
-        message.addActionRow(editConfigChannel);
+        message.addActionRow(editConfigJson);
 
         return message.build();
     }

@@ -734,6 +734,7 @@ public class Team extends ListenerAdapter {
             updateConfigMessage();
         } else if (use.equalsIgnoreCase("editMinRank")) {
             setMinRank(value);
+            updateConfigMessage();
         }
         reply.deleteOriginal().queue();
         guild.removeActionRow(event.getSelectMenu().getId());
