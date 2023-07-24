@@ -451,6 +451,8 @@ public class Event extends ListenerAdapter implements Comparable<Event> {
         if (!modal.getModalId().split("_")[0].equalsIgnoreCase(String.valueOf(gethashCode())))
             return;
         if (modal.getModalId().split("_")[1].equalsIgnoreCase("editDetails")) {
+            InteractionHook reply = modal.deferReply(true).complete();
+            reply.editOriginal("changing details...").queue();
             String title = modal.getValue("title").getAsString();
             String date = modal.getValue("date").getAsString();
             String time = modal.getValue("time").getAsString();
@@ -460,18 +462,19 @@ public class Event extends ListenerAdapter implements Comparable<Event> {
             this.title = title;
             this.disc = disc;
             this.bnet = bnet;
-
+            
+            reply.editOriginal("editing sheet...").queue();
             SheetConfig config = team.getSheetConfig();
             if (config == null)
-                config = team.getGuild().getSheetConfig();
+            config = team.getGuild().getSheetConfig();
             LocalTime lt = LocalTime.parse(time, DateTimeFormatter.ofPattern(config.getTimeFormatter(), Locale.US));
             LocalDate ld = LocalDate.parse(date, DateTimeFormatter.ofPattern(config.getDateFormatter(), Locale.US));
-
+            
             this.dateTime = ZonedDateTime.of(ld, lt, TimeZone.getTimeZone("Australia/Sydney").toZoneId());
-
+            
             repository.remove(old.gethashCode());
             repository.put(gethashCode(), this);
-
+            
             GoogleSheet2 sheet = new GoogleSheet2();
             try {
                 sheet.updateEvent(this, old);
@@ -479,6 +482,7 @@ public class Event extends ListenerAdapter implements Comparable<Event> {
                 e.printStackTrace();
             }
             updateEventMessage(DiscordBot.getInstance(), false);
+            reply.editOriginal("complete").queue();
 
         } else if (modal.getModalId().split("_")[1].equalsIgnoreCase("editResponses")) {
             String[] confirmed = modal.getValue("confirmed").getAsString().split(" ");
@@ -523,6 +527,7 @@ public class Event extends ListenerAdapter implements Comparable<Event> {
                 }
             }
             updateEventMessage(DiscordBot.getInstance(), false);
+            modal.reply("complete").setEphemeral(true).queue();
         }
     }
 
