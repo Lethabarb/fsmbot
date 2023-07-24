@@ -471,6 +471,19 @@ public class Server extends ListenerAdapter implements Runnable {
         }
     }
 
+    public String getRankIcon(Team t) {
+        String minRank = t.getMinRank();
+        if (minRank.contains("Bronze")) return BRONZE_ICON;
+        if (minRank.contains("Silver")) return SILVER_ICON;
+        if (minRank.contains("Gold")) return GOLD_ICON;
+        if (minRank.contains("Plat")) return PLAT_ICON;
+        if (minRank.contains("Diamond")) return DIAMOND_ICON;
+        if (minRank.contains("Master")) return MASTER_ICON;
+        if (minRank.contains("Grand")) return GM_ICON;
+        if (minRank.contains("T500")) return T500_ICON;
+        return "";
+    }
+
     public synchronized void createEditingMessage(ButtonInteractionEvent event) {
         if (configEditMessage != null)
             configEditMessage.deleteOriginal().queue();

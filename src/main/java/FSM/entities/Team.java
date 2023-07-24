@@ -623,6 +623,7 @@ public class Team extends ListenerAdapter {
         }
     }
 
+
     public void sendRosterMessage(MessageChannel c) {
         MessageCreateBuilder message = new MessageCreateBuilder();
         EmbedBuilder embed = new EmbedBuilder();
@@ -649,6 +650,7 @@ public class Team extends ListenerAdapter {
         embed.addField(tankField);
         embed.addField(dpsField);
         embed.addField(supportField);
+        embed.setThumbnail(guild.getRankIcon(this));
 
         message.addEmbeds(embed.build());
 
