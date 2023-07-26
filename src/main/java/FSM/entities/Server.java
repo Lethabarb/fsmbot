@@ -341,7 +341,7 @@ public class Server extends ListenerAdapter implements Runnable {
             reply.editOriginal("finished").queue();
             reply.deleteOriginal().queue();
 
-        } else if (command.equalsIgnoreCase("updateevent")) {
+        } else if (command.equalsIgnoreCase("updateevents")) {
             InteractionHook reply = slashCommand.deferReply(true).complete();
             try {
                 reply.editOriginal("finding team").queue();
