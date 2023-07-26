@@ -13,9 +13,11 @@ import FSM.services.DiscordBot;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.MessageEmbed.Field;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageEditData;
@@ -74,12 +76,28 @@ public class SubRequest extends ListenerAdapter {
     public void onButtonInteraction(@Nonnull ButtonInteractionEvent buttonEvent) {
         String[] data = buttonEvent.getButton().getId().split("_");
         if (data[0].equalsIgnoreCase("sub") && data[1].equalsIgnoreCase(uuid)) {
+            System.out.println("SUBREQ");
+            InteractionHook reply = buttonEvent.deferReply(true).complete();
+            reply.editOriginal("getting player details...").queue();
             Member member = buttonEvent.getMember();
             Player p = Player.getPlayer(member);
             if (p == null)
+                reply.editOriginal("new player, creating...").queue();
                 p = new Player(member);
-            this.player = p;
-            takeRequest();
+                this.player = p;
+            reply.editOriginal("checking roster...").queue();
+
+            Boolean valid = true;
+            for (Role r : member.getRoles()) {
+                if (r.getId().equalsIgnoreCase(event.getTeam().getRosterRole().getId()) || r.getId().equalsIgnoreCase(event.getTeam().getTrialRole().getId())) {
+                    valid = false;
+                    reply.editOriginal("youre already on the roster, naughty!").queue();
+                }
+            }
+            if (valid) {
+                takeRequest();
+                DiscordBot.getInstance().giveMemberRole(event.getTeam().getGuild().getGuild(), member, event.getTeam().getSubRole());
+            }
 
             // message.delete().queue((res) -> {
             // System.out.println("sub button pressed, deleted sub message");
