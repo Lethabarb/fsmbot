@@ -137,7 +137,7 @@ public class DiscordBot extends ListenerAdapter {
                         guild.getOwner().getUser().openPrivateChannel().queue((res) -> {
                             res.sendMessage("i cannot access config channel :<").queue();
                         });
-                        
+
                         // TODO: handle exception
                     }
                 } else {
@@ -297,7 +297,8 @@ public class DiscordBot extends ListenerAdapter {
     public synchronized void createEventsFromChanel(Team t) {
         MessageChannel c = t.getTimetable();
         // System.out.println("=========="+t.getName()+"==========");
-        System.out.println("[" + t.getGuild().getGuild().getName() + "-" + t.getName() + "]: Finding existing scrims for ");
+        System.out.println(
+                "[" + t.getGuild().getGuild().getName() + "-" + t.getName() + "]: Finding existing scrims for ");
         List<Message> messages = MessageHistory.getHistoryFromBeginning(c).complete().getRetrievedHistory();
         Event event = null;
         for (Message message : messages) {
@@ -445,42 +446,74 @@ public class DiscordBot extends ListenerAdapter {
                 try {
                     String title = message.getEmbeds().get(0).getTitle();
                     System.out.println(title);
-                    String unixString = title.split(":")[1];
-                    System.out.println(title + " -> " + unixString);
-                    long unix = Long.parseLong(unixString);
-                    ZonedDateTime dt = ZonedDateTime.ofInstant(Instant.ofEpochSecond(unix),
-                            TimeZone.getTimeZone("Australia/Sydney").toZoneId());
-                    if (dt.compareTo(ZonedDateTime.now(TimeZone.getTimeZone("Australia/Sydney").toZoneId())) > 0) {
+                    if (title.contains("taken")) {
+                        String unixString = message.getEmbeds().get(0).getFields().get(1).getValue().split(":")[1];
+                        long unix = Long.parseLong(unixString);
+                        ZonedDateTime dt = ZonedDateTime.ofInstant(Instant.ofEpochSecond(unix),
+                                TimeZone.getTimeZone("Australia/Sydney").toZoneId());
+                        if (dt.compareTo(ZonedDateTime.now(TimeZone.getTimeZone("Australia/Sydney").toZoneId())) > 0) {
+                            // int width = 14;
+                            String name = message.getEmbeds().get(0).getFields().get(0).getValue();
 
-                        // int width = 14;
-                        String desc = message.getEmbeds().get(0).getDescription();
-                        String[] descSplit = desc.split("\\*\\*");
-                        String name = "";
-                        for (String word : descSplit) {
-                            if (!word.startsWith("<")) {
-                                name = word;
+                            Team team = Team.getTeamByName(name);
+                            Event e = Event.getByTeamAndUnix(team, unix);
+                            if (e != null) {
+                                // String UUID = message.getActionRows().get(0).getButtons().get(0).getId().split("_")[1];
+                                String role = message.getEmbeds().get(0).getFields().get(0).getValue();
+                                Player trigger = e.getDeclinedPlayerByRole(Player.roleHash(role));
+                                Player subber = e.getSubberPlayer(trigger, message.getEmbeds().get(0).getTitle().split(" by ")[1]);  
+                                SubRequest req = new SubRequest(trigger, subber, e);
+                                // e.addSubRequest(req);
+                                e.replaceSubRequest(req);
+
+                                // TODO: replace the existing req for same role in the event.
+                                // flag: null message
+                                // when checking, check to see if any reqs still have null messages
+                                addListener(req);
+                            } else {
+                                message.delete().complete();
                             }
-                        }
-
-                        Team team = Team.getTeamByName(name);
-                        Event e = Event.getByTeamAndUnix(team, unix);
-                        if (e != null) {
-                            String UUID = message.getActionRows().get(0).getButtons().get(0).getId().split("_")[1];
-                            String role = message.getEmbeds().get(0).getFields().get(0).getValue();
-                            Player trigger = e.getDeclinedPlayerByRole(Player.roleHash(role));
-                            SubRequest req = new SubRequest(UUID, e, Player.roleHash(role), trigger, message);
-                            // e.addSubRequest(req);
-                            e.replaceSubRequest(req);
-
-                            // TODO: replace the existing req for same role in the event.
-                            // flag: null message
-                            // when checking, check to see if any reqs still have null messages
-                            addListener(req);
                         } else {
                             message.delete().complete();
                         }
                     } else {
-                        message.delete().complete();
+                        String unixString = title.split(":")[1];
+                        System.out.println(title + " -> " + unixString);
+                        long unix = Long.parseLong(unixString);
+                        ZonedDateTime dt = ZonedDateTime.ofInstant(Instant.ofEpochSecond(unix),
+                                TimeZone.getTimeZone("Australia/Sydney").toZoneId());
+                        if (dt.compareTo(ZonedDateTime.now(TimeZone.getTimeZone("Australia/Sydney").toZoneId())) > 0) {
+
+                            // int width = 14;
+                            String desc = message.getEmbeds().get(0).getDescription();
+                            String[] descSplit = desc.split("\\*\\*");
+                            String name = "";
+                            for (String word : descSplit) {
+                                if (!word.startsWith("<")) {
+                                    name = word;
+                                }
+                            }
+
+                            Team team = Team.getTeamByName(name);
+                            Event e = Event.getByTeamAndUnix(team, unix);
+                            if (e != null) {
+                                String UUID = message.getActionRows().get(0).getButtons().get(0).getId().split("_")[1];
+                                String role = message.getEmbeds().get(0).getFields().get(0).getValue();
+                                Player trigger = e.getDeclinedPlayerByRole(Player.roleHash(role));
+                                SubRequest req = new SubRequest(UUID, e, Player.roleHash(role), trigger, message);
+                                // e.addSubRequest(req);
+                                e.replaceSubRequest(req);
+
+                                // TODO: replace the existing req for same role in the event.
+                                // flag: null message
+                                // when checking, check to see if any reqs still have null messages
+                                addListener(req);
+                            } else {
+                                message.delete().complete();
+                            }
+                        } else {
+                            message.delete().complete();
+                        }
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -587,8 +620,8 @@ public class DiscordBot extends ListenerAdapter {
         });
         g.updateCommands().addCommands(
                 Commands.slash("initialize", "first command to run!")
-                        .addOption(OptionType.CHANNEL, "subchannel", "Substitute Request Channel",true)
-                        .addOption(OptionType.ROLE, "subrole", "General substitute role for the server",true)
+                        .addOption(OptionType.CHANNEL, "subchannel", "Substitute Request Channel", true)
+                        .addOption(OptionType.ROLE, "subrole", "General substitute role for the server", true)
                         .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.ADMINISTRATOR)))
                 .queue();
     }

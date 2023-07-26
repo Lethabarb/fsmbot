@@ -568,6 +568,12 @@ public class Event extends ListenerAdapter implements Comparable<Event> {
         }
         return null;
     }
+    public Player getSubberPlayer(Player trigger, String name) {
+        for (SubRequest req : subRequests) {
+            if (req.getPlayer().getName().equalsIgnoreCase(name) && req.getTrigger().getUserId().equalsIgnoreCase(trigger.getUserId())) return req.getPlayer();
+        }
+        return null;
+    }
 
     public void replaceSubRequest(SubRequest newReq) {
         int role = newReq.getSubRole();

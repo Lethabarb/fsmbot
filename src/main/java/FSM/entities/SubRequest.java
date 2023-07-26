@@ -53,6 +53,14 @@ public class SubRequest extends ListenerAdapter {
         uuid = UUID.randomUUID().toString();
     }
 
+    // public SubRequest(Player trigger, Player sub, Event e, String UUID) {
+    //     this.trigger = trigger;
+    //     this.player = sub;
+    //     this.event = e;
+    //     subRole = trigger.getRole();
+    //     uuid = UUID;
+    // }
+
     public SubRequest(String UUID, Event e, int role, Player trigger, Message m) {
         this.uuid = UUID;
         this.event = e;
@@ -72,11 +80,11 @@ public class SubRequest extends ListenerAdapter {
                 p = new Player(member);
             this.player = p;
             takeRequest();
-            
+
             // message.delete().queue((res) -> {
-            //     System.out.println("sub button pressed, deleted sub message");
+            // System.out.println("sub button pressed, deleted sub message");
             // }, (res) -> {
-            //     System.out.println("sub button pressed, kept? sub message");
+            // System.out.println("sub button pressed, kept? sub message");
             // });
             event.updateEventMessage(DiscordBot.getInstance(), false);
         }
@@ -129,22 +137,19 @@ public class SubRequest extends ListenerAdapter {
 
         embed.setTitle("taken by " + player.getName());
         int remaining = width - event.getTeam().getName().length() / 3;
-        Field rolefield = new Field("```Role```", "Tank", true);
-        Field dateTime = new Field("date and Time", "<t:" +event.getUnix() + ":F>", true);
+        Field teamField = new Field("```Team```", event.getTeam().getName(), true);
+        Field dateTime = new Field("```date and Time```", "<t:" + event.getUnix() + ":F>", true);
 
         if (subRole == Player.TANK) {
             embed.setThumbnail(tankpng);
-            rolefield = new Field("```Role```", "Tank", true);
         }
         if (subRole == Player.DPS) {
             embed.setThumbnail(dpspng);
-            rolefield = new Field("```Role```", "DPS", true);
         }
         if (subRole == Player.SUPPORT) {
             embed.setThumbnail(supportpng);
-            rolefield = new Field("```Role```", "Support", true);
         }
-        embed.addField(rolefield);
+        embed.addField(teamField);
         embed.addField(dateTime);
         embed.setFooter(String.valueOf(event.gethashCode()));
 
@@ -171,7 +176,8 @@ public class SubRequest extends ListenerAdapter {
         int remaining = width - event.getTeam().getName().length() / 3;
         if (remaining % 2 == 0) {
             int sides = remaining / 2;
-            embed.setDescription(lineDiv.repeat(sides) + event.getTeam().getName() + lineDiv.repeat(sides));
+            embed.setDescription(
+                    lineDiv.repeat(sides) + "**" + event.getTeam().getName() + "**" + lineDiv.repeat(sides));
         } else {
             int sides = remaining / 2;
             embed.setDescription(
