@@ -228,20 +228,41 @@ public class Server extends ListenerAdapter implements Runnable {
 
                     // String name = "titleData[0]";
                     // String abbv = "titleData[1].replaceAll(\"()\", \"\")";
-                    String name = titleData[0].trim();
-                    String abbv = titleData[1].replaceAll("[\\(\\)]", "");
-                    String minRank = fields.get(0).getValue();
-                    String managerId = fields.get(2).getValue().replaceAll("[<@&#>]", "");
-                    String timetableId = fields.get(4).getValue().replaceAll("[<@&#>]", "");
-                    String announceId = fields.get(5).getValue().replaceAll("[<@&#>]", "");
-                    String rosterId = fields.get(7).getValue().replaceAll("[<@&#>]", "");
-                    String trialId = fields.get(8).getValue().replaceAll("[<@&#>]", "");
-                    String subId = fields.get(9).getValue().replaceAll("[<@&#>]", "");
+                    if (fields.get(2).getName().equalsIgnoreCase("manager")) {
+                        String name = titleData[0].trim();
+                        String abbv = titleData[1].replaceAll("[\\(\\)]", "");
+                        String minRank = fields.get(0).getValue();
+                        String managerId = fields.get(2).getValue().replaceAll("[<@&#>]", "");
+                        String timetableId = fields.get(4).getValue().replaceAll("[<@&#>]", "");
+                        String announceId = fields.get(5).getValue().replaceAll("[<@&#>]", "");
+                        String rosterId = fields.get(7).getValue().replaceAll("[<@&#>]", "");
+                        String trialId = fields.get(8).getValue().replaceAll("[<@&#>]", "");
+                        String subId = fields.get(9).getValue().replaceAll("[<@&#>]", "");
 
-                    Team t = bot.makeTeam(name, abbv, minRank, timetableId, announceId, rosterId, trialId, subId, this,
-                            0, subId, managerId);
-                    if (t == null) {
-                        System.out.println("team already exists");
+                        Team t = bot.makeTeam(name, abbv, minRank, timetableId, announceId, rosterId, trialId, subId,
+                                this,
+                                0, subId, managerId);
+                        if (t == null) {
+                            System.out.println("team already exists");
+                        }
+                    } else {
+                        String name = titleData[0].trim();
+                        String abbv = titleData[1].replaceAll("[\\(\\)]", "");
+                        String minRank = fields.get(0).getValue();
+                        String managerId = fields.get(3).getValue().replaceAll("[<@&#>]", "");
+                        String coachId = fields.get(4).getValue().replaceAll("[<@&#>]", "");
+                        String timetableId = fields.get(6).getValue().replaceAll("[<@&#>]", "");
+                        String announceId = fields.get(7).getValue().replaceAll("[<@&#>]", "");
+                        String rosterId = fields.get(9).getValue().replaceAll("[<@&#>]", "");
+                        String trialId = fields.get(10).getValue().replaceAll("[<@&#>]", "");
+                        String subId = fields.get(11).getValue().replaceAll("[<@&#>]", "");
+
+                        Team t = bot.makeTeam(name, abbv, minRank, timetableId, announceId, rosterId, trialId, subId,
+                                this,
+                                0, subId, managerId, coachId);
+                        if (t == null) {
+                            System.out.println("team already exists");
+                        }
                     }
                 }
             }
@@ -466,21 +487,30 @@ public class Server extends ListenerAdapter implements Runnable {
 
         } else if (command.equalsIgnoreCase("rosters")) {
             MessageChannel c = slashCommand.getOption("rosterchannel").getAsChannel().asTextChannel();
-            for (Team t : teams.values()) t.sendRosterMessage(c);
+            for (Team t : teams.values())
+                t.sendRosterMessage(c);
             slashCommand.reply("complete").setEphemeral(true).queue();
         }
     }
 
     public String getRankIcon(Team t) {
         String minRank = t.getMinRank();
-        if (minRank.contains("Bronze")) return BRONZE_ICON;
-        if (minRank.contains("Silver")) return SILVER_ICON;
-        if (minRank.contains("Gold")) return GOLD_ICON;
-        if (minRank.contains("Plat")) return PLAT_ICON;
-        if (minRank.contains("Diamond")) return DIAMOND_ICON;
-        if (minRank.contains("Master")) return MASTER_ICON;
-        if (minRank.contains("Grand")) return GM_ICON;
-        if (minRank.contains("T500")) return T500_ICON;
+        if (minRank.contains("Bronze"))
+            return BRONZE_ICON;
+        if (minRank.contains("Silver"))
+            return SILVER_ICON;
+        if (minRank.contains("Gold"))
+            return GOLD_ICON;
+        if (minRank.contains("Plat"))
+            return PLAT_ICON;
+        if (minRank.contains("Diamond"))
+            return DIAMOND_ICON;
+        if (minRank.contains("Master"))
+            return MASTER_ICON;
+        if (minRank.contains("Grand"))
+            return GM_ICON;
+        if (minRank.contains("T500"))
+            return T500_ICON;
         return "";
     }
 
@@ -603,7 +633,7 @@ public class Server extends ListenerAdapter implements Runnable {
         }
     }
 
-    //TODO: fix add team command updates, /update to update rosters properly
+    // TODO: fix add team command updates, /update to update rosters properly
 
     @Override
     public void onSelectMenuInteraction(@Nonnull SelectMenuInteractionEvent event) {
@@ -747,6 +777,23 @@ public class Server extends ListenerAdapter implements Runnable {
         return memberSelectMenu;
     }
 
+    public SelectMenu getCoachSelectMenu(Team t) {
+        LinkedList<Role> roles = new LinkedList<>(guild.getRoles());
+        roles.removeIf((Role r) -> !r.getName().toLowerCase().contains("Coach")
+                && !r.getName().toLowerCase().contains("coach") && !r.getName().toLowerCase().contains("staff"));
+        List<Member> members = DiscordBot.getInstance().getMemberOfRole(guild, roles.toArray(new Role[0]));
+        LinkedList<SelectOption> memberOptions = new LinkedList<>();
+        for (Member member : members) {
+            if (memberOptions.size() < 25) {
+                SelectOption opt = SelectOption.of(member.getUser().getName(), member.getUser().getId());
+                memberOptions.add(opt);
+            }
+        }
+        SelectMenu memberSelectMenu = SelectMenu.create(t.getName() + "_coachSelect").addOptions(memberOptions)
+                .setPlaceholder(t.getName() + "coach Select").build();
+        return memberSelectMenu;
+    }
+
     public MessageCreateData createConfig() {
 
         // clear channel
@@ -778,11 +825,13 @@ public class Server extends ListenerAdapter implements Runnable {
         Button editSubChannel = Button.danger(String.format("%s_%s", guild.getName(), "editSubChannel"),
                 "change sub channel");
         Button editSubRole = Button.danger(String.format("%s_%s", guild.getName(), "editSubRole"), "change sub role");
-        // Button editConfigChannel = Button.primary(String.format("%s_%s", guild.getName(), "editCoinfigChannel"),
-        //         "edit config channel");
+        // Button editConfigChannel = Button.primary(String.format("%s_%s",
+        // guild.getName(), "editCoinfigChannel"),
+        // "edit config channel");
         Button toggleDifferentSheets = Button.success(String.format("%s_%s", guild.getName(), "toggleDifferentSheets"),
                 "toggle different sheets");
-        Button editConfigJson = Button.primary(String.format("%s_%s",guild.getName(), "editConfigJSON"),"edit the sheet config");
+        Button editConfigJson = Button.primary(String.format("%s_%s", guild.getName(), "editConfigJSON"),
+                "edit the sheet config");
 
         message.addActionRow(editSubChannel, editSubRole);
         message.addActionRow(toggleDifferentSheets);

@@ -1,7 +1,5 @@
 package FSM.entities;
 
-import java.io.IOException;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.LinkedList;
 import java.util.List;
@@ -12,9 +10,7 @@ import javax.annotation.Nonnull;
 import com.google.gson.Gson;
 
 import FSM.services.DiscordBot;
-import FSM.services.GoogleSheet;
 import FSM.services.GoogleSheet2;
-import io.opencensus.trace.Link;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
@@ -24,6 +20,7 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.MessageEmbed.Field;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.SelectMenuInteractionEvent;
@@ -58,6 +55,7 @@ public class Team extends ListenerAdapter {
     private int teamupSubCalendar;
     private boolean hasDuelSheetSetup = false;
     private User manager;
+    private User coach;
     private LinkedList<Event> events = new LinkedList<>();
 
     private GoogleSheet2 sheet;
@@ -104,6 +102,26 @@ public class Team extends ListenerAdapter {
         this.teamupSubCalendar = teamupSubCalendar;
         this.sheet = new GoogleSheet2();
         this.manager = manager;
+        // Thread t = new Thread(this, name);
+        teams.add(this);
+        // t.start();
+    }
+        public Team(String name, String nameAbbv, String minRank, MessageChannel timetable, MessageChannel announcement,
+            Role rosterRole, Role trialRole,
+            Role subRole, List<Member> members, int teamupSubCalendar, String sheetId, User manager, User coach) {
+        this.name = name;
+        this.nameAbbv = nameAbbv;
+        this.minRank = minRank;
+        this.timetable = timetable;
+        this.announcement = announcement;
+        this.rosterRole = rosterRole;
+        this.trialRole = trialRole;
+        this.subRole = subRole;
+        this.members = members;
+        this.teamupSubCalendar = teamupSubCalendar;
+        this.sheet = new GoogleSheet2();
+        this.manager = manager;
+        this.coach = coach;
         // Thread t = new Thread(this, name);
         teams.add(this);
         // t.start();
@@ -435,10 +453,18 @@ public class Team extends ListenerAdapter {
         Field subRoleField = new Field("sub role", subRole.getAsMention(), true);
         Field teamupField = new Field("teamup id", String.valueOf(teamupSubCalendar), true);
         Field managerField = new Field("manager", manager.getAsMention(), true);
+        Field coachField;
+        if (coach == null) {
+            coachField = new Field("coach", "NONE", true);
+        } else {
+            coachField = new Field("coach", coach.getAsMention(), true);
+        }
 
         embed.addField(minRankField);
         embed.addField(teamupField);
+        embed.addBlankField(false);
         embed.addField(managerField);
+        embed.addField(coachField);
         embed.addBlankField(false);
         embed.addField(timetableField);
         embed.addField(announcementField);
@@ -459,6 +485,7 @@ public class Team extends ListenerAdapter {
         Button editMinRank = Button.danger(String.format("%s_%s", hashCode(), "editMinRank"), "edit min rank");
         Button editTeamUp = Button.danger(String.format("%s_%s", hashCode(), "editTeamUp"), "edit team up ID");
         Button editManager = Button.danger(String.format("%s_%s", hashCode(), "editManager"), "change manager");
+        Button editCoach = Button.danger(String.format("%s_%s", hashCode(), "editCoach"), "change coach");
         Button editTimetable = Button.primary(String.format("%s_%s", hashCode(), "editTimeTable"),
                 "change timetable channel");
         Button editAnnounce = Button.primary(String.format("%s_%s", hashCode(), "editAnnouncement"),
@@ -469,7 +496,8 @@ public class Team extends ListenerAdapter {
         Button editSub = Button.secondary(String.format("%s_%s", hashCode(), "editSubRole"), "change sub role");
 
         message.addActionRow(editName, editAbbv);
-        message.addActionRow(editMinRank, editTeamUp, editManager);
+        message.addActionRow(editMinRank, editTeamUp);
+        message.addActionRow(editManager, editCoach);
         message.addActionRow(editTimetable, editAnnounce);
         message.addActionRow(editRoster, editTrial, editSub);
 
@@ -575,6 +603,10 @@ public class Team extends ListenerAdapter {
                             Modal.create(name + "_editConfigJSON", "edit sheet config JSON").addActionRow(textfield)
                                     .build())
                     .queue();
+        } else if (buttonUse.equalsIgnoreCase("editCoach")) {
+            SelectMenu selectMenu = guild.getCoachSelectMenu(this);
+            guild.addEditingComponent(ActionRow.of(selectMenu), buttonEvent);
+
         }
     }
 
@@ -627,6 +659,9 @@ public class Team extends ListenerAdapter {
     public void sendRosterMessage(MessageChannel c) {
         MessageCreateBuilder message = new MessageCreateBuilder();
         EmbedBuilder embed = new EmbedBuilder();
+        DiscordBot bot = DiscordBot.getInstance();
+        String managerIcon = bot.getEmoji("1136126254593089566");
+        String coachIcon = bot.getEmoji("1136126967406665789");
 
         embed.setTitle(name);
         embed.setDescription(rosterRole.getAsMention());
@@ -642,11 +677,13 @@ public class Team extends ListenerAdapter {
             if (p.getRole() == Player.TANK) tanksString += m.getAsMention() + "\n";
             if (p.getRole() == Player.SUPPORT) supportString += m.getAsMention() + "\n";
         }
-
+        Field managerField = new Field(managerIcon, manager.getAsMention(), false);
+        Field coachField = new Field(coachIcon, coach.getAsMention(), false);
         Field tankField = new Field("Tanks", tanksString, true);
         Field dpsField = new Field("DPS", dpsString, true);
         Field supportField = new Field("Support", supportString, true);
-
+        embed.addField(managerField);
+        embed.addField(coachField);
         embed.addField(tankField);
         embed.addField(dpsField);
         embed.addField(supportField);
@@ -737,6 +774,9 @@ public class Team extends ListenerAdapter {
         } else if (use.equalsIgnoreCase("editMinRank")) {
             setMinRank(value);
             updateConfigMessage();
+        } else if (use.equalsIgnoreCase("editCoach")) {
+            setCoach(guild.getGuild().getMemberById(value).getUser());
+            updateConfigMessage();
         }
         reply.deleteOriginal().queue();
         guild.removeActionRow(event.getSelectMenu().getId());
@@ -772,6 +812,14 @@ public class Team extends ListenerAdapter {
             event.checkSubRequests();
         }
         System.out.println(String.format("[%s]: finished checking sub requests", name));
+    }
+
+    public User getCoach() {
+        return coach;
+    }
+
+    public void setCoach(User coach) {
+        this.coach = coach;
     }
 
 }

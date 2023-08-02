@@ -241,6 +241,35 @@ public class DiscordBot extends ListenerAdapter {
         addListener(t);
         return t;
     }
+    //with coach
+      public Team makeTeam(String name, String nameAbbv, String minRank, String timetableId, String announceId,
+            String rosterRoleId,
+            String trialRoleId, String subRoleId, Server s, int subCalenderId, String sheetId, String managerId, String coachId) {
+        if (s.hasTeam(name))
+            return null;
+
+        MessageChannel timetable = bot.getTextChannelById(timetableId);
+        MessageChannel announce = bot.getTextChannelById(announceId);
+        Role rosterRole = bot.getRoleById(rosterRoleId);
+        Role subRole = bot.getRoleById(subRoleId);
+        Role trialRole = bot.getRoleById(trialRoleId);
+        User manager = bot.getUserById(managerId);
+        User coach = null;
+        try {
+            coach = bot.getUserById(coachId);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        bot.getUserById(coachId);
+        List<Member> mems = getMemberOfRole(s.getGuild(), trialRole, rosterRole);
+        Team t = new Team(name, nameAbbv, minRank, timetable, announce, rosterRole, trialRole, subRole, mems,
+                subCalenderId,
+                sheetId, manager, coach);
+        t.setServer(s);
+        s.addTeam(t);
+        addListener(t);
+        return t;
+    }
 
     public synchronized void addListener(Object o) {
         bot.addEventListener(o);
