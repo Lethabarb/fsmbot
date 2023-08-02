@@ -255,11 +255,7 @@ public class DiscordBot extends ListenerAdapter {
         Role trialRole = bot.getRoleById(trialRoleId);
         User manager = bot.getUserById(managerId);
         User coach = null;
-        try {
-            coach = bot.getUserById(coachId);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        if (!coachId.equalsIgnoreCase("NONE")) coach = bot.getUserById(coachId);
         bot.getUserById(coachId);
         List<Member> mems = getMemberOfRole(s.getGuild(), trialRole, rosterRole);
         Team t = new Team(name, nameAbbv, minRank, timetable, announce, rosterRole, trialRole, subRole, mems,
