@@ -1,6 +1,7 @@
 package FSM.entities;
 
 import java.io.File;
+import java.lang.StackWalker.Option;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.util.HashMap;
@@ -159,6 +160,7 @@ public class Server extends ListenerAdapter implements Runnable {
                         .addOption(OptionType.ROLE, "trial", "trial role", true, false)
                         .addOption(OptionType.ROLE, "sub", "sub role", true, false)
                         .addOption(OptionType.USER, "manager", "team manager", true, false)
+                        .addOption(OptionType.USER, "coach", "team coach", true, false)
                         .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.ADMINISTRATOR)),
                 Commands.slash("rosters",
                         "create a set of messages containing the list of teams and players in your server")
@@ -465,7 +467,8 @@ public class Server extends ListenerAdapter implements Runnable {
             Role trial = slashCommand.getOption("trial").getAsRole();
             Role sub = slashCommand.getOption("sub").getAsRole();
             User manager = slashCommand.getOption("manager").getAsUser();
-            Team t = new Team(name, abbv, minRank, timetable, announcement, roster, trial, sub, manager);
+            User coach = slashCommand.getOption("coach").getAsUser();
+            Team t = new Team(name, abbv, minRank, timetable, announcement, roster, trial, sub, manager, coach);
             teams.put(name, t);
             DiscordBot.getInstance().addListener(t);
             t.setGuild(this);
@@ -780,7 +783,7 @@ public class Server extends ListenerAdapter implements Runnable {
     public SelectMenu getCoachSelectMenu(Team t) {
         LinkedList<Role> roles = new LinkedList<>(guild.getRoles());
         roles.removeIf((Role r) -> !r.getName().toLowerCase().contains("Coach")
-                && !r.getName().toLowerCase().contains("coach") && !r.getName().toLowerCase().contains("staff"));
+                && !r.getName().toLowerCase().contains("coach"));
         List<Member> members = DiscordBot.getInstance().getMemberOfRole(guild, roles.toArray(new Role[0]));
         LinkedList<SelectOption> memberOptions = new LinkedList<>();
         for (Member member : members) {

@@ -129,7 +129,7 @@ public class Team extends ListenerAdapter {
 
     public Team(String name, String nameAbbv, String minRank, MessageChannel timetable, MessageChannel announcement,
             Role rosterRole, Role trialRole,
-            Role subRole, User manager) {
+            Role subRole, User manager, User coach) {
         this.name = name;
         this.nameAbbv = nameAbbv;
         this.minRank = minRank;
@@ -140,6 +140,7 @@ public class Team extends ListenerAdapter {
         this.subRole = subRole;
         this.sheet = new GoogleSheet2();
         this.manager = manager;
+        this.coach = coach;
         // Thread t = new Thread(this, name);
         teams.add(this);
         // t.start();
@@ -774,7 +775,7 @@ public class Team extends ListenerAdapter {
         } else if (use.equalsIgnoreCase("editMinRank")) {
             setMinRank(value);
             updateConfigMessage();
-        } else if (use.equalsIgnoreCase("editCoach")) {
+        } else if (use.equalsIgnoreCase("coachSelect")) {
             setCoach(guild.getGuild().getMemberById(value).getUser());
             updateConfigMessage();
         }
