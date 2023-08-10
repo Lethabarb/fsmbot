@@ -887,6 +887,7 @@ public class Server extends ListenerAdapter implements Runnable {
                             .addOption(OptionType.ROLE, "trial", "trial role", true, false)
                             .addOption(OptionType.ROLE, "sub", "sub role", true, false)
                             .addOption(OptionType.USER, "manager", "team manager", true, false)
+                            .addOption(OptionType.USER, "coach", "team coach", true, false)
                             .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.ADMINISTRATOR)),
                     Commands.slash("rosters",
                             "create a set of messages containing the list of teams and players in your server")
@@ -932,6 +933,7 @@ public class Server extends ListenerAdapter implements Runnable {
                             .addOption(OptionType.ROLE, "trial", "trial role", true, false)
                             .addOption(OptionType.ROLE, "sub", "sub role", true, false)
                             .addOption(OptionType.USER, "manager", "team manager", true, false)
+                            .addOption(OptionType.USER, "coach", "team coach", true, false)
                             .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.ADMINISTRATOR)),
                     Commands.slash("rosters",
                             "create a set of messages containing the list of teams and players in your server")
