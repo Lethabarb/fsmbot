@@ -674,9 +674,12 @@ public class Team extends ListenerAdapter {
 
         for (Member m : members) {
             Player p = Player.getPlayer(m);
-            if (p.getRole() == Player.DPS) dpsString += m.getAsMention() + "\n";
-            if (p.getRole() == Player.TANK) tanksString += m.getAsMention() + "\n";
-            if (p.getRole() == Player.SUPPORT) supportString += m.getAsMention() + "\n";
+            if (p != null) {
+                if (p.getRole() == Player.DPS) dpsString += m.getAsMention() + "\n";
+                if (p.getRole() == Player.TANK) tanksString += m.getAsMention() + "\n";
+                if (p.getRole() == Player.SUPPORT) supportString += m.getAsMention() + "\n";
+            }
+
         }
         Field managerField = new Field(managerIcon, manager.getAsMention(), false);
         Field coachField = new Field(coachIcon, coach.getAsMention(), false);
